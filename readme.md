@@ -1,0 +1,1 @@
+Internal application for restaurant management
