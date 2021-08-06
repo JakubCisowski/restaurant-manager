@@ -1,5 +1,6 @@
 ﻿using RestaurantManager.Context;
 using RestaurantManager.Infrastructure.Repositories;
+using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,14 @@ namespace RestaurantManager.Infrastructure.UnitOfWork
     {
         private readonly RestaurantDbContext _dbContext;
 
-        public UnitOfWork(RestaurantDbContext dbContext)
+        public UnitOfWork(RestaurantDbContext dbContext,
+                          IRestaurantRepository restaurantRepository)
         {
-            this._dbContext = dbContext;
+            _dbContext = dbContext;
+            RestaurantRepository = restaurantRepository;
         }
+
+        public IRestaurantRepository RestaurantRepository { get; }
 
         public object GetRepository()
         {
