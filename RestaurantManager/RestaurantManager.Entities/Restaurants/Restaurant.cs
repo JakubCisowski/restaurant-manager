@@ -24,8 +24,8 @@ namespace RestaurantManager.Entities.Restaurants
             Name = name;
         }
 
-        public string Name { get; private set; }
-        public string Phone { get; private set; }
-        public string Address { get; private set; }
+        public string Name { get;  set; }
+        public string Phone { get;  set; }
+        public string Address { get;  set; }
     }
 }

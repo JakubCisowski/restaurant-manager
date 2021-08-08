@@ -14,52 +14,49 @@ namespace RestaurantManager.Api.Controllers
     [ApiController]
     public class RestaurantController : ControllerBase
     {
-        private RestaurantDbContext _restaurantDbContext;
         private readonly IRestaurantService _restaurantService;
 
-        public RestaurantController(RestaurantDbContext restaurantDbContext,
-                                    IRestaurantService restaurantService)
+        public RestaurantController(IRestaurantService restaurantService)
         {
-            _restaurantDbContext = restaurantDbContext;
             _restaurantService = restaurantService;
         }
 
-        // GET: api/<RestaurantController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<RestaurantsDto> GetAll()
         {
-            return new string[] { "value1", "value2" };
+            return _restaurantService.GetRestaurants();
         }
 
-        // GET api/<RestaurantController>/5
         [HttpGet("{id}")]
-        public IEnumerable<RestaurantNamesDto> Get(int id)
+        public RestaurantsDto GetById(Guid id)
         {
-            var restaurants = _restaurantService.GetRestaurantNames();
-
-            return restaurants;
+            return _restaurantService.GetRestaurant(id);
         }
 
-        // POST api/<RestaurantController>
+        [HttpGet("names")]
+        public IEnumerable<RestaurantNamesDto> GetNames()
+        {
+            return _restaurantService.GetRestaurantNames();
+        }
+
         [HttpPost]
-        public IActionResult Post([FromQuery] string restaurantName)
+        public void Create([FromBody] Restaurant newRestaurant)
         {
-            var test = new Restaurant(restaurantName);
-            _restaurantDbContext.Restaurants.Add(test);
-            _restaurantDbContext.SaveChanges();
-            return Ok();
+            _restaurantService.AddRestaurant(newRestaurant);
         }
 
-        // PUT api/<RestaurantController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult Update(Guid id, [FromBody] Restaurant updatedRestaurant)
         {
+            bool updateCompleted = _restaurantService.UpdateRestaurant(id, updatedRestaurant);
+            return updateCompleted ? Ok() : NotFound();
         }
 
-        // DELETE api/<RestaurantController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult DeleteById(Guid id)
         {
+            bool deletionCompleted = _restaurantService.DeleteRestaurant(id);
+            return deletionCompleted ? Ok() : NotFound();
         }
     }
 }
