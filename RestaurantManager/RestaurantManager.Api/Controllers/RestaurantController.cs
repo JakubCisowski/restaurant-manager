@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RestaurantManager.Context;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers
 {

@@ -1,11 +1,5 @@
 ﻿using RestaurantManager.Context;
-using RestaurantManager.Infrastructure.Repositories;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RestaurantManager.Infrastructure.UnitOfWork
 {

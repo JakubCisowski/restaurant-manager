@@ -5,8 +5,6 @@ using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.RestaurantServices
 {
@@ -33,14 +31,14 @@ namespace RestaurantManager.Services.RestaurantServices
         {
             var restaurant = _restaurantRepository
                 .FindOne(x => x.Id == id);
-            
+
             var restaurantDto = new RestaurantsDto
-                {
-                    Id = restaurant.Id,
-                    Name = restaurant.Name,
-                    Address = restaurant.Address,
-                    Phone = restaurant.Phone
-                };
+            {
+                Id = restaurant.Id,
+                Name = restaurant.Name,
+                Address = restaurant.Address,
+                Phone = restaurant.Phone
+            };
 
             return restaurantDto;
         }
@@ -77,7 +75,7 @@ namespace RestaurantManager.Services.RestaurantServices
             var requestedRestaurant = _restaurantRepository
                 .FindOne(x => x.Id == id);
 
-            if(requestedRestaurant == null)
+            if (requestedRestaurant == null)
             {
                 return false;
             }

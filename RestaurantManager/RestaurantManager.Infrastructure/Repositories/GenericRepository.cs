@@ -3,11 +3,8 @@ using RestaurantManager.Context;
 using RestaurantManager.Entities;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RestaurantManager.Infrastructure.Repositories
 {
@@ -62,7 +59,7 @@ namespace RestaurantManager.Infrastructure.Repositories
             var targetEntity = _dbSet
                 .Where(filter).FirstOrDefault(); ;
 
-            if(targetEntity == null)
+            if (targetEntity == null)
             {
                 return false;
             }
