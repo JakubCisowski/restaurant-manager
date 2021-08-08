@@ -12,9 +12,9 @@ namespace RestaurantManager.Services.RestaurantServices
 {
     public class RestaurantService : IRestaurantService
     {
-        private readonly IGenericRepository<Restaurant> _restaurantRepository;
+        private readonly IRestaurantRepository _restaurantRepository;
 
-        public RestaurantService(IGenericRepository<Restaurant> restaurantRepository)
+        public RestaurantService(IRestaurantRepository restaurantRepository)
         {
             _restaurantRepository = restaurantRepository;
         }
