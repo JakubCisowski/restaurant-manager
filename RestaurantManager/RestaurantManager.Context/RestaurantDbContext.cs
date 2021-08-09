@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantManager.Entities.Order;
 using RestaurantManager.Entities.Restaurants;
+using RestaurantManager.SqlContext.Configuration.Orders;
+using RestaurantManager.SqlContext.Configuration.Restaurants;
 
 namespace RestaurantManager.Context
 {
@@ -21,38 +23,23 @@ namespace RestaurantManager.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder
-                .Entity<Restaurant>()
-                .HasKey(x => x.Id);
+            base.OnModelCreating(modelBuilder);
 
-            modelBuilder
-                .Entity<Menu>()
-                .HasKey(x => x.Id);
+            modelBuilder.ApplyConfiguration(new RestaurantConfiguration());
+            modelBuilder.ApplyConfiguration(new MenuConfiguration());
+            modelBuilder.ApplyConfiguration(new IngredientConfiguration());
+            modelBuilder.ApplyConfiguration(new DishConfiguration());
 
-            modelBuilder
-                .Entity<Dish>()
-                .HasKey(x => x.Id);
-
-            modelBuilder
-                .Entity<Ingredient>()
-                .HasKey(x => x.Id);
-
-            modelBuilder
-                .Entity<Order>()
-                .HasKey(x => x.Id);
-
-            modelBuilder
-                .Entity<PaymentType>()
-                .HasKey(x => x.Id);
+            modelBuilder.ApplyConfiguration(new CustomerConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
 
             modelBuilder
                 .Entity<ShippingMethod>()
                 .HasKey(x => x.Id);
 
             modelBuilder
-                .Entity<Customer>()
+                .Entity<PaymentType>()
                 .HasKey(x => x.Id);
-
         }
     }
 }

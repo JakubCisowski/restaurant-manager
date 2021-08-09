@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantManager.Context;
 
 namespace RestaurantManager.Context.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210809115004_relatins")]
+    partial class relatins
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,13 +38,13 @@ namespace RestaurantManager.Context.Migrations
 
             modelBuilder.Entity("IngredientOrderItem", b =>
                 {
-                    b.Property<Guid>("IngredientsId")
+                    b.Property<Guid>("ExtraIngredientsId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("OrderItemsId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("IngredientsId", "OrderItemsId");
+                    b.HasKey("ExtraIngredientsId", "OrderItemsId");
 
                     b.HasIndex("OrderItemsId");
 
@@ -245,7 +247,7 @@ namespace RestaurantManager.Context.Migrations
                 {
                     b.HasOne("RestaurantManager.Entities.Restaurants.Ingredient", null)
                         .WithMany()
-                        .HasForeignKey("IngredientsId")
+                        .HasForeignKey("ExtraIngredientsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

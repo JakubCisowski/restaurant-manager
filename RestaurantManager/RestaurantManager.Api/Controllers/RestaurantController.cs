@@ -64,5 +64,6 @@ namespace RestaurantManager.Api.Controllers
             bool deletionCompleted = _restaurantService.DeleteRestaurant(id);
             return deletionCompleted ? Ok() : NotFound();
         }
+
     }
 }

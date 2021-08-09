@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantManager.Context;
 
 namespace RestaurantManager.Context.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210809112442_fix_decimals")]
+    partial class fix_decimals
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,21 +34,6 @@ namespace RestaurantManager.Context.Migrations
                     b.HasIndex("IngredientsId");
 
                     b.ToTable("DishIngredient");
-                });
-
-            modelBuilder.Entity("IngredientOrderItem", b =>
-                {
-                    b.Property<Guid>("IngredientsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("OrderItemsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("IngredientsId", "OrderItemsId");
-
-                    b.HasIndex("OrderItemsId");
-
-                    b.ToTable("IngredientOrderItem");
                 });
 
             modelBuilder.Entity("RestaurantManager.Entities.Order.Customer", b =>
@@ -178,10 +165,15 @@ namespace RestaurantManager.Context.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("OrderItemId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderItemId");
 
                     b.ToTable("Ingredients");
                 });
@@ -241,25 +233,10 @@ namespace RestaurantManager.Context.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("IngredientOrderItem", b =>
-                {
-                    b.HasOne("RestaurantManager.Entities.Restaurants.Ingredient", null)
-                        .WithMany()
-                        .HasForeignKey("IngredientsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RestaurantManager.Entities.Order.OrderItem", null)
-                        .WithMany()
-                        .HasForeignKey("OrderItemsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("RestaurantManager.Entities.Order.OrderItem", b =>
                 {
                     b.HasOne("RestaurantManager.Entities.Restaurants.Dish", "Dish")
-                        .WithMany("OrderItems")
+                        .WithMany()
                         .HasForeignKey("DishId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -286,6 +263,13 @@ namespace RestaurantManager.Context.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("RestaurantManager.Entities.Restaurants.Ingredient", b =>
+                {
+                    b.HasOne("RestaurantManager.Entities.Order.OrderItem", null)
+                        .WithMany("ExtraIngredients")
+                        .HasForeignKey("OrderItemId");
+                });
+
             modelBuilder.Entity("RestaurantManager.Entities.Restaurants.Menu", b =>
                 {
                     b.HasOne("RestaurantManager.Entities.Restaurants.Restaurant", "Restaurant")
@@ -302,9 +286,9 @@ namespace RestaurantManager.Context.Migrations
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Restaurants.Dish", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Order.OrderItem", b =>
                 {
-                    b.Navigation("OrderItems");
+                    b.Navigation("ExtraIngredients");
                 });
 
             modelBuilder.Entity("RestaurantManager.Entities.Restaurants.Menu", b =>
