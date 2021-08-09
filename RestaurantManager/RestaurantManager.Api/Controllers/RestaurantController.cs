@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RestaurantManager.Entities.Restaurants;
+using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
@@ -37,15 +37,15 @@ namespace RestaurantManager.Api.Controllers
         }
 
         [HttpPost]
-        public void Create([FromBody] Restaurant newRestaurant)
+        public void Create([FromBody] CreateRestaurantCommand newRestaurant)
         {
             _restaurantService.AddRestaurant(newRestaurant);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, [FromBody] Restaurant updatedRestaurant)
+        public IActionResult Update([FromBody] UpdateRestaurantCommand updatedRestaurant)
         {
-            bool updateCompleted = _restaurantService.UpdateRestaurant(id, updatedRestaurant);
+            bool updateCompleted = _restaurantService.UpdateRestaurant(updatedRestaurant);
             return updateCompleted ? Ok() : NotFound();
         }
 

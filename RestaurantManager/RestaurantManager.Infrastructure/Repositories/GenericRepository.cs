@@ -22,7 +22,6 @@ namespace RestaurantManager.Infrastructure.Repositories
         public void Add(TEntity entity)
         {
             _dbSet.Add(entity);
-            _dbContext.SaveChanges();
         }
 
         public void Delete(TEntity entity)

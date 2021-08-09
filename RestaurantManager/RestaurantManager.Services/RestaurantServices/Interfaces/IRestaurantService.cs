@@ -1,4 +1,5 @@
 ﻿using RestaurantManager.Entities.Restaurants;
+using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
         IEnumerable<RestaurantsDto> GetRestaurants();
         RestaurantsDto GetRestaurant(Guid id);
         bool DeleteRestaurant(Guid id);
-        bool UpdateRestaurant(Guid id, Restaurant updatedRestaurant);
-        void AddRestaurant(Restaurant newRestaurant);
+        bool UpdateRestaurant(UpdateRestaurantCommand updatedRestaurant);
+        void AddRestaurant(CreateRestaurantCommand newRestaurant);
     }
 }

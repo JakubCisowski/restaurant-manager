@@ -6,13 +6,14 @@ namespace RestaurantManager.Entities.Restaurants
     {
         public Restaurant()
         {
-
         }
 
-        public Restaurant(string name)
+        public Restaurant(string name, string phone, string address)
         {
             Id = Guid.NewGuid();
             Name = name;
+            Phone = phone;
+            Address = address;
         }
 
         public void ChangeName(string name)

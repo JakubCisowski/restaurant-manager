@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using RestaurantManager.Context;
 using RestaurantManager.Infrastructure.Repositories;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
+using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.RestaurantServices;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 
@@ -30,8 +31,9 @@ namespace RestaurantManager.Api
             services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddTransient<IRestaurantService, RestaurantService>();
-            //services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddSwaggerGen(c =>
             {

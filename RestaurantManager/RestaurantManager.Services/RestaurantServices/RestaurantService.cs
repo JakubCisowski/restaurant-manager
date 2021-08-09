@@ -1,5 +1,7 @@
 ﻿using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
+using RestaurantManager.Infrastructure.UnitOfWork;
+using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
@@ -11,15 +13,20 @@ namespace RestaurantManager.Services.RestaurantServices
     public class RestaurantService : IRestaurantService
     {
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public RestaurantService(IRestaurantRepository restaurantRepository)
+        public RestaurantService(IRestaurantRepository restaurantRepository,
+                                 IUnitOfWork unitOfWork)
         {
             _restaurantRepository = restaurantRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public void AddRestaurant(Restaurant newRestaurant)
+        public void AddRestaurant(CreateRestaurantCommand restaurant)
         {
-            _restaurantRepository.Add(newRestaurant);
+            _unitOfWork.RestaurantRepository.Add(new Restaurant(restaurant.Name, restaurant.Phone, restaurant.Address));
+
+            _unitOfWork.SaveChanges();
         }
 
         public bool DeleteRestaurant(Guid id)
@@ -70,19 +77,20 @@ namespace RestaurantManager.Services.RestaurantServices
             return allRestaurants;
         }
 
-        public bool UpdateRestaurant(Guid id, Restaurant updatedRestaurant)
+        public bool UpdateRestaurant(UpdateRestaurantCommand restaurant)
         {
             var requestedRestaurant = _restaurantRepository
-                .FindOne(x => x.Id == id);
+                .FindOne(x => x.Id == restaurant.Id);
 
             if (requestedRestaurant == null)
             {
                 return false;
             }
 
-            requestedRestaurant.Name = updatedRestaurant.Name;
-            requestedRestaurant.Address = updatedRestaurant.Address;
-            requestedRestaurant.Phone = updatedRestaurant.Phone;
+            //SetName, SetAddress, 
+            requestedRestaurant.Name = restaurant.Name;
+            requestedRestaurant.Address = restaurant.Address;
+            requestedRestaurant.Phone = restaurant.Phone;
 
             _restaurantRepository.Update(requestedRestaurant);
             return true;
