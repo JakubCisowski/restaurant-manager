@@ -1,4 +1,5 @@
-﻿using RestaurantManager.Entities.Restaurants;
+﻿using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Restaurants;
@@ -7,6 +8,7 @@ using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.RestaurantServices
 {
@@ -62,7 +64,7 @@ namespace RestaurantManager.Services.RestaurantServices
             return restaurantNames;
         }
 
-        public IEnumerable<RestaurantsDto> GetRestaurants()
+        public async Task<IEnumerable<RestaurantsDto>> GetRestaurants()
         {
             var allRestaurants = _restaurantRepository
                 .GetAll()
@@ -74,7 +76,7 @@ namespace RestaurantManager.Services.RestaurantServices
                     Phone = x.Phone
                 });
 
-            return allRestaurants;
+            return await allRestaurants.ToListAsync();
         }
 
         public bool UpdateRestaurant(UpdateRestaurantCommand restaurant)

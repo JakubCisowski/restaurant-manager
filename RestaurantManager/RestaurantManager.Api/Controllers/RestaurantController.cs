@@ -4,6 +4,7 @@ using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers
 {
@@ -18,10 +19,18 @@ namespace RestaurantManager.Api.Controllers
             _restaurantService = restaurantService;
         }
 
+        //[HttpGet]
+        //public IEnumerable<RestaurantsDto> GetAll()
+        //{
+        //    return _restaurantService.GetRestaurants();
+        //}
+
         [HttpGet]
-        public IEnumerable<RestaurantsDto> GetAll()
+        public async Task<IEnumerable<RestaurantsDto>> GetAllAsync()
         {
-            return _restaurantService.GetRestaurants();
+            var result = await _restaurantService.GetRestaurants();
+
+            return result;
         }
 
         [HttpGet("{id}")]

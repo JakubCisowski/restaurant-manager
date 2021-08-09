@@ -3,13 +3,14 @@ using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.RestaurantServices.Interfaces
 {
     public interface IRestaurantService
     {
         IEnumerable<RestaurantNamesDto> GetRestaurantNames();
-        IEnumerable<RestaurantsDto> GetRestaurants();
+        Task<IEnumerable<RestaurantsDto>> GetRestaurants();
         RestaurantsDto GetRestaurant(Guid id);
         bool DeleteRestaurant(Guid id);
         bool UpdateRestaurant(UpdateRestaurantCommand updatedRestaurant);
