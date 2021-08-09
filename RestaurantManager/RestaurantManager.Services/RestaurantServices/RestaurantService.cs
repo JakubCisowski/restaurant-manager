@@ -21,6 +21,12 @@ namespace RestaurantManager.Services.RestaurantServices
             _unitOfWork = unitOfWork;
         }
 
+        public void AddMenu(Guid restaurantId)
+        {
+            _unitOfWork.RestaurantRepository.AddMenu(restaurantId);
+            _unitOfWork.SaveChanges();
+        }
+
         public void AddRestaurant(CreateRestaurantCommand restaurant)
         {
             _unitOfWork.RestaurantRepository.Add(new Restaurant(restaurant.Name, restaurant.Phone, restaurant.Address));
@@ -72,7 +78,8 @@ namespace RestaurantManager.Services.RestaurantServices
                     Id = x.Id,
                     Name = x.Name,
                     Address = x.Address,
-                    Phone = x.Phone
+                    Phone = x.Phone,
+                    MenuId = x.MenuId
                 });
 
             return await allRestaurants.ToListAsync();

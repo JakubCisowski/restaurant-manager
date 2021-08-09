@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.Commands.Menu
 {
-    public class CreateMenu
+    public class CreateMenuCommand
     {
+        public Guid RestaurantId { get; set; }
     }
 }

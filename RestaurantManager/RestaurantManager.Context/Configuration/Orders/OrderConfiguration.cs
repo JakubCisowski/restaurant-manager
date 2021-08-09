@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RestaurantManager.Entities.Order;
+using RestaurantManager.Entities.Orders;
 using System;
 using System.Collections.Generic;
 using System.Linq;

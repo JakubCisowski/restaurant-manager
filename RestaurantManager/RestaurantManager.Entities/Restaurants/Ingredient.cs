@@ -1,4 +1,4 @@
-﻿using RestaurantManager.Entities.Order;
+﻿using RestaurantManager.Entities.Orders;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestaurantManager.Entities.Order;
+using RestaurantManager.Entities.Orders;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.SqlContext.Configuration.Orders;
 using RestaurantManager.SqlContext.Configuration.Restaurants;

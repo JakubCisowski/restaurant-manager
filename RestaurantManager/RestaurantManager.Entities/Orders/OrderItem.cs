@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RestaurantManager.Entities.Order
+namespace RestaurantManager.Entities.Orders
 {
     public class OrderItem : Entity
     {

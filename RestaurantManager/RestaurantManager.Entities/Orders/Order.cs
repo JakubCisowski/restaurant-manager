@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RestaurantManager.Entities.Order
+namespace RestaurantManager.Entities.Orders
 {
     public class Order : Entity
     {

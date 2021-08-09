@@ -1,4 +1,4 @@
-﻿namespace RestaurantManager.Entities.Order
+﻿namespace RestaurantManager.Entities.Orders
 {
     public class Customer : Entity
     {

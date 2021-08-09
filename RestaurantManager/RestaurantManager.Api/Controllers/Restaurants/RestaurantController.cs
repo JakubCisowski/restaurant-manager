@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RestaurantManager.Services.Commands.Menu;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
@@ -18,12 +19,6 @@ namespace RestaurantManager.Api.Controllers
         {
             _restaurantService = restaurantService;
         }
-
-        //[HttpGet]
-        //public IEnumerable<RestaurantsDto> GetAll()
-        //{
-        //    return _restaurantService.GetRestaurants();
-        //}
 
         [HttpGet]
         public async Task<IEnumerable<RestaurantsDto>> GetAllAsync()
@@ -69,6 +64,11 @@ namespace RestaurantManager.Api.Controllers
             return deletionCompleted ? Ok() : NotFound();
         }
 
-
+        [HttpPost("CreateMenu")]
+        public IActionResult CreateMenu([FromBody] CreateMenuCommand newMenu)
+        {
+            _restaurantService.AddMenu(newMenu.RestaurantId);
+            return Ok();
+        }
     }
 }

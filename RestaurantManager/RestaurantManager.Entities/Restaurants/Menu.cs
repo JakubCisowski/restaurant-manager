@@ -5,6 +5,16 @@ namespace RestaurantManager.Entities.Restaurants
 {
     public class Menu : Entity
     {
+        public Menu(Guid restaurantId)
+        {
+            RestaurantId = restaurantId;
+        }
+
+        public Guid GetId()
+        {
+            return Id;
+        }
+
         public Guid RestaurantId { get; set; }
         public virtual Restaurant Restaurant { get; set; }
         public virtual ICollection<Dish> Dishes{ get; set; }

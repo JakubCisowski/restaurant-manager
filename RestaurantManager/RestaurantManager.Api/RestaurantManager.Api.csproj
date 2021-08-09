@@ -22,4 +22,8 @@
     <ProjectReference Include="..\RestaurantManager.Services\RestaurantManager.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Orders\" />
+  </ItemGroup>
+
 </Project>

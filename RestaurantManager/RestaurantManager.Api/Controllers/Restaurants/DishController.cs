@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Services.Commands.Dishes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,7 +24,7 @@ namespace RestaurantManager.Api.Controllers
 
         // POST api/<DishController>
         [HttpPost("/AddIngrediens")]
-        public void AddIngredients([FromBody] AddIngresientsCommand dish)
+        public void AddIngredients([FromBody] AddIngredientsCommand dish)
         {
         }
 

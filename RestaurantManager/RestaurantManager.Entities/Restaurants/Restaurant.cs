@@ -32,6 +32,11 @@ namespace RestaurantManager.Entities.Restaurants
             Address = address;
         }
 
+        public void SetMenuId(Guid id)
+        {
+            MenuId = id;
+        }
+
         public string Name { get; private set; }
         public string Phone { get; private set; }
         public string Address { get; private set; }

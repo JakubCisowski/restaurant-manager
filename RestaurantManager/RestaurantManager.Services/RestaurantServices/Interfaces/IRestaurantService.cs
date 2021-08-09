@@ -15,5 +15,6 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
         bool DeleteRestaurant(Guid id);
         bool UpdateRestaurant(UpdateRestaurantCommand updatedRestaurant);
         void AddRestaurant(CreateRestaurantCommand newRestaurant);
+        void AddMenu(Guid restaurantId);
     }
 }
