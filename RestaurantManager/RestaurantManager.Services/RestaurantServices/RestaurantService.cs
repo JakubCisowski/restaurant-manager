@@ -14,31 +14,29 @@ namespace RestaurantManager.Services.RestaurantServices
 {
     public class RestaurantService : IRestaurantService
     {
-        private readonly IRestaurantRepository _restaurantRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RestaurantService(IRestaurantRepository restaurantRepository,
-                                 IUnitOfWork unitOfWork)
+        public RestaurantService(IUnitOfWork unitOfWork)
         {
-            _restaurantRepository = restaurantRepository;
             _unitOfWork = unitOfWork;
         }
 
         public void AddRestaurant(CreateRestaurantCommand restaurant)
         {
             _unitOfWork.RestaurantRepository.Add(new Restaurant(restaurant.Name, restaurant.Phone, restaurant.Address));
-
             _unitOfWork.SaveChanges();
         }
 
         public bool DeleteRestaurant(Guid id)
         {
-            return _restaurantRepository.RemoveOne(x => x.Id == id);
+            bool deletionResult =  _unitOfWork.RestaurantRepository.RemoveOne(x => x.Id == id);
+            _unitOfWork.SaveChanges();
+            return deletionResult;
         }
 
         public RestaurantsDto GetRestaurant(Guid id)
         {
-            var restaurant = _restaurantRepository
+            var restaurant = _unitOfWork.RestaurantRepository
                 .FindOne(x => x.Id == id);
 
             var restaurantDto = new RestaurantsDto
@@ -54,7 +52,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public IEnumerable<RestaurantNamesDto> GetRestaurantNames()
         {
-            var restaurantNames = _restaurantRepository
+            var restaurantNames = _unitOfWork.RestaurantRepository
                 .FindMany(x => true)
                 .Select(x => new RestaurantNamesDto
                 {
@@ -66,7 +64,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task<IEnumerable<RestaurantsDto>> GetRestaurants()
         {
-            var allRestaurants = _restaurantRepository
+            var allRestaurants = _unitOfWork.RestaurantRepository
                 .GetAll()
                 .Select(x => new RestaurantsDto
                 {
@@ -81,7 +79,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public bool UpdateRestaurant(UpdateRestaurantCommand restaurant)
         {
-            var requestedRestaurant = _restaurantRepository
+            var requestedRestaurant = _unitOfWork.RestaurantRepository
                 .FindOne(x => x.Id == restaurant.Id);
 
             if (requestedRestaurant == null)
@@ -94,7 +92,8 @@ namespace RestaurantManager.Services.RestaurantServices
             requestedRestaurant.Address = restaurant.Address;
             requestedRestaurant.Phone = restaurant.Phone;
 
-            _restaurantRepository.Update(requestedRestaurant);
+            _unitOfWork.RestaurantRepository.Update(requestedRestaurant);
+            _unitOfWork.SaveChanges();
             return true;
         }
     }

@@ -64,14 +64,12 @@ namespace RestaurantManager.Infrastructure.Repositories
             }
 
             _dbSet.Remove(targetEntity);
-            _dbContext.SaveChanges();
             return true;
         }
 
         public void Update(TEntity entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
-            _dbContext.SaveChanges();
         }
 
     }

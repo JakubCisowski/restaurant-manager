@@ -51,7 +51,7 @@ namespace RestaurantManager.Api.Controllers
             _restaurantService.AddRestaurant(newRestaurant);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         public IActionResult Update([FromBody] UpdateRestaurantCommand updatedRestaurant)
         {
             bool updateCompleted = _restaurantService.UpdateRestaurant(updatedRestaurant);
