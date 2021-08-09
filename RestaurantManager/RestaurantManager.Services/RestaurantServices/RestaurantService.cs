@@ -87,10 +87,9 @@ namespace RestaurantManager.Services.RestaurantServices
                 return false;
             }
 
-            //SetName, SetAddress, 
-            requestedRestaurant.Name = restaurant.Name;
-            requestedRestaurant.Address = restaurant.Address;
-            requestedRestaurant.Phone = restaurant.Phone;
+            requestedRestaurant.SetName(restaurant.Name);
+            requestedRestaurant.SetAddress(restaurant.Address);
+            requestedRestaurant.SetPhone(restaurant.Phone);
 
             _unitOfWork.RestaurantRepository.Update(requestedRestaurant);
             _unitOfWork.SaveChanges();

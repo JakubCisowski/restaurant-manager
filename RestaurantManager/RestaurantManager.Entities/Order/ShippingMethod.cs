@@ -2,7 +2,7 @@
 {
     public class ShippingMethod : Entity
     {
-        public string Address { get; set; }
-        public string Type { get; set; }
+        public string Address { get; private set; }
+        public string Type { get; private set; }
     }
 }

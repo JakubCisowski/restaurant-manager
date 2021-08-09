@@ -2,7 +2,7 @@
 {
     public class Order : Entity
     {
-        public float TotalPrice { get; set; }
-        public string Status { get; set; }
+        public float TotalPrice { get; private set; }
+        public string Status { get; private set; }
     }
 }

@@ -16,13 +16,23 @@ namespace RestaurantManager.Entities.Restaurants
             Address = address;
         }
 
-        public void ChangeName(string name)
+        public void SetName(string name)
         {
             Name = name;
         }
 
-        public string Name { get; set; }
-        public string Phone { get; set; }
-        public string Address { get; set; }
+        public void SetPhone(string phone)
+        {
+            Phone = phone;
+        }
+
+        public void SetAddress(string address)
+        {
+            Address = address;
+        }
+
+        public string Name { get; private set; }
+        public string Phone { get; private set; }
+        public string Address { get; private set; }
     }
 }
