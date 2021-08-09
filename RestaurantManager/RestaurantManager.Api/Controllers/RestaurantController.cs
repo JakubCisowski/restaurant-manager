@@ -48,8 +48,11 @@ namespace RestaurantManager.Api.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] CreateRestaurantCommand newRestaurant)
         {
+
+            var restaurantId = Guid.NewGuid();
+            //przekazać do serwisu =>
             _restaurantService.AddRestaurant(newRestaurant);
-            return Ok(); // todo: Handle errors
+            return Ok(restaurantId); // todo: Handle errors
         }
 
         [HttpPut]
@@ -65,6 +68,7 @@ namespace RestaurantManager.Api.Controllers
             bool deletionCompleted = _restaurantService.DeleteRestaurant(id);
             return deletionCompleted ? Ok() : NotFound();
         }
+
 
     }
 }

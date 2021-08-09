@@ -44,7 +44,8 @@ namespace RestaurantManager.Services.RestaurantServices
                 Id = restaurant.Id,
                 Name = restaurant.Name,
                 Address = restaurant.Address,
-                Phone = restaurant.Phone
+                Phone = restaurant.Phone,
+                MenuId = restaurant.MenuId
             };
 
             return restaurantDto;
