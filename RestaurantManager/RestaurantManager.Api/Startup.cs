@@ -32,6 +32,7 @@ namespace RestaurantManager.Api
 
             services.AddTransient<IRestaurantService, RestaurantService>();
             services.AddTransient<IDishService, DishService>();
+            services.AddTransient<IIngredientService, IngredientService>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

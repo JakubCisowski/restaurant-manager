@@ -41,11 +41,6 @@ namespace RestaurantManager.Entities.Restaurants
             Description = description;
         }
 
-        public void SetIngredients(ICollection<Ingredient> ingredients)
-        {
-            Ingredients = ingredients;
-        }
-
         public void SetMenu(Menu menu)
         {
             Menu = menu;
