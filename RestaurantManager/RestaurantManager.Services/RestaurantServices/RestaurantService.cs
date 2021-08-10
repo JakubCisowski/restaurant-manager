@@ -15,15 +15,21 @@ namespace RestaurantManager.Services.RestaurantServices
     public class RestaurantService : IRestaurantService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGenericRepository<Menu> _menuRepository;
 
         public RestaurantService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _menuRepository = _unitOfWork.GetRepository<Menu>();
         }
 
         public void AddMenu(Guid restaurantId)
         {
-            _unitOfWork.RestaurantRepository.AddMenu(restaurantId);
+            var restaurant = _unitOfWork.RestaurantRepository.GetById(restaurantId);
+            var menu = new Menu();
+            menu.AddRestautant(restaurant);
+
+            _menuRepository.Add(menu);
             _unitOfWork.SaveChanges();
         }
 

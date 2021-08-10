@@ -15,12 +15,6 @@ namespace RestaurantManager.Infrastructure.Repositories
             _menuSet = dbContext.Set<Menu>();
         }
 
-        public void AddMenu(Guid restaurantId)
-        {
-            var newMenu = _menuSet.Add(new Menu(restaurantId)).Entity;
-            GetById(restaurantId).SetMenuId(newMenu.GetId());
-        }
-
         public Restaurant GetBestRestaurant(string localization)
         {
             throw new NotImplementedException();

@@ -1,4 +1,5 @@
-﻿using RestaurantManager.Infrastructure.Repositories.Interfaces;
+﻿using RestaurantManager.Entities;
+using RestaurantManager.Infrastructure.Repositories.Interfaces;
 
 namespace RestaurantManager.Infrastructure.UnitOfWork
 {
@@ -7,5 +8,7 @@ namespace RestaurantManager.Infrastructure.UnitOfWork
         IRestaurantRepository RestaurantRepository { get; }
 
         void SaveChanges();
+
+        public IGenericRepository<T> GetRepository<T>() where T : Entity;
     }
 }

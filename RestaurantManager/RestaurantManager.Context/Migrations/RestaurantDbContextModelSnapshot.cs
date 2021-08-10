@@ -49,7 +49,7 @@ namespace RestaurantManager.Context.Migrations
                     b.ToTable("IngredientOrderItem");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Order.Customer", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.Customer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,7 +72,7 @@ namespace RestaurantManager.Context.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Order.Order", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,7 +89,7 @@ namespace RestaurantManager.Context.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Order.OrderItem", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -113,7 +113,7 @@ namespace RestaurantManager.Context.Migrations
                     b.ToTable("OrderItem");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Order.PaymentType", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.PaymentType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -127,7 +127,7 @@ namespace RestaurantManager.Context.Migrations
                     b.ToTable("PaymentTypes");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Order.ShippingMethod", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.ShippingMethod", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -249,14 +249,14 @@ namespace RestaurantManager.Context.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RestaurantManager.Entities.Order.OrderItem", null)
+                    b.HasOne("RestaurantManager.Entities.Orders.OrderItem", null)
                         .WithMany()
                         .HasForeignKey("OrderItemsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Order.OrderItem", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.OrderItem", b =>
                 {
                     b.HasOne("RestaurantManager.Entities.Restaurants.Dish", "Dish")
                         .WithMany("OrderItems")
@@ -264,7 +264,7 @@ namespace RestaurantManager.Context.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RestaurantManager.Entities.Order.Order", "Order")
+                    b.HasOne("RestaurantManager.Entities.Orders.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -297,7 +297,7 @@ namespace RestaurantManager.Context.Migrations
                     b.Navigation("Restaurant");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Order.Order", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.Order", b =>
                 {
                     b.Navigation("OrderItems");
                 });

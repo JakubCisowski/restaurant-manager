@@ -1,4 +1,6 @@
 ﻿using RestaurantManager.Context;
+using RestaurantManager.Entities;
+using RestaurantManager.Infrastructure.Repositories;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 
 namespace RestaurantManager.Infrastructure.UnitOfWork
@@ -18,6 +20,11 @@ namespace RestaurantManager.Infrastructure.UnitOfWork
         public void SaveChanges()
         {
             _dbContext.SaveChanges();
+        }
+
+        public IGenericRepository<T> GetRepository<T>() where T : Entity
+        {
+            return new GenericRepository<T>(_dbContext);
         }
     }
 }
