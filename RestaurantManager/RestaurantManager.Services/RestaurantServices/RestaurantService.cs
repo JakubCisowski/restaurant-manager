@@ -75,7 +75,7 @@ namespace RestaurantManager.Services.RestaurantServices
             return restaurantNames;
         }
 
-        public async Task<IEnumerable<RestaurantsDto>> GetRestaurants()
+        public async Task<IEnumerable<RestaurantsDto>> GetRestaurantsAsync()
         {
             var allRestaurants = _unitOfWork.RestaurantRepository
                 .GetAll()
@@ -106,7 +106,7 @@ namespace RestaurantManager.Services.RestaurantServices
             requestedRestaurant.SetPhone(restaurant.Phone);
 
             _unitOfWork.RestaurantRepository.Update(requestedRestaurant);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

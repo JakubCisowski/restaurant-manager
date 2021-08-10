@@ -21,10 +21,10 @@ namespace RestaurantManager.Api.Controllers
             _restaurantService = restaurantService;
         }
 
-        [HttpGet("AllRestautants")]
+        [HttpGet("AllRestaurants")]
         public async Task<IEnumerable<RestaurantsDto>> GetAllAsync()
         {
-            var result = await _restaurantService.GetRestaurants();
+            var result = await _restaurantService.GetRestaurantsAsync();
             return result;
         }
 

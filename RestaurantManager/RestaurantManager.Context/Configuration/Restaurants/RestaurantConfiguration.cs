@@ -18,8 +18,6 @@ namespace RestaurantManager.SqlContext.Configuration.Restaurants
                 .HasOne(x => x.Menu)
                 .WithOne(x => x.Restaurant)
                 .HasForeignKey<Menu>(x => x.RestaurantId);
-
-            
         }
     }
 }
