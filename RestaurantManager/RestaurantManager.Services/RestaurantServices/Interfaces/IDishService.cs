@@ -15,5 +15,6 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
         Task<bool> UpdateDishAsync(UpdateDishCommand dish);
         Task<DishesDto> GetDishAsync(Guid id);
         Task<bool> DeleteDishAsync(Guid id);
+        Task AddIngredient(AddIngredientCommand command);
     }
 }

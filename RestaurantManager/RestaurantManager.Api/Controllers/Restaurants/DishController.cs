@@ -58,5 +58,14 @@ namespace RestaurantManager.Api.Controllers
             var deletionCompleted = await _dishService.DeleteDishAsync(id);
             return deletionCompleted ? Ok() : NotFound();
         }
+
+        [HttpPost("AddExtraIngredient")]
+        public async Task<IActionResult> AddIngredient([FromBody] AddIngredientCommand command)
+        {
+            await _dishService.AddIngredient(command);
+
+            return Ok(command);
+        }
+
     }
 }

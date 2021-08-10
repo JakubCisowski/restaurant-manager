@@ -18,12 +18,14 @@ namespace RestaurantManager.Services.RestaurantServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Dish> _dishRepository;
         private readonly IGenericRepository<Menu> _menuRepository;
+        private readonly IGenericRepository<Ingredient> _ingredientRepository;
 
         public DishService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _menuRepository = _unitOfWork.GetRepository<Menu>();
+            _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
         }
 
         public async Task AddDishAsync(CreateDishCommand newDish)
@@ -33,6 +35,21 @@ namespace RestaurantManager.Services.RestaurantServices
             dish.SetMenu(menu);
 
             await _dishRepository.AddAsync(dish);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task AddIngredient(AddIngredientCommand command)
+        {
+            var dish = _dishRepository.GetByIdAsync(command.DishId);
+            var ingredient = _ingredientRepository.GetByIdAsync(command.IngredientId);
+
+            await Task.WhenAll(dish, ingredient);
+            var dishResult = await dish;
+            var ingredientsResult = await ingredient;
+
+            dishResult.Ingredients.Add(ingredientsResult);
+            ingredientsResult.Dishes.Add(dishResult);
+
             await _unitOfWork.SaveChangesAsync();
         }
 
