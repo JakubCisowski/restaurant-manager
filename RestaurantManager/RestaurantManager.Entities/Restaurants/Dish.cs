@@ -7,13 +7,12 @@ namespace RestaurantManager.Entities.Restaurants
 {
     public class Dish : Entity
     {
-        public Dish(Guid id, string name, decimal basePrice, string description, Guid menuId)
+        public Dish(Guid id, string name, decimal basePrice, string description)
         {
             Id = id;
             Name = name;
             BasePrice = basePrice;
             Description = description;
-            MenuId = menuId;
         }
 
         public string Name { get; private set; }
@@ -47,9 +46,9 @@ namespace RestaurantManager.Entities.Restaurants
             Ingredients = ingredients;
         }
 
-        public void SetMenuId(Guid menuId)
+        public void SetMenu(Menu menu)
         {
-            MenuId = menuId;
+            Menu = menu;
         }
 
     }

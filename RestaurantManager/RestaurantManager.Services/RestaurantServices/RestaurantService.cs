@@ -27,7 +27,7 @@ namespace RestaurantManager.Services.RestaurantServices
         {
             var restaurant = await _unitOfWork.RestaurantRepository.GetByIdAsync(restaurantId);
             var menu = new Menu();
-            menu.AddRestautant(restaurant);
+            menu.SetRestaurant(restaurant);
 
             await _menuRepository.AddAsync(menu);
             await _unitOfWork.SaveChangesAsync();

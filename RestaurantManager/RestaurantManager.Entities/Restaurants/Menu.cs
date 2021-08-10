@@ -13,7 +13,7 @@ namespace RestaurantManager.Entities.Restaurants
         public virtual Restaurant Restaurant { get; private set; } = default!;
         public virtual ICollection<Dish> Dishes { get; private set; } = default!;
 
-        public void AddRestautant(Restaurant restaurant)
+        public void SetRestaurant(Restaurant restaurant)
         {
             Restaurant = restaurant;
         }
