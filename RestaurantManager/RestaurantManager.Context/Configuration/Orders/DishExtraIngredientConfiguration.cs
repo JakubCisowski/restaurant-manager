@@ -9,19 +9,15 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.SqlContext.Configuration.Orders
 {
-    public class OrderItemsConfiguration : IEntityTypeConfiguration<OrderItem>
+    public class DishExtraIngredientConfiguration : IEntityTypeConfiguration<DishExtraIngredients>
     {
-        public void Configure(EntityTypeBuilder<OrderItem> builder)
+        public void Configure(EntityTypeBuilder<DishExtraIngredients> builder)
         {
             builder.HasKey(x => x.Id);
 
-            builder.HasOne(x => x.Order)
-                .WithMany(x => x.OrderItems)
-                .HasForeignKey(x => x.OrderId);
-
-            builder.HasMany(x => x.DishExtraIngredients)
-                .WithOne(x => x.OrderItem);
-
+            builder.HasOne(x => x.OrderItem)
+                .WithMany(x => x.DishExtraIngredients)
+                .HasForeignKey(x => x.OrderItemId);
         }
     }
 }

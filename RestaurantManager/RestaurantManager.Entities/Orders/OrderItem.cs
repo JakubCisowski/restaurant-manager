@@ -1,6 +1,7 @@
 ﻿using RestaurantManager.Entities.Restaurants;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,15 +10,17 @@ namespace RestaurantManager.Entities.Orders
 {
     public class OrderItem : Entity
     {
-        public string DishComment { get; set; }
+        public string DishName { get; private set; }
 
-        public Guid OrderId { get; set; }
-        public virtual Order Order { get; set; }
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal DishPrice { get; private set; }
+        public string DishComment { get; private set; }
 
-        public virtual ICollection<Ingredient> Ingredients { get; set; }
+        public ICollection<DishExtraIngredients> DishExtraIngredients { get; private set; } = default!;
 
-        public Guid DishId { get; set; }
-        public virtual Dish Dish { get; set; }
+        public Guid OrderId { get; private set; }
+
+        public virtual Order Order { get; private set; }
 
     }
 }

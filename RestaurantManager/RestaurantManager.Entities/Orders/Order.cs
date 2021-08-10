@@ -6,6 +6,7 @@ namespace RestaurantManager.Entities.Orders
     {
         public float TotalPrice { get; private set; }
         public string Status { get; private set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; private set; } = default!;
+
     }
 }

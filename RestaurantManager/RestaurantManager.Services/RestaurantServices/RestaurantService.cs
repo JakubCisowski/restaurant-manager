@@ -23,33 +23,33 @@ namespace RestaurantManager.Services.RestaurantServices
             _menuRepository = _unitOfWork.GetRepository<Menu>();
         }
 
-        public void AddMenu(Guid restaurantId)
+        public async Task AddMenuAsync(Guid restaurantId)
         {
-            var restaurant = _unitOfWork.RestaurantRepository.GetById(restaurantId);
+            var restaurant = await _unitOfWork.RestaurantRepository.GetByIdAsync(restaurantId);
             var menu = new Menu();
             menu.AddRestautant(restaurant);
 
-            _menuRepository.Add(menu);
-            _unitOfWork.SaveChanges();
+            await _menuRepository.AddAsync(menu);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public void AddRestaurant(CreateRestaurantCommand restaurant)
+        public async Task AddRestaurantAsync(CreateRestaurantCommand restaurant)
         {
-            _unitOfWork.RestaurantRepository.Add(new Restaurant(restaurant.Name, restaurant.Phone, restaurant.Address));
-            _unitOfWork.SaveChanges();
+            await _unitOfWork.RestaurantRepository.AddAsync(new Restaurant(restaurant.Id ,restaurant.Name, restaurant.Phone, restaurant.Address));
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public bool DeleteRestaurant(Guid id)
+        public async Task<bool> DeleteRestaurantAsync(Guid id)
         {
-            bool deletionResult =  _unitOfWork.RestaurantRepository.RemoveOne(x => x.Id == id);
-            _unitOfWork.SaveChanges();
+            bool deletionResult = _unitOfWork.RestaurantRepository.RemoveOne(x => x.Id == id);
+            await _unitOfWork.SaveChangesAsync();
             return deletionResult;
         }
 
-        public RestaurantsDto GetRestaurant(Guid id)
+        public async Task<RestaurantsDto> GetRestaurantAsync(Guid id)
         {
-            var restaurant = _unitOfWork.RestaurantRepository
-                .FindOne(x => x.Id == id);
+            var restaurant = await _unitOfWork.RestaurantRepository
+                .FindOneAsync(x => x.Id == id);
 
             var restaurantDto = new RestaurantsDto
             {
@@ -57,7 +57,7 @@ namespace RestaurantManager.Services.RestaurantServices
                 Name = restaurant.Name,
                 Address = restaurant.Address,
                 Phone = restaurant.Phone,
-                MenuId = restaurant.MenuId
+                MenuId = restaurant.Menu.Id
             };
 
             return restaurantDto;
@@ -85,16 +85,16 @@ namespace RestaurantManager.Services.RestaurantServices
                     Name = x.Name,
                     Address = x.Address,
                     Phone = x.Phone,
-                    MenuId = x.MenuId
+                    MenuId = x.Menu.Id
                 });
 
             return await allRestaurants.ToListAsync();
         }
 
-        public bool UpdateRestaurant(UpdateRestaurantCommand restaurant)
+        public async Task<bool> UpdateRestaurantAsync(UpdateRestaurantCommand restaurant)
         {
-            var requestedRestaurant = _unitOfWork.RestaurantRepository
-                .FindOne(x => x.Id == restaurant.Id);
+            var requestedRestaurant = await _unitOfWork.RestaurantRepository
+                .FindOneAsync(x => x.Id == restaurant.Id);
 
             if (requestedRestaurant == null)
             {
@@ -106,7 +106,7 @@ namespace RestaurantManager.Services.RestaurantServices
             requestedRestaurant.SetPhone(restaurant.Phone);
 
             _unitOfWork.RestaurantRepository.Update(requestedRestaurant);
-            _unitOfWork.SaveChanges();
+            _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

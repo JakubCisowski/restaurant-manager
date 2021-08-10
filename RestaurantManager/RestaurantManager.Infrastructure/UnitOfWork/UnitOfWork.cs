@@ -2,6 +2,7 @@
 using RestaurantManager.Entities;
 using RestaurantManager.Infrastructure.Repositories;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace RestaurantManager.Infrastructure.UnitOfWork
 {
@@ -17,9 +18,9 @@ namespace RestaurantManager.Infrastructure.UnitOfWork
             RestaurantRepository = restaurantRepository;
         }
 
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         public IGenericRepository<T> GetRepository<T>() where T : Entity

@@ -20,9 +20,9 @@ namespace RestaurantManager.Entities.Restaurants
             return Id;
         }
 
-        public Guid RestaurantId { get; set; }
-        public virtual Restaurant Restaurant { get; set; }
-        public virtual ICollection<Dish> Dishes{ get; set; }
+        public Guid RestaurantId { get; private set; }
+        public virtual Restaurant Restaurant { get; private set; } = default!;
+        public virtual ICollection<Dish> Dishes { get; private set; } = default!;
 
         public void AddRestautant(Restaurant restaurant)
         {

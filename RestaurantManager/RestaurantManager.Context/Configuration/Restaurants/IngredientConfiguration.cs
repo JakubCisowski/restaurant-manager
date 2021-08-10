@@ -19,8 +19,7 @@ namespace RestaurantManager.SqlContext.Configuration.Restaurants
                 .HasMany(x => x.Dishes)
                 .WithMany(x => x.Ingredients);
 
-            builder.HasMany(x => x.OrderItems)
-                .WithMany(x => x.Ingredients);
+            
         }
     }
 }

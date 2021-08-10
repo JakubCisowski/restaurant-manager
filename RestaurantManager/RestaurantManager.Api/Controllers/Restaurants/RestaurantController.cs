@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Menu;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
@@ -20,54 +21,54 @@ namespace RestaurantManager.Api.Controllers
             _restaurantService = restaurantService;
         }
 
-        [HttpGet]
+        [HttpGet("AllRestautants")]
         public async Task<IEnumerable<RestaurantsDto>> GetAllAsync()
         {
             var result = await _restaurantService.GetRestaurants();
-
             return result;
         }
 
         [HttpGet("{id}")]
-        public RestaurantsDto GetById(Guid id)
+        public async Task<RestaurantsDto> GetByIdAsync(Guid id)
         {
-            return _restaurantService.GetRestaurant(id);
+            return await _restaurantService.GetRestaurantAsync(id);
         }
 
-        [HttpGet("names")]
+        [HttpGet("RestaurantNames")]
         public IEnumerable<RestaurantNamesDto> GetNames()
         {
             return _restaurantService.GetRestaurantNames();
         }
 
-        [HttpPost]
-        public IActionResult Create([FromBody] CreateRestaurantCommand newRestaurant)
+        [HttpPost("Create")]
+        public async Task<IActionResult> CreateAsync([FromBody] RestaurantInput input)
         {
 
             var restaurantId = Guid.NewGuid();
-            //przekazać do serwisu =>
-            _restaurantService.AddRestaurant(newRestaurant);
+            await _restaurantService.AddRestaurantAsync(
+                new CreateRestaurantCommand(restaurantId, input.Name, input.Phone, input.Address));
+
             return Ok(restaurantId); // todo: Handle errors
         }
 
-        [HttpPut]
-        public IActionResult Update([FromBody] UpdateRestaurantCommand updatedRestaurant)
+        [HttpPut("Update")]
+        public async Task<IActionResult> UpdateAsync([FromBody] UpdateRestaurantCommand updatedRestaurant)
         {
-            bool updateCompleted = _restaurantService.UpdateRestaurant(updatedRestaurant);
+            bool updateCompleted = await _restaurantService.UpdateRestaurantAsync(updatedRestaurant);
             return updateCompleted ? Ok() : NotFound();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteById(Guid id)
+        public async Task<IActionResult> DeleteByIdAsync(Guid id)
         {
-            bool deletionCompleted = _restaurantService.DeleteRestaurant(id);
+            var deletionCompleted = await _restaurantService.DeleteRestaurantAsync(id);
             return deletionCompleted ? Ok() : NotFound();
         }
 
         [HttpPost("CreateMenu")]
-        public IActionResult CreateMenu([FromBody] CreateMenuCommand newMenu)
+        public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuCommand newMenu)
         {
-            _restaurantService.AddMenu(newMenu.RestaurantId);
+            await _restaurantService.AddMenuAsync(newMenu.RestaurantId);
             return Ok();
         }
     }

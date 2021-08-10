@@ -7,17 +7,15 @@ namespace RestaurantManager.Entities.Restaurants
 {
     public class Dish : Entity
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal BasePrice { get; set; }
-        public string Description { get; set; }
-        public virtual ICollection<Ingredient> Ingredients { get; set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public decimal BasePrice { get; private set; }
+        public string Description { get; private set; }
+        public virtual ICollection<Ingredient> Ingredients { get; private set; } = default!;
 
-
-        public Guid MenuId { get; set; }
-        public virtual Menu Menu { get; set; }
+        public Guid MenuId { get; private set; }
+        public virtual Menu Menu { get; private set; } = default!;
 
     }
 }

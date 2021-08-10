@@ -11,10 +11,10 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
     {
         IEnumerable<RestaurantNamesDto> GetRestaurantNames();
         Task<IEnumerable<RestaurantsDto>> GetRestaurants();
-        RestaurantsDto GetRestaurant(Guid id);
-        bool DeleteRestaurant(Guid id);
-        bool UpdateRestaurant(UpdateRestaurantCommand updatedRestaurant);
-        void AddRestaurant(CreateRestaurantCommand newRestaurant);
-        void AddMenu(Guid restaurantId);
+        Task AddRestaurantAsync(CreateRestaurantCommand newRestaurant);
+        Task AddMenuAsync(Guid restaurantId);
+        Task<bool> UpdateRestaurantAsync(UpdateRestaurantCommand restaurant);
+        Task<RestaurantsDto> GetRestaurantAsync(Guid id);
+        Task<bool> DeleteRestaurantAsync(Guid id);
     }
 }

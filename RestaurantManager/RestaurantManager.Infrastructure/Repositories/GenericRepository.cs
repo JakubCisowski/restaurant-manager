@@ -5,6 +5,7 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace RestaurantManager.Infrastructure.Repositories
 {
@@ -19,9 +20,9 @@ namespace RestaurantManager.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public void Add(TEntity entity)
+        public async Task AddAsync(TEntity entity)
         {
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
         }
 
         public void Delete(TEntity entity)
@@ -34,10 +35,10 @@ namespace RestaurantManager.Infrastructure.Repositories
             return _dbSet.Where(filter);
         }
 
-        public TEntity FindOne(Expression<Func<TEntity, bool>> filter)
+        public async Task<TEntity> FindOneAsync(Expression<Func<TEntity, bool>> filter)
         {
-            var entity = _dbSet.Where(filter)
-                .FirstOrDefault();
+            var entity = await _dbSet.Where(filter)
+                .FirstOrDefaultAsync();
 
             return entity;
         }
@@ -47,9 +48,9 @@ namespace RestaurantManager.Infrastructure.Repositories
             return _dbSet;
         }
 
-        public TEntity GetById(Guid id)
+        public async Task<TEntity> GetByIdAsync(Guid id)
         {
-            var entity = _dbSet.Find(id);
+            var entity = await _dbSet.FindAsync(id);
             return entity;
         }
 
@@ -69,7 +70,8 @@ namespace RestaurantManager.Infrastructure.Repositories
 
         public void Update(TEntity entity)
         {
-            _dbContext.Entry(entity).State = EntityState.Modified;
+            _dbContext.Update(entity);
+            //_dbContext.Entry(entity).State = EntityState.Modified;
         }
 
     }
