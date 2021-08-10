@@ -59,10 +59,10 @@ namespace RestaurantManager.Api.Controllers
             return deletionCompleted ? Ok() : NotFound();
         }
 
-        [HttpPost("AddExtraIngredient")]
-        public async Task<IActionResult> AddIngredient([FromBody] AddIngredientCommand command)
+        [HttpPost("AddAvailableIngredient")]
+        public async Task<IActionResult> AddAvailableIngredient([FromBody] AddIngredientCommand command)
         {
-            await _dishService.AddIngredient(command);
+            await _dishService.AddAvailableIngredient(command);
 
             return Ok(command);
         }

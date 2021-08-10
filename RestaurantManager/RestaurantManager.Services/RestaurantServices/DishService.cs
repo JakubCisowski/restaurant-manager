@@ -38,17 +38,17 @@ namespace RestaurantManager.Services.RestaurantServices
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task AddIngredient(AddIngredientCommand command)
+        public async Task AddAvailableIngredient(AddIngredientCommand command)
         {
-            var dish = _dishRepository.GetByIdAsync(command.DishId);
-            var ingredient = _ingredientRepository.GetByIdAsync(command.IngredientId);
+            var dish = await _dishRepository.GetByIdAsync(command.DishId);
+            var ingredient = await _ingredientRepository.GetByIdAsync(command.IngredientId);
 
-            await Task.WhenAll(dish, ingredient);
-            var dishResult = await dish;
-            var ingredientsResult = await ingredient;
+            // await Task.WhenAll(dish, ingredient);
+            //var dishResult = await dish;
+            //var ingredientsResult = await ingredient;
 
-            dishResult.Ingredients.Add(ingredientsResult);
-            ingredientsResult.Dishes.Add(dishResult);
+            dish.Ingredients.Add(ingredient); // nie można dodawać do listy która jest null
+            ingredient.Dishes.Add(dish);
 
             await _unitOfWork.SaveChangesAsync();
         }
