@@ -3,9 +3,11 @@ using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Menu;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers
@@ -43,10 +45,16 @@ namespace RestaurantManager.Api.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] RestaurantInput input)
         {
-
             var restaurantId = Guid.NewGuid();
-            await _restaurantService.AddRestaurantAsync(
-                new CreateRestaurantCommand(restaurantId, input.Name, input.Phone, input.Address));
+            try
+            {
+                await _restaurantService.AddRestaurantAsync(
+                    new CreateRestaurantCommand(restaurantId, input.Name, input.Phone, input.Address));
+            }
+            catch (Exception e)
+            {
+                Problem("Error", "", (int)HttpStatusCode.InternalServerError);
+            }
 
             return Ok(restaurantId); // todo: Handle errors
         }
@@ -54,8 +62,19 @@ namespace RestaurantManager.Api.Controllers
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] UpdateRestaurantCommand updatedRestaurant)
         {
-            bool updateCompleted = await _restaurantService.UpdateRestaurantAsync(updatedRestaurant);
-            return updateCompleted ? Ok() : NotFound();
+            try
+            {
+                bool updateCompleted = await _restaurantService.UpdateRestaurantAsync(updatedRestaurant);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpDelete("{id}")]

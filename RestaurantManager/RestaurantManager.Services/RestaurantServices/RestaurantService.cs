@@ -4,6 +4,7 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -103,7 +104,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
             if (requestedRestaurant == null)
             {
-                return false;
+                throw new NotFoundException(restaurant.Id, nameof(Restaurant));
             }
 
             requestedRestaurant.SetName(restaurant.Name);
