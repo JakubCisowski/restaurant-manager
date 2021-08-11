@@ -10,10 +10,10 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
 {
     public interface IIngredientService
     {
-        Task<IEnumerable<IngredientsDto>> GetIngredientsAsync();
+        Task<IEnumerable<IngredientDto>> GetAllIngredientsAsync();
         Task AddIngredientAsync(CreateIngredientCommand newIngredient);
         Task<bool> UpdateIngredientAsync(UpdateIngredientCommand ingredient);
-        Task<IngredientsDto> GetIngredientAsync(Guid id);
+        Task<IngredientDto> GetIngredientAsync(Guid id);
         Task<bool> DeleteIngredientAsync(Guid id);
     }
 }

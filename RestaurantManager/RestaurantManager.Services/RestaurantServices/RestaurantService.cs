@@ -28,10 +28,13 @@ namespace RestaurantManager.Services.RestaurantServices
         public async Task AddMenuAsync(Guid restaurantId)
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
-            var menu = new Menu();
-            menu.SetRestaurant(restaurant);
 
+            var menu = new Menu();
             await _menuRepository.AddAsync(menu);
+
+            restaurant.AddMenu(menu);
+            _restaurantRepository.Update(restaurant);
+
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -48,12 +51,12 @@ namespace RestaurantManager.Services.RestaurantServices
             return deletionResult;
         }
 
-        public async Task<RestaurantsDto> GetRestaurantAsync(Guid id)
+        public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
         {
             var restaurant = await _restaurantRepository
                 .FindOneAsync(x => x.Id == id);
 
-            var restaurantDto = new RestaurantsDto
+            var restaurantDto = new RestaurantDto
             {
                 Id = restaurant.Id,
                 Name = restaurant.Name,
@@ -77,11 +80,11 @@ namespace RestaurantManager.Services.RestaurantServices
             return restaurantNames;
         }
 
-        public async Task<IEnumerable<RestaurantsDto>> GetRestaurantsAsync()
+        public async Task<IEnumerable<RestaurantDto>> GetRestaurantsAsync()
         {
             var allRestaurants = _restaurantRepository
                 .GetAll()
-                .Select(x => new RestaurantsDto
+                .Select(x => new RestaurantDto
                 {
                     Id = x.Id,
                     Name = x.Name,

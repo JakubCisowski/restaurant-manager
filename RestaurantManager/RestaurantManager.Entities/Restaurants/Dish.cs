@@ -20,7 +20,7 @@ namespace RestaurantManager.Entities.Restaurants
         [Column(TypeName = "decimal(18, 2)")]
         public decimal BasePrice { get; private set; }
         public string Description { get; private set; }
-        public virtual ICollection<Ingredient> Ingredients { get; private set; } = default!;
+        public virtual ICollection<Ingredient> Ingredients { get; private set; } = new List<Ingredient>();
 
         public Guid MenuId { get; private set; }
         public virtual Menu Menu { get; private set; } = default!;

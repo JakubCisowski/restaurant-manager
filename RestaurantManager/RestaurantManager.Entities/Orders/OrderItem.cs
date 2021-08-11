@@ -16,7 +16,7 @@ namespace RestaurantManager.Entities.Orders
         public decimal DishPrice { get; private set; }
         public string DishComment { get; private set; }
 
-        public ICollection<DishExtraIngredients> DishExtraIngredients { get; private set; } = default!;
+        public ICollection<DishExtraIngredients> DishExtraIngredients { get; private set; } = new List<DishExtraIngredients>();
 
         public Guid OrderId { get; private set; }
 

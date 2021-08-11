@@ -16,10 +16,6 @@ namespace RestaurantManager.SqlContext.Configuration.Restaurants
             builder.HasKey(x => x.Id);
 
             builder
-                .HasOne(x => x.Restaurant)
-                .WithOne(x => x.Menu);
-
-            builder
                 .HasMany(x => x.Dishes)
                 .WithOne(x => x.Menu);
         }

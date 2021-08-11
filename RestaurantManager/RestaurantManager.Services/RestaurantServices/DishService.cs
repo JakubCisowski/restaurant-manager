@@ -4,6 +4,7 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Dishes;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.DTOs.Ingredients;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ namespace RestaurantManager.Services.RestaurantServices
         public async Task AddDishAsync(CreateDishCommand newDish)
         {
             var menu = await _menuRepository.GetByIdAsync(newDish.MenuId);
+
             var dish = new Dish(newDish.Id, newDish.Name, newDish.BasePrice, newDish.Description);
             dish.SetMenu(menu);
 
@@ -43,7 +45,7 @@ namespace RestaurantManager.Services.RestaurantServices
             var dish = await _dishRepository.GetByIdAsync(command.DishId);
             var ingredient = await _ingredientRepository.GetByIdAsync(command.IngredientId);
 
-            // await Task.WhenAll(dish, ingredient);
+            //await Task.WhenAll(dish, ingredient);
             //var dishResult = await dish;
             //var ingredientsResult = await ingredient;
 
@@ -60,35 +62,46 @@ namespace RestaurantManager.Services.RestaurantServices
             return deletionResult;
         }
 
-        public async Task<DishesDto> GetDishAsync(Guid id)
+        public async Task<DishDto> GetDishAsync(Guid id)
         {
             var dish = await _dishRepository
                 .FindOneAsync(x => x.Id == id);
 
-            var dishDto = new DishesDto
+            var dishDto = new DishDto
             {
                 Id = dish.Id,
                 Name = dish.Name,
                 Description = dish.Description,
                 BasePrice = dish.BasePrice,
-                Ingredients = dish.Ingredients,
-                MenuId = dish.MenuId
+                MenuId = dish.MenuId,
+                Ingredients = dish.Ingredients
+                    .Select(x => new DTOs.Ingredients.IngredientBaseDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Price = x.Price
+                    })
             };
 
             return dishDto;
         }
 
-        public async Task<IEnumerable<DishesDto>> GetDishesAsync()
+        public async Task<IEnumerable<DishDto>> GetAllDishesAsync()
         {
             var allDishes = _dishRepository
                 .GetAll()
-                .Select(x => new DishesDto
+                .Select(x => new DishDto
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description,
                     BasePrice = x.BasePrice,
-                    Ingredients = x.Ingredients,
+                    Ingredients = x.Ingredients.Select(x => new IngredientBaseDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Price = x.Price
+                    }),
                     MenuId = x.Menu.Id
                 });
 

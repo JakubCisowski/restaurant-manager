@@ -23,14 +23,14 @@ namespace RestaurantManager.Api.Controllers
         }
 
         [HttpGet("AllIngredients")]
-        public async Task<IEnumerable<IngredientsDto>> GetAllAsync()
+        public async Task<IEnumerable<IngredientDto>> GetAllAsync()
         {
-            var result = await _ingredientService.GetIngredientsAsync();
+            var result = await _ingredientService.GetAllIngredientsAsync();
             return result;
         }
 
         [HttpGet("{id}")]
-        public async Task<IngredientsDto> GetByIdAsync(Guid id)
+        public async Task<IngredientDto> GetByIdAsync(Guid id)
         {
             return await _ingredientService.GetIngredientAsync(id);
         }

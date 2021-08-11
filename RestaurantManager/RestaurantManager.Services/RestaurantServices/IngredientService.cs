@@ -4,6 +4,7 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Ingredients;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.DTOs.Dishes;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -39,30 +40,64 @@ namespace RestaurantManager.Services.RestaurantServices
             return deletionResult;
         }
 
-        public async Task<IngredientsDto> GetIngredientAsync(Guid id)
+        public async Task<IngredientDto> GetIngredientAsync(Guid id)
         {
-            var ingredient = await _ingredientRepository
-                .FindOneAsync(x => x.Id == id);
+            var ingredientDto = _ingredientRepository
+                .FindMany(x => x.Id == id)
+                .Select(ingredient => new IngredientDto
+                {
+                    Id = ingredient.Id,
+                    Name = ingredient.Name,
+                    Price = ingredient.Price,
+                    Dishes = ingredient.Dishes.Select(x => new DishBaseDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        BasePrice = x.BasePrice,
+                        Description = x.Description,
+                        MenuId = x.MenuId
+                    })
 
-            var ingredientDto = new IngredientsDto
-            {
-                Id = ingredient.Id,
-                Name = ingredient.Name,
-                Price = ingredient.Price
-            };
+                })
+                .FirstOrDefault();
+
+            //var ingredientDto = new IngredientDto
+            //{
+            //    Id = ingredient.Id,
+            //    Name = ingredient.Name,
+            //    Price = ingredient.Price,
+            //    Dishes = ingredient.Dishes.Select(x => new DishBaseDto
+            //    {
+            //        Id = x.Id,
+            //        Name = x.Name,
+            //        BasePrice = x.BasePrice,
+            //        Description = x.Description,
+            //        MenuId = x.MenuId
+            //    })
+                
+            //};
 
             return ingredientDto;
         }
 
-        public async Task<IEnumerable<IngredientsDto>> GetIngredientsAsync()
+        public async Task<IEnumerable<IngredientDto>> GetAllIngredientsAsync()
         {
             var allIngredients = _ingredientRepository
                 .GetAll()
-                .Select(x => new IngredientsDto
+                .Select(x => new IngredientDto
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Price = x.Price
+                    Price = x.Price,
+                    Dishes = x.Dishes.Select(x => new DishBaseDto
+                    {
+                        Id = x.Id,
+                        Name    = x.Name,
+                        BasePrice = x.BasePrice,
+                        Description = x.Description,
+                        MenuId = x.MenuId
+                    })
+
                 });
 
             return await allIngredients.ToListAsync();

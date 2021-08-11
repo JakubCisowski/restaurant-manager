@@ -2,7 +2,7 @@
 
 namespace RestaurantManager.Services.DTOs
 {
-    public class RestaurantsDto
+    public class RestaurantDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

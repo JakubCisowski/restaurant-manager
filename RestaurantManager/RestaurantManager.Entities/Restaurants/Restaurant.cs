@@ -35,6 +35,12 @@ namespace RestaurantManager.Entities.Restaurants
         public string Name { get; private set; }
         public string Phone { get; private set; }
         public string Address { get; private set; }
+
         public virtual Menu Menu { get; private set; } = default!;
+
+        public void AddMenu(Menu menu)
+        {
+            Menu = menu;
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace RestaurantManager.Infrastructure.Repositories
 
         public IQueryable<TEntity> FindMany(Expression<Func<TEntity, bool>> filter)
         {
-            return _dbSet.Where(filter);
+            return _dbSet.Where(filter).AsNoTracking();
         }
 
         public async Task<TEntity> FindOneAsync(Expression<Func<TEntity, bool>> filter)
@@ -45,7 +45,7 @@ namespace RestaurantManager.Infrastructure.Repositories
 
         public IQueryable<TEntity> GetAll()
         {
-            return _dbSet;
+            return _dbSet.AsNoTracking();
         }
 
         public async Task<TEntity> GetByIdAsync(Guid id)
@@ -57,7 +57,7 @@ namespace RestaurantManager.Infrastructure.Repositories
         public bool RemoveOne(Expression<Func<TEntity, bool>> filter)
         {
             var targetEntity = _dbSet
-                .Where(filter).FirstOrDefault(); ;
+                .Where(filter).FirstOrDefault();
 
             if (targetEntity == null)
             {

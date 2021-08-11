@@ -1,4 +1,5 @@
 ﻿using RestaurantManager.Entities.Restaurants;
+using RestaurantManager.Services.DTOs.Dishes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.DTOs
 {
-    public class IngredientsDto
+    public class IngredientDto
     {
         public Guid Id { get; set; }
         public string Name { get;  set; }
         public decimal Price { get;  set; }
-        public virtual ICollection<Dish> Dishes { get;  set; } = default!;
+        public IEnumerable<DishBaseDto> Dishes { get;  set; }
     }
+
+
 }
