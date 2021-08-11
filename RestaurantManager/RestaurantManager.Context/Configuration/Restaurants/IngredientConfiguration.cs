@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RestaurantManager.Entities.Restaurants;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RestaurantManager.SqlContext.Configuration.Restaurants
 {
@@ -18,8 +13,6 @@ namespace RestaurantManager.SqlContext.Configuration.Restaurants
             builder
                 .HasMany(x => x.Dishes)
                 .WithMany(x => x.Ingredients);
-
-            
         }
     }
 }

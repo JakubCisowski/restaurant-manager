@@ -5,11 +5,11 @@ using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Ingredients;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.DTOs.Dishes;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.RestaurantServices
@@ -33,16 +33,21 @@ namespace RestaurantManager.Services.RestaurantServices
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteIngredientAsync(Guid id)
+        public async Task DeleteIngredientAsync(Guid id)
         {
-            bool deletionResult = _ingredientRepository.RemoveOne(x => x.Id == id);
+            var deletionResult = _ingredientRepository.RemoveOne(x => x.Id == id);
+
+            if (deletionResult == false)
+            {
+                throw new NotFoundException(id, nameof(Ingredient));
+            }
+
             await _unitOfWork.SaveChangesAsync();
-            return deletionResult;
         }
 
         public async Task<IngredientDto> GetIngredientAsync(Guid id)
         {
-            var ingredientDto = _ingredientRepository
+            var ingredientDto = await _ingredientRepository
                 .FindMany(x => x.Id == id)
                 .Select(ingredient => new IngredientDto
                 {
@@ -59,7 +64,7 @@ namespace RestaurantManager.Services.RestaurantServices
                     })
 
                 })
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             //var ingredientDto = new IngredientDto
             //{
@@ -74,7 +79,7 @@ namespace RestaurantManager.Services.RestaurantServices
             //        Description = x.Description,
             //        MenuId = x.MenuId
             //    })
-                
+
             //};
 
             return ingredientDto;
@@ -92,7 +97,7 @@ namespace RestaurantManager.Services.RestaurantServices
                     Dishes = x.Dishes.Select(x => new DishBaseDto
                     {
                         Id = x.Id,
-                        Name    = x.Name,
+                        Name = x.Name,
                         BasePrice = x.BasePrice,
                         Description = x.Description,
                         MenuId = x.MenuId
@@ -103,14 +108,14 @@ namespace RestaurantManager.Services.RestaurantServices
             return await allIngredients.ToListAsync();
         }
 
-        public async Task<bool> UpdateIngredientAsync(UpdateIngredientCommand ingredient)
+        public async Task UpdateIngredientAsync(UpdateIngredientCommand ingredient)
         {
             var requestedIngredient = await _ingredientRepository
                 .FindOneAsync(x => x.Id == ingredient.Id);
 
             if (requestedIngredient == null)
             {
-                return false;
+                throw new NotFoundException(ingredient.Id, nameof(Ingredient));
             }
 
             requestedIngredient.SetName(ingredient.Name);
@@ -118,7 +123,6 @@ namespace RestaurantManager.Services.RestaurantServices
 
             _ingredientRepository.Update(requestedIngredient);
             await _unitOfWork.SaveChangesAsync();
-            return true;
         }
     }
 }

@@ -2,8 +2,6 @@
 using RestaurantManager.Services.DTOs;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.RestaurantServices.Interfaces
@@ -12,8 +10,8 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
     {
         Task<IEnumerable<IngredientDto>> GetAllIngredientsAsync();
         Task AddIngredientAsync(CreateIngredientCommand newIngredient);
-        Task<bool> UpdateIngredientAsync(UpdateIngredientCommand ingredient);
+        Task UpdateIngredientAsync(UpdateIngredientCommand ingredient);
         Task<IngredientDto> GetIngredientAsync(Guid id);
-        Task<bool> DeleteIngredientAsync(Guid id);
+        Task DeleteIngredientAsync(Guid id);
     }
 }

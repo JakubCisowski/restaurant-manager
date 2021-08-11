@@ -30,6 +30,11 @@ namespace RestaurantManager.Services.RestaurantServices
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
 
+            if (restaurant == null)
+            {
+                throw new NotFoundException(restaurantId, nameof(Restaurant));
+            }
+
             var menu = new Menu();
             await _menuRepository.AddAsync(menu);
 
@@ -41,21 +46,31 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task AddRestaurantAsync(CreateRestaurantCommand restaurant)
         {
-            await _restaurantRepository.AddAsync(new Restaurant(restaurant.Id ,restaurant.Name, restaurant.Phone, restaurant.Address));
+            await _restaurantRepository.AddAsync(new Restaurant(restaurant.Id, restaurant.Name, restaurant.Phone, restaurant.Address));
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteRestaurantAsync(Guid id)
+        public async Task DeleteRestaurantAsync(Guid id)
         {
-            bool deletionResult = _restaurantRepository.RemoveOne(x => x.Id == id);
+            var deletionResult = _restaurantRepository.RemoveOne(x => x.Id == id);
+
+            if (deletionResult == false)
+            {
+                throw new NotFoundException(id, nameof(Restaurant));
+            }
+
             await _unitOfWork.SaveChangesAsync();
-            return deletionResult;
         }
 
         public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
         {
             var restaurant = await _restaurantRepository
                 .FindOneAsync(x => x.Id == id);
+
+            if (restaurant == null)
+            {
+                throw new NotFoundException(id, nameof(Restaurant));
+            }
 
             var restaurantDto = new RestaurantDto
             {
@@ -97,7 +112,7 @@ namespace RestaurantManager.Services.RestaurantServices
             return await allRestaurants.ToListAsync();
         }
 
-        public async Task<bool> UpdateRestaurantAsync(UpdateRestaurantCommand restaurant)
+        public async Task UpdateRestaurantAsync(UpdateRestaurantCommand restaurant)
         {
             var requestedRestaurant = await _restaurantRepository
                 .FindOneAsync(x => x.Id == restaurant.Id);
@@ -113,7 +128,6 @@ namespace RestaurantManager.Services.RestaurantServices
 
             _restaurantRepository.Update(requestedRestaurant);
             await _unitOfWork.SaveChangesAsync();
-            return true;
         }
     }
 }

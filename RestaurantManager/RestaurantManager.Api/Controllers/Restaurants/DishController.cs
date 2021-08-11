@@ -2,9 +2,11 @@
 using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Dishes;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 
@@ -37,35 +39,72 @@ namespace RestaurantManager.Api.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] DishInput input)
         {
-
             var dishId = Guid.NewGuid();
-            await _dishService.AddDishAsync(
-                new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
 
-            return Ok(dishId); // todo: Handle errors
+            try
+            {
+                await _dishService.AddDishAsync(
+                new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
+            }
+            catch (Exception)
+            {
+                Problem("Error", "", (int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok(dishId);
         }
 
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] UpdateDishCommand updatedDish)
         {
-            bool updateCompleted = await _dishService.UpdateDishAsync(updatedDish);
-            return updateCompleted ? Ok() : NotFound();
+            try
+            {
+                await _dishService.UpdateDishAsync(updatedDish);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteByIdAsync(Guid id)
         {
-            var deletionCompleted = await _dishService.DeleteDishAsync(id);
-            return deletionCompleted ? Ok() : NotFound();
+            try
+            {
+                await _dishService.DeleteDishAsync(id);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpPost("AddAvailableIngredient")]
         public async Task<IActionResult> AddAvailableIngredient([FromBody] AddIngredientCommand command)
         {
-            await _dishService.AddAvailableIngredient(command);
-
-            return Ok(command);
+            try
+            {
+                await _dishService.AddAvailableIngredient(command); return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
-
     }
 }

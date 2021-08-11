@@ -1,5 +1,4 @@
 ﻿using RestaurantManager.Entities.Restaurants;
-using System;
 
 namespace RestaurantManager.Infrastructure.Repositories.Interfaces
 {

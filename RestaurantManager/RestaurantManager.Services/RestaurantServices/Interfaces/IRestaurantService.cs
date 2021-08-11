@@ -1,5 +1,4 @@
-﻿using RestaurantManager.Entities.Restaurants;
-using RestaurantManager.Services.Commands.Restaurants;
+﻿using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using System;
 using System.Collections.Generic;
@@ -13,8 +12,8 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
         Task<IEnumerable<RestaurantDto>> GetRestaurantsAsync();
         Task AddRestaurantAsync(CreateRestaurantCommand newRestaurant);
         Task AddMenuAsync(Guid restaurantId);
-        Task<bool> UpdateRestaurantAsync(UpdateRestaurantCommand restaurant);
+        Task UpdateRestaurantAsync(UpdateRestaurantCommand restaurant);
         Task<RestaurantDto> GetRestaurantAsync(Guid id);
-        Task<bool> DeleteRestaurantAsync(Guid id);
+        Task DeleteRestaurantAsync(Guid id);
     }
 }

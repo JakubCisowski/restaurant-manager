@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Ingredients;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers
@@ -40,24 +40,54 @@ namespace RestaurantManager.Api.Controllers
         {
 
             var ingredientId = Guid.NewGuid();
-            await _ingredientService.AddIngredientAsync(
-                new CreateIngredientCommand(ingredientId, input.Name, input.Price));
 
-            return Ok(ingredientId); // todo: Handle errors
+            try
+            {
+                await _ingredientService.AddIngredientAsync(
+                new CreateIngredientCommand(ingredientId, input.Name, input.Price));
+            }
+            catch (Exception)
+            {
+                Problem("Error", "", (int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok(ingredientId);
         }
 
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] UpdateIngredientCommand updatedIngredient)
         {
-            bool updateCompleted = await _ingredientService.UpdateIngredientAsync(updatedIngredient);
-            return updateCompleted ? Ok() : NotFound();
+            try
+            {
+                await _ingredientService.UpdateIngredientAsync(updatedIngredient);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteByIdAsync(Guid id)
         {
-            var deletionCompleted = await _ingredientService.DeleteIngredientAsync(id);
-            return deletionCompleted ? Ok() : NotFound();
+            try
+            {
+                await _ingredientService.DeleteIngredientAsync(id);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

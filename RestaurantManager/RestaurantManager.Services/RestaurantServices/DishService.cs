@@ -5,11 +5,11 @@ using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Dishes;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.DTOs.Ingredients;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.RestaurantServices
@@ -45,6 +45,15 @@ namespace RestaurantManager.Services.RestaurantServices
             var dish = await _dishRepository.GetByIdAsync(command.DishId);
             var ingredient = await _ingredientRepository.GetByIdAsync(command.IngredientId);
 
+            if (dish == null)
+            {
+                throw new NotFoundException(command.DishId, nameof(Dish));
+            }
+            if (ingredient == null)
+            {
+                throw new NotFoundException(command.IngredientId, nameof(Ingredient));
+            }
+
             //await Task.WhenAll(dish, ingredient);
             //var dishResult = await dish;
             //var ingredientsResult = await ingredient;
@@ -55,11 +64,16 @@ namespace RestaurantManager.Services.RestaurantServices
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteDishAsync(Guid id)
+        public async Task DeleteDishAsync(Guid id)
         {
-            bool deletionResult = _dishRepository.RemoveOne(x => x.Id == id);
+            var deletionResult = _dishRepository.RemoveOne(x => x.Id == id);
+
+            if (deletionResult == false)
+            {
+                throw new NotFoundException(id, nameof(Dish));
+            }
+
             await _unitOfWork.SaveChangesAsync();
-            return deletionResult;
         }
 
         public async Task<DishDto> GetDishAsync(Guid id)
@@ -108,14 +122,14 @@ namespace RestaurantManager.Services.RestaurantServices
             return await allDishes.ToListAsync();
         }
 
-        public async Task<bool> UpdateDishAsync(UpdateDishCommand dish)
+        public async Task UpdateDishAsync(UpdateDishCommand dish)
         {
             var requestedDish = await _dishRepository
                 .FindOneAsync(x => x.Id == dish.Id);
 
             if (requestedDish == null)
             {
-                return false;
+                throw new NotFoundException(dish.Id, nameof(Dish));
             }
 
             requestedDish.SetName(dish.Name);
@@ -124,7 +138,6 @@ namespace RestaurantManager.Services.RestaurantServices
 
             _dishRepository.Update(requestedDish);
             await _unitOfWork.SaveChangesAsync();
-            return true;
         }
     }
 }

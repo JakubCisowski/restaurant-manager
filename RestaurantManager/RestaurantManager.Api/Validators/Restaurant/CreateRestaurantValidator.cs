@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 using RestaurantManager.Api.Inputs.Restaurants;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Validators.Restaurant
 {
@@ -12,17 +8,14 @@ namespace RestaurantManager.Api.Validators.Restaurant
         public CreateRestaurantValidator()
         {
             RuleFor(x => x.Address)
-                .NotEmpty()
-                .WithMessage("test adress");
+                .NotEmpty().WithMessage("{PropertyName} shouldn't be empty");
 
             RuleFor(x => x.Name)
-                 .NotEmpty()
-                 .WithMessage("test222");
-
+                 .NotEmpty().WithMessage("{PropertyName} shouldn't be empty");
 
             RuleFor(x => x.Phone)
-                .NotEmpty()
-                .Matches(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}");//
+                .NotEmpty().WithMessage("{PropertyName} shouldn't be empty")
+                .Matches(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}").WithMessage("{PropertyName} - wrong format");
         }
     }
 }

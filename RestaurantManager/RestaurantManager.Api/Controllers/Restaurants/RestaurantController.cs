@@ -33,7 +33,20 @@ namespace RestaurantManager.Api.Controllers
         [HttpGet("{id}")]
         public async Task<RestaurantDto> GetByIdAsync(Guid id)
         {
-            return await _restaurantService.GetRestaurantAsync(id);
+            try
+            {
+                return await _restaurantService.GetRestaurantAsync(id);
+                //return Ok();
+            }
+            //catch (NotFoundException e)
+            //{
+            //    return NotFound(e.Message);
+            //}
+            catch (Exception e)
+            {
+                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+                return null;
+            }
         }
 
         [HttpGet("RestaurantNames")]
@@ -51,12 +64,12 @@ namespace RestaurantManager.Api.Controllers
                 await _restaurantService.AddRestaurantAsync(
                     new CreateRestaurantCommand(restaurantId, input.Name, input.Phone, input.Address));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Problem("Error", "", (int)HttpStatusCode.InternalServerError);
             }
 
-            return Ok(restaurantId); // todo: Handle errors
+            return Ok(restaurantId);
         }
 
         [HttpPut("Update")]
@@ -64,14 +77,14 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                bool updateCompleted = await _restaurantService.UpdateRestaurantAsync(updatedRestaurant);
+                await _restaurantService.UpdateRestaurantAsync(updatedRestaurant);
                 return Ok();
             }
             catch (NotFoundException e)
             {
                 return NotFound(e.Message);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
@@ -80,15 +93,37 @@ namespace RestaurantManager.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteByIdAsync(Guid id)
         {
-            var deletionCompleted = await _restaurantService.DeleteRestaurantAsync(id);
-            return deletionCompleted ? Ok() : NotFound();
+            try
+            {
+                await _restaurantService.DeleteRestaurantAsync(id);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpPost("CreateMenu")]
         public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuCommand newMenu)
         {
-            await _restaurantService.AddMenuAsync(newMenu.RestaurantId);
-            return Ok();
+            try
+            {
+                await _restaurantService.AddMenuAsync(newMenu.RestaurantId);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
     }
 }
