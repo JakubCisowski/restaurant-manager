@@ -78,7 +78,7 @@ namespace RestaurantManager.Services.RestaurantServices
                 Name = restaurant.Name,
                 Address = restaurant.Address,
                 Phone = restaurant.Phone,
-                MenuId = restaurant.Menu.Id
+                //MenuId = restaurant.Menu.Id  // <- zakomentowałem to bo co chwila błąd że Menu = null, więc nie da się Menu.Id
             };
 
             return restaurantDto;

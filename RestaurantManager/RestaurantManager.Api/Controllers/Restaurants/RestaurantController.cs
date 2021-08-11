@@ -31,21 +31,19 @@ namespace RestaurantManager.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<RestaurantDto> GetByIdAsync(Guid id)
+        public async Task<ActionResult<RestaurantDto>> GetByIdAsync(Guid id)
         {
             try
             {
                 return await _restaurantService.GetRestaurantAsync(id);
-                //return Ok();
             }
-            //catch (NotFoundException e)
-            //{
-            //    return NotFound(e.Message);
-            //}
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
             catch (Exception e)
             {
-                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-                return null;
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
         }
 

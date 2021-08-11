@@ -31,9 +31,20 @@ namespace RestaurantManager.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<DishDto> GetByIdAsync(Guid id)
+        public async Task<ActionResult<DishDto>> GetByIdAsync(Guid id)
         {
-            return await _dishService.GetDishAsync(id);
+            try
+            {
+                return await _dishService.GetDishAsync(id);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpPost("Create")]
