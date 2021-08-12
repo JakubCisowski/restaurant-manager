@@ -62,7 +62,7 @@ namespace RestaurantManager.Services.RestaurantServices
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
+        public async Task<RestaurantDto> GetAllRestaurantAsync(Guid id)
         {
             var restaurant = await _restaurantRepository
                 .FindOneAsync(x => x.Id == id);
@@ -78,7 +78,7 @@ namespace RestaurantManager.Services.RestaurantServices
                 Name = restaurant.Name,
                 Address = restaurant.Address,
                 Phone = restaurant.Phone,
-                //MenuId = restaurant.Menu.Id  // <- zakomentowałem to bo co chwila błąd że Menu = null, więc nie da się Menu.Id
+                MenuId = restaurant.Menu.Id
             };
 
             return restaurantDto;
