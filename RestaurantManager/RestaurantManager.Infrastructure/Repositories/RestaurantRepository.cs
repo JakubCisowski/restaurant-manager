@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestaurantManager.Context;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using System;

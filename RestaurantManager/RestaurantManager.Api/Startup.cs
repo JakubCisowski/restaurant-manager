@@ -1,3 +1,4 @@
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -31,9 +32,14 @@ namespace RestaurantManager.Api
             services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddTransient<IRestaurantService, RestaurantService>();
+            services.AddTransient<IDishService, DishService>();
+            services.AddTransient<IIngredientService, IngredientService>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddMvc().AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<Startup>());
+
 
             services.AddSwaggerGen(c =>
             {

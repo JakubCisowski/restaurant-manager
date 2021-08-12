@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Api.Inputs.Restaurants;
-using RestaurantManager.Services.Commands.Dishes;
+using RestaurantManager.Services.Commands.Ingredients;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
@@ -9,33 +9,32 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-
 namespace RestaurantManager.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DishController : ControllerBase
+    public class IngredientController : ControllerBase
     {
-        private readonly IDishService _dishService;
+        private readonly IIngredientService _ingredientService;
 
-        public DishController(IDishService dishService)
+        public IngredientController(IIngredientService ingredientService)
         {
-            _dishService = dishService;
+            _ingredientService = ingredientService;
         }
 
-        [HttpGet("AllDishes")]
-        public async Task<IEnumerable<DishDto>> GetAllAsync()
+        [HttpGet("AllIngredients")]
+        public async Task<IEnumerable<IngredientDto>> GetAllAsync()
         {
-            var result = await _dishService.GetAllDishesAsync();
+            var result = await _ingredientService.GetAllIngredientsAsync();
             return result;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<DishDto>> GetByIdAsync(Guid id)
+        public async Task<ActionResult<IngredientDto>> GetByIdAsync(Guid id)
         {
             try
             {
-                return await _dishService.GetDishAsync(id);
+                return await _ingredientService.GetIngredientAsync(id);
             }
             catch (NotFoundException e)
             {
@@ -48,29 +47,30 @@ namespace RestaurantManager.Api.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> CreateAsync([FromBody] DishInput input)
+        public async Task<IActionResult> CreateAsync([FromBody] IngredientInput input)
         {
-            var dishId = Guid.NewGuid();
+
+            var ingredientId = Guid.NewGuid();
 
             try
             {
-                await _dishService.AddDishAsync(
-                new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
+                await _ingredientService.AddIngredientAsync(
+                new CreateIngredientCommand(ingredientId, input.Name, input.Price));
             }
             catch (Exception)
             {
                 Problem("Error", "", (int)HttpStatusCode.InternalServerError);
             }
 
-            return Ok(dishId);
+            return Ok(ingredientId);
         }
 
         [HttpPut("Update")]
-        public async Task<IActionResult> UpdateAsync([FromBody] UpdateDishCommand updatedDish)
+        public async Task<IActionResult> UpdateAsync([FromBody] UpdateIngredientCommand updatedIngredient)
         {
             try
             {
-                await _dishService.UpdateDishAsync(updatedDish);
+                await _ingredientService.UpdateIngredientAsync(updatedIngredient);
                 return Ok();
             }
             catch (NotFoundException e)
@@ -88,25 +88,8 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                await _dishService.DeleteDishAsync(id);
+                await _ingredientService.DeleteIngredientAsync(id);
                 return Ok();
-            }
-            catch (NotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
-        }
-
-        [HttpPost("AddAvailableIngredient")]
-        public async Task<IActionResult> AddAvailableIngredient([FromBody] AddIngredientCommand command)
-        {
-            try
-            {
-                await _dishService.AddAvailableIngredient(command); return Ok();
             }
             catch (NotFoundException e)
             {

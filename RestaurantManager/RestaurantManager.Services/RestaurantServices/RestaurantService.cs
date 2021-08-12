@@ -4,6 +4,7 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,56 +17,76 @@ namespace RestaurantManager.Services.RestaurantServices
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Menu> _menuRepository;
+        private readonly IGenericRepository<Restaurant> _restaurantRepository;
 
         public RestaurantService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
             _menuRepository = _unitOfWork.GetRepository<Menu>();
+            _restaurantRepository = _unitOfWork.GetRepository<Restaurant>();
         }
 
         public async Task AddMenuAsync(Guid restaurantId)
         {
-            var restaurant = await _unitOfWork.RestaurantRepository.GetByIdAsync(restaurantId);
-            var menu = new Menu();
-            menu.AddRestautant(restaurant);
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
 
+            if (restaurant == null)
+            {
+                throw new NotFoundException(restaurantId, nameof(Restaurant));
+            }
+
+            var menu = new Menu();
             await _menuRepository.AddAsync(menu);
+
+            restaurant.AddMenu(menu);
+            _restaurantRepository.Update(restaurant);
+
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task AddRestaurantAsync(CreateRestaurantCommand restaurant)
         {
-            await _unitOfWork.RestaurantRepository.AddAsync(new Restaurant(restaurant.Id ,restaurant.Name, restaurant.Phone, restaurant.Address));
+            await _restaurantRepository.AddAsync(new Restaurant(restaurant.Id, restaurant.Name, restaurant.Phone, restaurant.Address));
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteRestaurantAsync(Guid id)
+        public async Task DeleteRestaurantAsync(Guid id)
         {
-            bool deletionResult = _unitOfWork.RestaurantRepository.RemoveOne(x => x.Id == id);
-            await _unitOfWork.SaveChangesAsync();
-            return deletionResult;
-        }
+            var deletionResult = _restaurantRepository.RemoveOne(x => x.Id == id);
 
-        public async Task<RestaurantsDto> GetRestaurantAsync(Guid id)
-        {
-            var restaurant = await _unitOfWork.RestaurantRepository
-                .FindOneAsync(x => x.Id == id);
-
-            var restaurantDto = new RestaurantsDto
+            if (deletionResult == false)
             {
-                Id = restaurant.Id,
-                Name = restaurant.Name,
-                Address = restaurant.Address,
-                Phone = restaurant.Phone,
-                MenuId = restaurant.Menu.Id
-            };
+                throw new NotFoundException(id, nameof(Restaurant));
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
+        {
+            var restaurantDto =  await _restaurantRepository
+                .FindMany(x => x.Id == id)
+                .Select(restaurant => new RestaurantDto
+                {
+                    Id = restaurant.Id,
+                    Name = restaurant.Name,
+                    Address = restaurant.Address,
+                    Phone = restaurant.Phone,
+                    MenuId = restaurant.Menu.Id
+                })
+                .FirstOrDefaultAsync();
+
+            if (restaurantDto == null)
+            {
+                throw new NotFoundException(id, nameof(Restaurant));
+            }
 
             return restaurantDto;
         }
 
         public IEnumerable<RestaurantNamesDto> GetRestaurantNames()
         {
-            var restaurantNames = _unitOfWork.RestaurantRepository
+            var restaurantNames = _restaurantRepository
                 .FindMany(x => true)
                 .Select(x => new RestaurantNamesDto
                 {
@@ -75,11 +96,11 @@ namespace RestaurantManager.Services.RestaurantServices
             return restaurantNames;
         }
 
-        public async Task<IEnumerable<RestaurantsDto>> GetRestaurants()
+        public async Task<IEnumerable<RestaurantDto>> GetRestaurantsAsync()
         {
-            var allRestaurants = _unitOfWork.RestaurantRepository
+            var allRestaurants = _restaurantRepository
                 .GetAll()
-                .Select(x => new RestaurantsDto
+                .Select(x => new RestaurantDto
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -91,23 +112,22 @@ namespace RestaurantManager.Services.RestaurantServices
             return await allRestaurants.ToListAsync();
         }
 
-        public async Task<bool> UpdateRestaurantAsync(UpdateRestaurantCommand restaurant)
+        public async Task UpdateRestaurantAsync(UpdateRestaurantCommand restaurant)
         {
-            var requestedRestaurant = await _unitOfWork.RestaurantRepository
+            var requestedRestaurant = await _restaurantRepository
                 .FindOneAsync(x => x.Id == restaurant.Id);
 
             if (requestedRestaurant == null)
             {
-                return false;
+                throw new NotFoundException(restaurant.Id, nameof(Restaurant));
             }
 
             requestedRestaurant.SetName(restaurant.Name);
             requestedRestaurant.SetAddress(restaurant.Address);
             requestedRestaurant.SetPhone(restaurant.Phone);
 
-            _unitOfWork.RestaurantRepository.Update(requestedRestaurant);
-            _unitOfWork.SaveChangesAsync();
-            return true;
+            _restaurantRepository.Update(requestedRestaurant);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
