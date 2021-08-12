@@ -1,17 +1,21 @@
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RestaurantManager.Api.Configs;
 using RestaurantManager.Context;
 using RestaurantManager.Infrastructure.Repositories;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.RestaurantServices;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
+using System.Linq;
 
 namespace RestaurantManager.Api
 {
@@ -40,10 +44,53 @@ namespace RestaurantManager.Api
 
             services.AddMvc().AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<Startup>());
 
+            var keycloakConfig = new KeycloakConfig();
+            Configuration.GetSection(nameof(KeycloakConfig)).Bind(keycloakConfig);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = keycloakConfig.Authority;
+                    options.Audience = keycloakConfig.ClientId;
+                    options.IncludeErrorDetails = true;
+                    options.RequireHttpsMetadata = false; //for development
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = false,
+                        //ValidAudiences = new[] { "master-realm", "tetstst" },
+                        ValidateIssuer = true,
+                        ValidIssuer = keycloakConfig.Authority,
+                        ValidateLifetime = false,
+                    };
+                });
+
+            services.AddAuthorization();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RestaurantManager.Api", Version = "v1" });
+                var securitySchema = new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
+
+                c.AddSecurityDefinition("Bearer", securitySchema);
+
+                var securityRequirement = new OpenApiSecurityRequirement
+                {
+                    { securitySchema, new[] { "Bearer" } }
+                };
+
+                c.AddSecurityRequirement(securityRequirement);
             });
         }
 
@@ -61,6 +108,7 @@ namespace RestaurantManager.Api
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

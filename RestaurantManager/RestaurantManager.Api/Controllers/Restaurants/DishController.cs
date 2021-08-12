@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Dishes;
 using RestaurantManager.Services.DTOs;
@@ -9,9 +10,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-
 namespace RestaurantManager.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DishController : ControllerBase
