@@ -7,8 +7,6 @@ namespace RestaurantManager.Entities.Orders
     public class OrderItem : Entity
     {
         public string DishName { get; private set; }
-
-        [Column(TypeName = "decimal(18, 2)")]
         public decimal DishPrice { get; private set; }
         public string DishComment { get; private set; }
 
