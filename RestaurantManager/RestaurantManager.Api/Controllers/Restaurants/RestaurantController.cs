@@ -35,7 +35,7 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                return await _restaurantService.GetAllRestaurantAsync(id);
+                return await _restaurantService.GetRestaurantAsync(id);
             }
             catch (NotFoundException e)
             {

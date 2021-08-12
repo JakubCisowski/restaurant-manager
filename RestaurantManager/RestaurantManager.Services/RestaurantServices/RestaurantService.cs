@@ -62,24 +62,24 @@ namespace RestaurantManager.Services.RestaurantServices
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<RestaurantDto> GetAllRestaurantAsync(Guid id)
+        public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
         {
-            var restaurant = await _restaurantRepository
-                .FindOneAsync(x => x.Id == id);
+            var restaurantDto =  await _restaurantRepository
+                .FindMany(x => x.Id == id)
+                .Select(restaurant => new RestaurantDto
+                {
+                    Id = restaurant.Id,
+                    Name = restaurant.Name,
+                    Address = restaurant.Address,
+                    Phone = restaurant.Phone,
+                    MenuId = restaurant.Menu.Id
+                })
+                .FirstOrDefaultAsync();
 
-            if (restaurant == null)
+            if (restaurantDto == null)
             {
                 throw new NotFoundException(id, nameof(Restaurant));
             }
-
-            var restaurantDto = new RestaurantDto
-            {
-                Id = restaurant.Id,
-                Name = restaurant.Name,
-                Address = restaurant.Address,
-                Phone = restaurant.Phone,
-                MenuId = restaurant.Menu.Id
-            };
 
             return restaurantDto;
         }
