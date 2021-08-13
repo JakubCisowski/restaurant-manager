@@ -17,7 +17,8 @@ namespace RestaurantManager.SqlContext.Configuration.Orders
             builder.HasMany(x => x.DishExtraIngredients)
                 .WithOne(x => x.OrderItem);
 
-            builder.Property(p => p.DishPrice).HasPrecision(18, 2);
+            builder.Property(p => p.DishPrice)
+                .HasPrecision(18, 2);
 
         }
     }

@@ -1,10 +1,13 @@
-﻿namespace RestaurantManager.Entities.Orders
+﻿using System.Collections.Generic;
+
+namespace RestaurantManager.Entities.Orders
 {
     public class Customer : Entity
     {
-        public string FirstName { get; private set; }
-        public string LastName { get; private set; }
+        //public string FirstName { get; private set; }
+        //public string LastName { get; private set; }
         public string Phone { get; private set; }
-        public string Address { get; private set; }
+
+        public virtual ICollection<Order> Orders { get; private set; }
     }
 }
