@@ -15,6 +15,7 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.RestaurantServices;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
+using Serilog;
 using System.Linq;
 
 namespace RestaurantManager.Api
@@ -92,6 +93,12 @@ namespace RestaurantManager.Api
 
                 c.AddSecurityRequirement(securityRequirement);
             });
+
+            services.AddSingleton(Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(new ConfigurationBuilder()
+                .AddJsonFile("appsettings.Development.json")
+                .Build())
+                .CreateLogger());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -105,6 +112,9 @@ namespace RestaurantManager.Api
             }
 
             app.UseHttpsRedirection();
+
+            // Whenever request is made, serilog is going to log that.
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
 

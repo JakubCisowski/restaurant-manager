@@ -5,6 +5,7 @@ using RestaurantManager.Services.Commands.Dishes;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -18,10 +19,12 @@ namespace RestaurantManager.Api.Controllers
     public class DishController : ControllerBase
     {
         private readonly IDishService _dishService;
+        private readonly ILogger _logger;
 
-        public DishController(IDishService dishService)
+        public DishController(IDishService dishService, ILogger logger)
         {
             _dishService = dishService;
+            _logger = logger;
         }
 
         [HttpGet("AllDishes")]
@@ -40,10 +43,12 @@ namespace RestaurantManager.Api.Controllers
             }
             catch (NotFoundException e)
             {
+                _logger.Error(e.Message);
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
         }
@@ -58,9 +63,10 @@ namespace RestaurantManager.Api.Controllers
                 await _dishService.AddDishAsync(
                 new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Problem("Error", "", (int)HttpStatusCode.InternalServerError);
+                _logger.Error(e.Message);
+                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
 
             return Ok(dishId);
@@ -76,10 +82,12 @@ namespace RestaurantManager.Api.Controllers
             }
             catch (NotFoundException e)
             {
+                _logger.Error(e.Message);
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
         }
@@ -94,10 +102,12 @@ namespace RestaurantManager.Api.Controllers
             }
             catch (NotFoundException e)
             {
+                _logger.Error(e.Message);
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
         }
@@ -111,10 +121,12 @@ namespace RestaurantManager.Api.Controllers
             }
             catch (NotFoundException e)
             {
+                _logger.Error(e.Message);
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
         }
