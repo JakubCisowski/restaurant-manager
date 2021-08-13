@@ -17,10 +17,10 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly DbSet<OrderNumber> _orderNumbersSet;
         private readonly IUnitOfWork _unitOfWork;
 
-        public OrderNoGeneratorService(IUnitOfWork unitOfWork, DbSet<OrderNumber> menuSet)
+        public OrderNoGeneratorService(IUnitOfWork unitOfWork, DbSet<OrderNumber> orderNumbersSet)
         {
             _unitOfWork = unitOfWork;
-            _orderNumbersSet = menuSet;
+            _orderNumbersSet = orderNumbersSet;
         }
 
         public int GenerateOrderNo()
