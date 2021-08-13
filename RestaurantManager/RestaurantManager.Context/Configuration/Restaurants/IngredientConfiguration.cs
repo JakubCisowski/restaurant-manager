@@ -13,6 +13,8 @@ namespace RestaurantManager.SqlContext.Configuration.Restaurants
             builder
                 .HasMany(x => x.Dishes)
                 .WithMany(x => x.Ingredients);
+
+            builder.Property(p => p.Price).HasPrecision(18, 2);
         }
     }
 }

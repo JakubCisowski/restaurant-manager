@@ -15,8 +15,6 @@ namespace RestaurantManager.Entities.Restaurants
         }
 
         public string Name { get; private set; }
-
-        [Column(TypeName = "decimal(18, 2)")]
         public decimal BasePrice { get; private set; }
         public string Description { get; private set; }
         public virtual ICollection<Ingredient> Ingredients { get; private set; } = new List<Ingredient>();
