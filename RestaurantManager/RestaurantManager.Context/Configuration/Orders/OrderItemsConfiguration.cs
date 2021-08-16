@@ -7,7 +7,7 @@ namespace RestaurantManager.SqlContext.Configuration.Orders
     public class OrderItemsConfiguration : IEntityTypeConfiguration<OrderItem>
     {
         public void Configure(EntityTypeBuilder<OrderItem> builder)
-        {
+        {   
             builder.HasKey(x => x.Id);
 
             builder.HasOne(x => x.Order)

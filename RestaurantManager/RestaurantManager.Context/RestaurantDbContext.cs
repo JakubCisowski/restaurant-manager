@@ -22,7 +22,7 @@ namespace RestaurantManager.Context
         public DbSet<Customer> Customers { get; set; }
         public DbSet<DishExtraIngredient> DishExtraIngredients { get; set; }
         public DbSet<ShippingAddress> ShippingAddresses { get; set; }
-
+        public DbSet<OrderNumber> OrderNumbers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,7 +39,7 @@ namespace RestaurantManager.Context
             modelBuilder.ApplyConfiguration(new DishExtraIngredientConfiguration());
             modelBuilder.ApplyConfiguration(new ShippingAdressConfiguration());
 
-           
+            modelBuilder.ApplyConfiguration(new OrderNoConfiguration());
         }
     }
 }

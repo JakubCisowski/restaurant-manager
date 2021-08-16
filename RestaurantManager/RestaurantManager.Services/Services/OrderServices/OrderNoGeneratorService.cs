@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Context;
 using RestaurantManager.Entities.Orders;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
@@ -14,74 +15,82 @@ namespace RestaurantManager.Services.Services.OrderServices
     {
         private const int EXPIRATION_TIME_IN_DAYS = 30;
 
-        private readonly DbSet<OrderNumber> _orderNumbersSet;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly RestaurantDbContext _dbContext;
+        private static Random rand = new Random();
 
-        public OrderNoGeneratorService(IUnitOfWork unitOfWork, DbSet<OrderNumber> orderNumbersSet)
+        public OrderNoGeneratorService(RestaurantDbContext dbContext)
         {
-            _unitOfWork = unitOfWork;
-            _orderNumbersSet = orderNumbersSet;
+            _dbContext = dbContext;
         }
 
         public int GenerateOrderNo()
         {
-            // Skoro ta metoda ma tylko generować liczbę, to po co nam właściwie unitOfWork?
-
-            // Jesli ma dodawac też do bazy, to wtedy wszystkie poniższe 'break;' należy podmienić z:
-            //_orderNumbersSet.Add(new OrderNumber()
-            //{
-            //    Id = randomNo,
-            //    InUsageFrom = DateTime.Now,
-            //    IsAvailable = false  
-            //});
-            // _unitOfWork.SaveChangesAsync();
-
-            // zapytać dominika co robić z przedawnionymi idkami
-
-
-
-            var rand = new Random();
-            int randomNo = rand.Next(0, 1000000); // Random value <0 - 999 999>
-
-            while(true)
+            var availableNumber = GetNumberFromExpiredRecords();
+            if (availableNumber is not null)
             {
-                //1. sprawdzasz czy w tabeli OrderNumber instnieje id rand
-                var selectedNo = _orderNumbersSet.FirstOrDefault(x => x.Id == randomNo);
-
-                //2. Jeśli nie istnieje to tworzysz rekord o tym id
-                if (selectedNo == null)
-                {
-                    break;
-                }
-                //3. Jeśli istnieje to sprawdzasz czy dostępny
-                else
-                {
-                    //4. Jeśli niedostępny to sprawdzasz czy można na odblokować
-                    if (selectedNo.IsAvailable == false)
-                    {
-                        var inUsageSince = selectedNo.InUsageFrom;
-                        var currentDate = DateTime.Now;
-                        var timeDifference = (int)currentDate.Subtract(inUsageSince).TotalDays;
-
-                        if(timeDifference > EXPIRATION_TIME_IN_DAYS)
-                        {
-                            break;
-                        }
-                        //5. Jeśli nie to sprawdzasz inny
-                        else
-                        {
-                            randomNo = rand.Next(0, 1000000);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                availableNumber.ClearUsageFrom();
+                return availableNumber.Id;
             }
 
-            return randomNo;
+            return CreateNewOrderNumber();
+        }
+
+        private int CreateNewOrderNumber()
+        {
+            var randomNo = rand.Next(0, 1000000);
+            var exitsts = _dbContext.OrderNumbers
+                .Any(x => x.Id == randomNo);
+
+            if (!exitsts)
+            {
+                CreateOrderNumberRecord(randomNo);
+                return randomNo;
+            }
+            else
+            {
+                return CreateNewOrderNumber();
+            }
+        }
+
+        private static bool CheckIfOrderNumberExipred(int timeDifference)
+        {
+            return timeDifference > EXPIRATION_TIME_IN_DAYS;
+        }
+
+        private static int GetUsageTimeDays(DateTime inUsageSince)
+        {
+            var currentDate = DateTime.Now;
+            var timeDifference = (int)currentDate.Subtract(inUsageSince).TotalDays;
+            return timeDifference;
+        }
+
+        private OrderNumber GetNumberFromExpiredRecords()
+        {
+            var numberRecord = _dbContext
+                .OrderNumbers
+                .OrderByDescending(x => x.InUsageFrom)
+                .FirstOrDefault();
+
+            int timeDifference = GetUsageTimeDays(numberRecord.InUsageFrom);
+            if (CheckIfOrderNumberExipred(timeDifference))
+            {
+                return numberRecord;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private void CreateOrderNumberRecord(int randomNo)
+        {
+            _dbContext.OrderNumbers.Add(new OrderNumber()
+            {
+                Id = randomNo,
+                InUsageFrom = DateTime.Now,
+            });
+
+            _dbContext.SaveChanges();
         }
     }
 }
