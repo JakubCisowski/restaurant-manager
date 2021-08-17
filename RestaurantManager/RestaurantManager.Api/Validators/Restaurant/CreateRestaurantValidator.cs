@@ -15,7 +15,7 @@ namespace RestaurantManager.Api.Validators.Restaurant
 
             RuleFor(x => x.Phone)
                 .NotEmpty().WithMessage("{PropertyName} shouldn't be empty");
-                //.Matches(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}").WithMessage("{PropertyName} - wrong format");
+            //.Matches(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}").WithMessage("{PropertyName} - wrong format");
         }
     }
 }

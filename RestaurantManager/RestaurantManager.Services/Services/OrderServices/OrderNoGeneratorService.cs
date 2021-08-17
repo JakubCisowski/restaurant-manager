@@ -1,13 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RestaurantManager.Context;
+﻿using RestaurantManager.Context;
 using RestaurantManager.Entities.Orders;
-using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.Services.OrderServices
 {

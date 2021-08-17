@@ -3,10 +3,7 @@ using RestaurantManager.Api.Inputs.Orders;
 using RestaurantManager.Services.Commands.Orders;
 using RestaurantManager.Services.Commands.OrdersCommands;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
