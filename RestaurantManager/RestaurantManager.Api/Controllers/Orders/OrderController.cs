@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RestaurantManager.Api.Inputs.Orders;
 using RestaurantManager.Services.Commands.Orders;
 using RestaurantManager.Services.Commands.OrdersCommands;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,15 +29,17 @@ namespace RestaurantManager.Api.Controllers.Orders
 
         // GET api/<OrderController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public string GetOrder(int id)
         {
             return "value";
         }
 
         // POST api/<OrderController>
         [HttpPost("CreateOrder")]
-        public void CreateOrder([FromBody] CreateOrderInput input)
+        public async Task<ActionResult<int>> CreateOrder([FromBody] CreateOrderCommand command)
         {
+            var result = await _orderService.CreateOrderDraft(command);
+            return result;
         }
 
 

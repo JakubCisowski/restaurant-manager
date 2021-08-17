@@ -16,6 +16,16 @@ namespace RestaurantManager.Entities.Orders
         public Customer Customer { get; private set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; private set; } = new List<OrderItem>();
+
+        public void SetCustomer(Customer customer)
+        {
+            Customer = customer;
+        }
+
+        public void SetOrderNumber(int orderNo)
+        {
+            OrderNo = orderNo;
+        }
     }
-    //pobieranie zamówienia po nr telefonu, id zamówienia => int 6 cyfr, archiwizacja nr zamówienia po jakimś czasie wygasa
+    //pobieranie zamówienia po nr telefonu
 }

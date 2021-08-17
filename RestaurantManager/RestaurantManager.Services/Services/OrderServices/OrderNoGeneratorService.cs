@@ -66,6 +66,11 @@ namespace RestaurantManager.Services.Services.OrderServices
                 .OrderByDescending(x => x.InUsageFrom)
                 .FirstOrDefault();
 
+            if (numberRecord is null)
+            {
+                return null;
+            }
+
             int timeDifference = GetUsageTimeDays(numberRecord.InUsageFrom);
             if (CheckIfOrderNumberExipred(timeDifference))
             {
