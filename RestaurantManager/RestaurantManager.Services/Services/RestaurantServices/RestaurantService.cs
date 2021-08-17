@@ -64,7 +64,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
         {
-            var restaurantDto =  await _restaurantRepository
+            var restaurantDto = await _restaurantRepository
                 .FindMany(x => x.Id == id)
                 .Select(restaurant => new RestaurantDto
                 {

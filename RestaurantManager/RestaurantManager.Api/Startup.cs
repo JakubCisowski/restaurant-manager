@@ -18,7 +18,6 @@ using RestaurantManager.Services.RestaurantServices.Interfaces;
 using RestaurantManager.Services.Services.OrderServices;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
 using Serilog;
-using System.Linq;
 
 namespace RestaurantManager.Api
 {
@@ -43,7 +42,7 @@ namespace RestaurantManager.Api
             services.AddTransient<IIngredientService, IngredientService>();
             services.AddTransient<IOrderService, OrderService>();
 
-            
+
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

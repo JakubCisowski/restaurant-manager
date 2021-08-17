@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using System;
 
 namespace RestaurantManager.Api
 {
@@ -16,7 +14,7 @@ namespace RestaurantManager.Api
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .UseSerilog()   // Use Serilog as a logger of choice, rather than built-in logging system.
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
