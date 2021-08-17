@@ -15,6 +15,8 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.RestaurantServices;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
+using RestaurantManager.Services.Services.OrderServices;
+using RestaurantManager.Services.Services.OrderServices.Interfaces;
 using Serilog;
 using System.Linq;
 
@@ -39,6 +41,9 @@ namespace RestaurantManager.Api
             services.AddTransient<IRestaurantService, RestaurantService>();
             services.AddTransient<IDishService, DishService>();
             services.AddTransient<IIngredientService, IngredientService>();
+            services.AddTransient<IOrderService, OrderService>();
+
+            
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

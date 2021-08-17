@@ -12,6 +12,14 @@ namespace RestaurantManager.SqlContext.Configuration.Orders
 
             builder.HasMany(x => x.OrderItems)
                 .WithOne(x => x.Order);
+
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.Orders)
+                .HasForeignKey(x => x.CustomerId);
+
+            builder.HasOne(x => x.ShippingAddress)
+                .WithOne(x => x.Order)
+                .HasForeignKey<ShippingAddress>(x => x.OrderId);
         }
     }
 }

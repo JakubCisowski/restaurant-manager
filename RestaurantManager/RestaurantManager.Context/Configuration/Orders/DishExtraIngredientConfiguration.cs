@@ -4,9 +4,9 @@ using RestaurantManager.Entities.Orders;
 
 namespace RestaurantManager.SqlContext.Configuration.Orders
 {
-    public class DishExtraIngredientConfiguration : IEntityTypeConfiguration<DishExtraIngredients>
+    public class DishExtraIngredientConfiguration : IEntityTypeConfiguration<DishExtraIngredient>
     {
-        public void Configure(EntityTypeBuilder<DishExtraIngredients> builder)
+        public void Configure(EntityTypeBuilder<DishExtraIngredient> builder)
         {
             builder.HasKey(x => x.Id);
 
@@ -14,7 +14,8 @@ namespace RestaurantManager.SqlContext.Configuration.Orders
                 .WithMany(x => x.DishExtraIngredients)
                 .HasForeignKey(x => x.OrderItemId);
 
-            builder.Property(p => p.Price).HasPrecision(18, 2);
+            builder.Property(p => p.Price)
+                .HasPrecision(18, 2);
         }
     }
 }
