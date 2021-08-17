@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31313.79
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Api", "RestaurantManager.Api\RestaurantManager.Api.csproj", "{D5696EE1-8ECD-462A-BC06-E8F5EF991CD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantManager.Api", "RestaurantManager.Api\RestaurantManager.Api.csproj", "{D5696EE1-8ECD-462A-BC06-E8F5EF991CD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Entities", "RestaurantManager.Entities\RestaurantManager.Entities.csproj", "{22EB2C41-654E-4E28-8966-6507396F2E42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantManager.Entities", "RestaurantManager.Entities\RestaurantManager.Entities.csproj", "{22EB2C41-654E-4E28-8966-6507396F2E42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Context", "RestaurantManager.Context\RestaurantManager.Context.csproj", "{4ABADC34-5862-4545-9A5E-6D4F6A393E2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantManager.Context", "RestaurantManager.Context\RestaurantManager.Context.csproj", "{4ABADC34-5862-4545-9A5E-6D4F6A393E2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Infrastructure", "RestaurantManager.Infrastructure\RestaurantManager.Infrastructure.csproj", "{8F4F6223-722D-4DF1-956B-9AEB20110C26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantManager.Infrastructure", "RestaurantManager.Infrastructure\RestaurantManager.Infrastructure.csproj", "{8F4F6223-722D-4DF1-956B-9AEB20110C26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Services", "RestaurantManager.Services\RestaurantManager.Services.csproj", "{B4F1CE94-7FF2-4345-80B7-16D3D6D0963F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantManager.Services", "RestaurantManager.Services\RestaurantManager.Services.csproj", "{B4F1CE94-7FF2-4345-80B7-16D3D6D0963F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Consts", "RestaurantManager.Consts\RestaurantManager.Consts.csproj", "{7F122BBD-8802-4247-AB48-ABD5971A94BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{B4F1CE94-7FF2-4345-80B7-16D3D6D0963F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4F1CE94-7FF2-4345-80B7-16D3D6D0963F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4F1CE94-7FF2-4345-80B7-16D3D6D0963F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F122BBD-8802-4247-AB48-ABD5971A94BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F122BBD-8802-4247-AB48-ABD5971A94BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F122BBD-8802-4247-AB48-ABD5971A94BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F122BBD-8802-4247-AB48-ABD5971A94BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

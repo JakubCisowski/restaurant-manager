@@ -16,10 +16,13 @@ namespace RestaurantManager.Context
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
+
         public DbSet<Order> Orders { get; set; }
-        public DbSet<PaymentType> PaymentTypes { get; set; }
-        public DbSet<ShippingMethod> ShippingMethods { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<DishExtraIngredient> DishExtraIngredients { get; set; }
+        public DbSet<ShippingAddress> ShippingAddresses { get; set; }
+        public DbSet<OrderNumber> OrderNumbers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,14 +35,11 @@ namespace RestaurantManager.Context
 
             modelBuilder.ApplyConfiguration(new CustomerConfiguration());
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderItemsConfiguration());
+            modelBuilder.ApplyConfiguration(new DishExtraIngredientConfiguration());
+            modelBuilder.ApplyConfiguration(new ShippingAdressConfiguration());
 
-            modelBuilder
-                .Entity<ShippingMethod>()
-                .HasKey(x => x.Id);
-
-            modelBuilder
-                .Entity<PaymentType>()
-                .HasKey(x => x.Id);
+            modelBuilder.ApplyConfiguration(new OrderNoConfiguration());
         }
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantManager.Entities.Orders
 {
-    public class DishExtraIngredients : Entity
+    public class DishExtraIngredient : Entity
     {
         public string Name { get; private set; }
         public decimal Price { get; private set; }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantManager.Context;
 
 namespace RestaurantManager.Context.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210813122240_orders_update")]
+    partial class orders_update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +50,7 @@ namespace RestaurantManager.Context.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredient", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredients", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -81,9 +83,6 @@ namespace RestaurantManager.Context.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("OrderNo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PaymentType")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -122,22 +121,21 @@ namespace RestaurantManager.Context.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItem");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Orders.OrderNumber", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.PaymentType", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("InUsageFrom")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderNumbers");
+                    b.ToTable("PaymentTypes");
                 });
 
             modelBuilder.Entity("RestaurantManager.Entities.Orders.ShippingAddress", b =>
@@ -172,7 +170,24 @@ namespace RestaurantManager.Context.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("ShippingAddresses");
+                    b.ToTable("ShippingAddress");
+                });
+
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.ShippingMethod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ShippingMethods");
                 });
 
             modelBuilder.Entity("RestaurantManager.Entities.Restaurants.Dish", b =>
@@ -271,7 +286,7 @@ namespace RestaurantManager.Context.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredient", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredients", b =>
                 {
                     b.HasOne("RestaurantManager.Entities.Orders.OrderItem", "OrderItem")
                         .WithMany("DishExtraIngredients")
