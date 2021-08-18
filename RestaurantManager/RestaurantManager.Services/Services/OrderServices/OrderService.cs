@@ -23,6 +23,7 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly IGenericRepository<Dish> _dishRepository;
         private readonly IGenericRepository<Ingredient> _ingredientRepository;
         private readonly IGenericRepository<DishExtraIngredient> _dishExtraIngredientRepository;
+        private readonly IGenericRepository<Customer> _customerRepository;
         private readonly ICustomerService _customerService;
         private readonly IOrderNoGeneratorService _orderNoGeneratorService;
 
@@ -36,6 +37,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
             _dishExtraIngredientRepository = _unitOfWork.GetRepository<DishExtraIngredient>();
+            _customerRepository = _unitOfWork.GetRepository<Customer>();
             _customerService = customerService;
             _orderNoGeneratorService = orderNoGeneratorService;
         }
@@ -123,6 +125,44 @@ namespace RestaurantManager.Services.Services.OrderServices
                 });
 
             return await allOrders.ToListAsync();
+        }
+
+        public async Task<IEnumerable<OrderDto>> GetOrdersAsync(string phone)
+        {
+            var orders =  _orderRepository
+                .FindMany(x => x.Customer.Phone == phone);
+
+            //// Lepszy sposób?
+            //var orders2 = (await _customerRepository
+            //    .FindOneAsync(c => c.Phone == phone))
+            //    .Orders;
+
+            // Nie działa to sprawdzenie czy istnieje taki customer:
+            if(!(await orders.AnyAsync()))
+            {
+                throw new NotFoundException(phone);
+            }
+
+            var ordersDto = orders.Select(x => new OrderDto
+            {
+                Id = x.Id,
+                OrderNo = x.OrderNo,
+                TotalPrice = x.TotalPrice,
+                Status = x.Status,
+                PaymentType = x.PaymentType,
+                ShippingAddress = x.ShippingAddress,
+                CustomerId = x.CustomerId,
+                Customer = x.Customer,
+                OrderItems = x.OrderItems.Select(x => new OrderItemDto
+                {
+                    Id = x.Id,
+                    DishName = x.DishName,
+                    DishPrice = x.DishPrice,
+                    DishComment = x.DishComment
+                })
+            });
+
+            return ordersDto;
         }
 
         private async Task<Customer> GetCustomer(string phone)

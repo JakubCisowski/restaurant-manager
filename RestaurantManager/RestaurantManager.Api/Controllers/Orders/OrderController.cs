@@ -35,10 +35,31 @@ namespace RestaurantManager.Api.Controllers.Orders
             return result;
         }
 
-    [HttpGet("{id}")]
-        public string GetOrder(int id)
+        //[HttpGet("{id}")]
+        //public string GetOrder(int id)
+        //{
+        //    return "value";
+        //}
+
+        [HttpGet("{phone}")]
+        public async Task<IEnumerable<OrderDto>> GetOrdersByPhone(string phone)
         {
-            return "value";
+            try
+            {
+                return await _orderService.GetOrdersAsync(phone);
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                NotFound(e.Message);
+                return null;   
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+                return null;
+            }
         }
 
         [HttpPost("CreateOrder")]
