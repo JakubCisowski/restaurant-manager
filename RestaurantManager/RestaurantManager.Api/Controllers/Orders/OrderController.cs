@@ -54,10 +54,23 @@ namespace RestaurantManager.Api.Controllers.Orders
         {
         }
 
-        // POST api/<OrderController>
-        [HttpPost("AcceptOrder")]
-        public void AcceptOrder([FromBody] string value)
+
+        [HttpPost(nameof(SetPaymentType))]
+        public void SetPaymentType([FromBody] string address)
         {
+
+        }
+
+        [HttpPost(nameof(SetOrderAdress))]
+        public void SetOrderAdress([FromBody] string address)
+        {
+
+        }
+
+        [HttpPost("AcceptOrder")]
+        public void AcceptOrder([FromBody] string status)
+        {
+
         }
 
         [HttpPost("UpdateOrderDetails")]
@@ -65,16 +78,11 @@ namespace RestaurantManager.Api.Controllers.Orders
         {
         }
 
-        // PUT api/<OrderController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost(nameof(AcceptPayment))]
+        public void AcceptPayment([FromBody] string value)
         {
+
         }
 
-        // DELETE api/<OrderController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }
