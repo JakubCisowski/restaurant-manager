@@ -84,6 +84,18 @@ namespace RestaurantManager.Services.Services.OrderServices
             return order.OrderNo;
         }
 
+        public async Task DeleteOrderItemAsync(System.Guid id)
+        {
+            var deletionResult = _orderItemRepository.RemoveOne(x => x.Id == id);
+
+            if (deletionResult == false)
+            {
+                throw new NotFoundException(id, nameof(OrderItem));
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
         {
             var allOrders = _orderRepository
@@ -100,6 +112,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                     Customer = x.Customer,
                     OrderItems = (ICollection<OrderItemDto>)x.OrderItems.Select(x => new OrderItemDto // nie wiem jak inaczej niż explicit castem
                     {
+                        Id = x.Id,
                         DishName = x.DishName,
                         DishPrice = x.DishPrice,
                         DishComment = x.DishComment

@@ -73,9 +73,24 @@ namespace RestaurantManager.Api.Controllers.Orders
             return Ok(orderItemId);
         }
 
-        [HttpPost("RemoveOrderItem")]
-        public void RemoveOrderItem([FromBody] RemoveOrderItemCommand command)
+        [HttpDelete("RemoveOrderItem/{id}")]
+        public async Task<IActionResult> DeleteByIdAsync(Guid id)
         {
+            try
+            {
+                await _orderService.DeleteOrderItemAsync(id);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
 
