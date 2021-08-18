@@ -18,6 +18,5 @@ namespace RestaurantManager.Entities.Orders
         {
             InUsageFrom = DateTime.Now;
         }
-        // older than 2 months
     }
 }

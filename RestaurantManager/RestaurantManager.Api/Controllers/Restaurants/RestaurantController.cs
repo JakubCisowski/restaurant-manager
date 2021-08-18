@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RestaurantController : ControllerBase

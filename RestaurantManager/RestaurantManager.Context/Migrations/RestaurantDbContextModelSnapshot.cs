@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantManager.Context;
 
-namespace RestaurantManager.Context.Migrations
+namespace RestaurantManager.SqlContext.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
     partial class RestaurantDbContextModelSnapshot : ModelSnapshot
@@ -128,9 +128,7 @@ namespace RestaurantManager.Context.Migrations
             modelBuilder.Entity("RestaurantManager.Entities.Orders.OrderNumber", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("InUsageFrom")
                         .HasColumnType("datetime2");

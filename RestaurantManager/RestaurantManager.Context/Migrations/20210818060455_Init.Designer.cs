@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantManager.Context;
 
-namespace RestaurantManager.Context.Migrations
+namespace RestaurantManager.SqlContext.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20210813122240_orders_update")]
-    partial class orders_update
+    [Migration("20210818060455_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -50,7 +50,7 @@ namespace RestaurantManager.Context.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredients", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredient", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,6 +83,9 @@ namespace RestaurantManager.Context.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("OrderNo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PaymentType")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -121,21 +124,20 @@ namespace RestaurantManager.Context.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Orders.PaymentType", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.OrderNumber", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("InUsageFrom")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentTypes");
+                    b.ToTable("OrderNumbers");
                 });
 
             modelBuilder.Entity("RestaurantManager.Entities.Orders.ShippingAddress", b =>
@@ -170,24 +172,7 @@ namespace RestaurantManager.Context.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("ShippingAddress");
-                });
-
-            modelBuilder.Entity("RestaurantManager.Entities.Orders.ShippingMethod", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ShippingMethods");
+                    b.ToTable("ShippingAddresses");
                 });
 
             modelBuilder.Entity("RestaurantManager.Entities.Restaurants.Dish", b =>
@@ -286,7 +271,7 @@ namespace RestaurantManager.Context.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredients", b =>
+            modelBuilder.Entity("RestaurantManager.Entities.Orders.DishExtraIngredient", b =>
                 {
                     b.HasOne("RestaurantManager.Entities.Orders.OrderItem", "OrderItem")
                         .WithMany("DishExtraIngredients")
