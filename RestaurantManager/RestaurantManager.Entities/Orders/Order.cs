@@ -26,6 +26,11 @@ namespace RestaurantManager.Entities.Orders
         {
             OrderNo = orderNo;
         }
+
+        public void AddOrderItem(OrderItem orderItem)
+        {
+            OrderItems.Add(orderItem);
+        }
     }
     //pobieranie zamówienia po nr telefonu
 }
