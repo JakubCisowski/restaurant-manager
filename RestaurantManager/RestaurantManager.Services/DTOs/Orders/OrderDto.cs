@@ -19,6 +19,7 @@ namespace RestaurantManager.Services.DTOs.Orders
         public ShippingAddress ShippingAddress { get;  set; }
         public Guid CustomerId { get;  set; }
         public Customer Customer { get;  set; }
-        public virtual ICollection<OrderItemDto> OrderItems { get;  set; }
+        public IEnumerable<OrderItemDto> OrderItems { get;  set; }
     }
+
 }

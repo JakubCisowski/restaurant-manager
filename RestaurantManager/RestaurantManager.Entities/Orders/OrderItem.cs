@@ -1,6 +1,7 @@
 ﻿using RestaurantManager.Entities.Restaurants;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RestaurantManager.Entities.Orders
 {
@@ -11,14 +12,14 @@ namespace RestaurantManager.Entities.Orders
 
         }
 
-        public OrderItem(Guid id, Guid orderId, Dish dish, string dishComment, ICollection<DishExtraIngredient> extraIngredients)
+        public OrderItem(Guid id, Guid orderId, Dish dish, string dishComment, List<DishExtraIngredient> extraIngredients)
         {
             Id = id;
             OrderId = orderId;
             DishComment = dishComment;
             DishName = dish.Name;
             DishExtraIngredients = extraIngredients;
-            // DishPrice = dish.BasePrice; // tutaj nie wiem, co oznacza ta cena, czy to jest łączna Disha z ExtraIngredientami?
+            DishPrice = dish.BasePrice; // tutaj nie wiem, co oznacza ta cena, czy to jest łączna Disha z ExtraIngredientami?
         }
 
         public string DishName { get; private set; }

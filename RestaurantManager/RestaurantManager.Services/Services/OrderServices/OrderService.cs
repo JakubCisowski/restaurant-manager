@@ -22,6 +22,7 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly IGenericRepository<OrderItem> _orderItemRepository;
         private readonly IGenericRepository<Dish> _dishRepository;
         private readonly IGenericRepository<Ingredient> _ingredientRepository;
+        private readonly IGenericRepository<DishExtraIngredient> _dishExtraIngredientRepository;
         private readonly ICustomerService _customerService;
         private readonly IOrderNoGeneratorService _orderNoGeneratorService;
 
@@ -34,41 +35,46 @@ namespace RestaurantManager.Services.Services.OrderServices
             _orderItemRepository = _unitOfWork.GetRepository<OrderItem>();
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
+            _dishExtraIngredientRepository = _unitOfWork.GetRepository<DishExtraIngredient>();
             _customerService = customerService;
             _orderNoGeneratorService = orderNoGeneratorService;
         }
 
-        public async Task AddOrderItemAsync(AddOrderItemCommand newOrderItem)
+        public async Task AddOrderItemAsync(AddOrderItemCommand command)
         {
-            var order = await _orderRepository.GetByIdAsync(newOrderItem.OrderId);
-            var dish = await _dishRepository.GetByIdAsync(newOrderItem.DishId);
-            var ingredients = _ingredientRepository.FindMany(x => newOrderItem.ExtraIngredientIds.Contains(x.Id));
+            var order = await _orderRepository.GetByIdAsync(command.OrderId);
+            var dish = await _dishRepository.GetByIdAsync(command.DishId);
+            var ingredients = _ingredientRepository.FindMany(x => command.ExtraIngredientIds.Contains(x.Id));
 
-            //if(!dish.Ingredients.Select(x=> x.Id).Contains(newOrderItem.ExtraIngredientIds))
-            //{
-            //    throw new System.Exception($"Error while adding order item to order (id={newOrderItem.OrderId} - one of extra ingredients is not available for dish (id={newOrderItem.DishId}).");
-            //}
+            var containsExtraingredients = _dishRepository
+                .FindMany(x => x.Id == command.DishId &&
+                    command.ExtraIngredientIds.All(i => x.Ingredients.Any(ingredient => ingredient.Id == i))).Any();
+
+            if (!containsExtraingredients)
+            {
+                //custom exception
+                throw new System.Exception($"Error while adding order item to order (id={command.OrderId} - one of extra ingredients is not available for dish (id={command.DishId}).");
+            }
             if (order == null)
             {
-                throw new NotFoundException(newOrderItem.OrderId, nameof(Order));
+                throw new NotFoundException(command.OrderId, nameof(Order));
             }
             if (dish == null)
             {
-                throw new NotFoundException(newOrderItem.DishId, nameof(Dish));
-            }
-            if(ingredients.Count() != newOrderItem.ExtraIngredientIds.Count)
-            {
-                var notFoundIngredientId = newOrderItem.ExtraIngredientIds.Where(x => !(ingredients.Select(y=> y.Id).Contains(x))).FirstOrDefault();
-                throw new NotFoundException(notFoundIngredientId, nameof(Ingredient));
+                throw new NotFoundException(command.DishId, nameof(Dish));
             }
 
-            var dishExtraIngredients = new List<DishExtraIngredient>();
-            ingredients.ToList().ForEach(x => dishExtraIngredients.Add(new DishExtraIngredient(x.Name, x.Price, newOrderItem.Id)));
+            var dishExtraIngredients = ingredients
+                .Select(x => new DishExtraIngredient(x.Name, x.Price, command.Id))
+                .ToList();
 
-            var orderItem = new OrderItem(newOrderItem.Id, newOrderItem.OrderId, dish, newOrderItem.DishComment, dishExtraIngredients);
+            await _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients);
+
+            var orderItem = new OrderItem(command.Id, command.OrderId, dish, command.DishComment, dishExtraIngredients);
             orderItem.SetOrder(order);
 
             await _orderItemRepository.AddAsync(orderItem);
+
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -110,7 +116,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                     ShippingAddress = x.ShippingAddress,
                     CustomerId = x.CustomerId,
                     Customer = x.Customer,
-                    OrderItems = (ICollection<OrderItemDto>)x.OrderItems.Select(x => new OrderItemDto // nie wiem jak inaczej niż explicit castem
+                    OrderItems = x.OrderItems.Select(x => new OrderItemDto
                     {
                         Id = x.Id,
                         DishName = x.DishName,
