@@ -8,6 +8,7 @@ namespace RestaurantManager.Services.Commands.OrdersCommands
 {
     public class AcceptOrderCommand
     {
+        public string PhoneNumber { get; set; }
         public int OrderNo { get; set; }
     }
 }
