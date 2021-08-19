@@ -231,33 +231,29 @@ namespace RestaurantManager.Services.Services.OrderServices
         {
             var order =  _orderRepository
                .FindMany(x => x.Customer.Phone == phone && x.OrderNo == orderNo)
-               .Include(x => x.OrderItems)
-                    .ThenInclude(orderItem => orderItem.DishExtraIngredients)
+               .Select(x => new DinnerBillDto {
+                   OrderNo = orderNo,
+                   Phone = phone,
+                   Dishes = x.OrderItems.Select(orderItem => new DishBillDto
+                   {
+                       Name = orderItem.DishName,
+                       BasePrice = orderItem.DishPrice,
+                       Ingredients = orderItem.DishExtraIngredients.Select(extraIngredient => new IngredientBillDto
+                       {
+                           Name = extraIngredient.Name,
+                           Price = extraIngredient.Price
+                       })
+                   }),
+                   TotalPrice = x.TotalPrice
+               })
                .FirstOrDefault();
 
             if (order == null)
             {
-                throw new NotFoundException(phone, nameof(Order));
+                throw new NotFoundException(orderNo.ToString(), nameof(Order));
             }
 
-            var dinnerBillDto = new DinnerBillDto
-            {
-                OrderNo = orderNo,
-                Phone = phone,
-                Dishes = order.OrderItems.Select(orderItem => new DishBillDto
-                {
-                    Name = orderItem.DishName,
-                    BasePrice = orderItem.DishPrice,
-                    Ingredients = orderItem.DishExtraIngredients.Select(extraIngredient => new IngredientBillDto
-                    {
-                        Name = extraIngredient.Name,
-                        Price = extraIngredient.Price
-                    })
-                }),
-                TotalPrice = order.TotalPrice
-            };
-
-            return dinnerBillDto;
+            return order;
         }
     }
 }

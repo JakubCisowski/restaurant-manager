@@ -56,8 +56,8 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
         }
 
-        [HttpGet("DinnerBill/{orderNo}/{phone}")]
-        public async Task<ActionResult<DinnerBillDto>> GetDinnerBill(int orderNo, string phone)
+        [HttpGet("DinnerBill")]
+        public async Task<ActionResult<DinnerBillDto>> GetDinnerBill([FromQuery]int orderNo, [FromQuery]string phone)
         {
             try
             {
