@@ -72,7 +72,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             try
             {
                 await _orderService.AddOrderItemAsync(
-                new AddOrderItemCommand(orderItemId, input.OrderId, input.DishId, input.DishComment, input.ExtraIngredientIds));
+                new AddOrderItemCommand(orderItemId, input.OrderNo, input.DishId, input.DishComment, input.ExtraIngredientIds));
             }
             catch (NotFoundException e)
             {
@@ -158,7 +158,6 @@ namespace RestaurantManager.Api.Controllers.Orders
         [HttpPost(nameof(AcceptPayment))]
         public async Task<IActionResult> AcceptPayment([FromBody] AcceptPaymentInput input)
         {
-
             return Ok();
         }
     }

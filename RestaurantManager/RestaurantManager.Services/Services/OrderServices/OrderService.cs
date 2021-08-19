@@ -46,16 +46,12 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
         {
-            var order = await _orderRepository.GetByIdAsync(command.OrderId);
+            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
             var dish = await _dishRepository.GetByIdAsync(command.DishId);
 
             var ingredients = _ingredientRepository
                 .FindMany(x => command.ExtraIngredientIds.Contains(x.Id)
                           && x.Dishes.Any(x => x.Id == command.DishId));
-
-            //var areExtraIngredientsAvailable = _dishRepository
-            //    .FindMany(x => x.Id == command.DishId &&
-            //        command.ExtraIngredientIds.All(i => x.Ingredients.Any(ingredient => ingredient.Id == i))).Any();
 
             if (ingredients.Count() != command.ExtraIngredientIds.Count)
             {
@@ -63,7 +59,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
             if (order == null)
             {
-                throw new NotFoundException(command.OrderId, nameof(Order));
+                throw new NotFoundException(command.OrderNo.ToString(), nameof(Order));
             }
             if (dish == null)
             {
@@ -74,7 +70,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                 .Select(x => new DishExtraIngredient(x.Name, x.Price, command.Id))
                 .ToList();
 
-            var orderItem = new OrderItem(command.Id, command.OrderId, dish, command.DishComment, dishExtraIngredients);
+            var orderItem = new OrderItem(command.Id, command.OrderNo, dish, command.DishComment, dishExtraIngredients);
             order.AddOrderItem(orderItem);
 
             await _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients);

@@ -12,10 +12,10 @@ namespace RestaurantManager.Entities.Orders
 
         }
 
-        public OrderItem(Guid id, Guid orderId, Dish dish, string dishComment, List<DishExtraIngredient> extraIngredients)
+        public OrderItem(Guid id, int orderNo, Dish dish, string dishComment, List<DishExtraIngredient> extraIngredients)
         {
             Id = id;
-            OrderId = orderId;
+            OrderNo = orderNo;
             DishComment = dishComment;
             DishName = dish.Name;
             DishExtraIngredients = extraIngredients;
@@ -29,6 +29,8 @@ namespace RestaurantManager.Entities.Orders
         public ICollection<DishExtraIngredient> DishExtraIngredients { get; private set; } = new List<DishExtraIngredient>();
 
         public Guid OrderId { get; private set; }
+
+        public int OrderNo { get; private set; }
 
         public virtual Order Order { get; private set; }
 
