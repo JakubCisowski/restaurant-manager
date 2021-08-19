@@ -9,6 +9,7 @@ using RestaurantManager.Services.DTOs.OrderItems;
 using RestaurantManager.Services.DTOs.Orders;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -209,7 +210,21 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task ConfirmOrder(AcceptOrderCommand command)
         {
-            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
+            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo && x.Customer.Phone == command.PhoneNumber);
+
+            if (!order.OrderItems.Any())
+            {
+                throw new Exception("Empty order");
+            }
+            if (order.ShippingAddress is null)
+            {
+                throw new Exception("Empty address");
+            }
+            if (order.PaymentType == Consts.Enums.PaymentType.NotSet)
+            {
+                throw new Exception("Empty payment method");
+            }
+
             order.SetAsConfirmed();
 
             _orderRepository.Update(order);
