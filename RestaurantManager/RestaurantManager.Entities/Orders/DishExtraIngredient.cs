@@ -9,5 +9,12 @@ namespace RestaurantManager.Entities.Orders
 
         public Guid OrderItemId { get; private set; }
         public OrderItem OrderItem { get; private set; } = default!;
+
+        public DishExtraIngredient(string name, decimal price, Guid orderItemId)
+        {
+            Name = name;
+            Price = price;
+            OrderItemId = orderItemId;
+        }
     }
 }

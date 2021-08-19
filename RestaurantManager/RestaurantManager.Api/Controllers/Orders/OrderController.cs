@@ -1,9 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using RestaurantManager.Api.ErrorResponses;
 using RestaurantManager.Api.Inputs.Orders;
 using RestaurantManager.Services.Commands.Orders;
 using RestaurantManager.Services.Commands.OrdersCommands;
+using RestaurantManager.Services.DTOs.Orders;
+using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -17,27 +22,40 @@ namespace RestaurantManager.Api.Controllers.Orders
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly ILogger _logger;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, ILogger logger)
         {
             _orderService = orderService;
+            _logger = logger;
         }
 
-        // GET: api/<OrderController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("AllOrders")]
+        public async Task<IEnumerable<OrderDto>> GetAllAsync()
         {
-            return new string[] { "value1", "value2" };
+            var result = await _orderService.GetAllOrdersAsync();
+            return result;
         }
 
-        // GET api/<OrderController>/5
-        [HttpGet("{id}")]
-        public string GetOrder(int id)
+        [HttpGet("{phone}")]
+        public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone(string phone)
         {
-            return "value";
+            try
+            {
+                return await _orderService.GetOrdersAsync(phone);
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(new FilterErrorResponse(e.Filter, e.Message));
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
-        // POST api/<OrderController>
         [HttpPost("CreateOrder")]
         public async Task<ActionResult<int>> CreateOrder([FromBody] CreateOrderCommand command)
         {
@@ -47,14 +65,47 @@ namespace RestaurantManager.Api.Controllers.Orders
 
 
         [HttpPost("AddOrderItem")]
-        public void AddOrderItem([FromBody] AddOrderItemCommand command)
+        public async Task<IActionResult> AddOrderItem([FromBody] OrderItemInput input)
         {
+            var orderItemId = Guid.NewGuid();
 
+            try
+            {
+                await _orderService.AddOrderItemAsync(
+                new AddOrderItemCommand(orderItemId, input.OrderId, input.DishId, input.DishComment, input.ExtraIngredientIds));
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok(orderItemId);
         }
 
-        [HttpPost("RemoveOrderItem")]
-        public void RemoveOrderItem([FromBody] RemoveOrderItemCommand command)
+        [HttpDelete("RemoveOrderItem/{id}")]
+        public async Task<IActionResult> DeleteByIdAsync(Guid id)
         {
+            try
+            {
+                await _orderService.DeleteOrderItemAsync(id);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
 
