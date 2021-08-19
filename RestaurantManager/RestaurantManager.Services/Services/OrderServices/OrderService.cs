@@ -48,13 +48,16 @@ namespace RestaurantManager.Services.Services.OrderServices
         {
             var order = await _orderRepository.GetByIdAsync(command.OrderId);
             var dish = await _dishRepository.GetByIdAsync(command.DishId);
-            var ingredients = _ingredientRepository.FindMany(x => command.ExtraIngredientIds.Contains(x.Id));
 
-            var areExtraIngredientsAvailable = _dishRepository
-                .FindMany(x => x.Id == command.DishId &&
-                    command.ExtraIngredientIds.All(i => x.Ingredients.Any(ingredient => ingredient.Id == i))).Any();
+            var ingredients = _ingredientRepository
+                .FindMany(x => command.ExtraIngredientIds.Contains(x.Id)
+                          && x.Dishes.Any(x => x.Id == command.DishId));
 
-            if (!areExtraIngredientsAvailable)
+            //var areExtraIngredientsAvailable = _dishRepository
+            //    .FindMany(x => x.Id == command.DishId &&
+            //        command.ExtraIngredientIds.All(i => x.Ingredients.Any(ingredient => ingredient.Id == i))).Any();
+
+            if (ingredients.Count() != command.ExtraIngredientIds.Count)
             {
                 throw new DishDoesNotContainIngredientException(command.DishId);
             }
@@ -76,6 +79,8 @@ namespace RestaurantManager.Services.Services.OrderServices
 
             await _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients);
             await _orderItemRepository.AddAsync(orderItem);
+            _orderRepository.Update(order);
+
             await _unitOfWork.SaveChangesAsync();
         }
 
