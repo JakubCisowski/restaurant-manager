@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestaurantManager.Api.Inputs.Orders;
 using RestaurantManager.Services.Commands.Orders;
 using RestaurantManager.Services.Commands.OrdersCommands;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers.Orders
@@ -55,34 +58,57 @@ namespace RestaurantManager.Api.Controllers.Orders
         }
 
 
-        [HttpPost(nameof(SetPaymentType))]
-        public void SetPaymentType([FromBody] string address)
+        [HttpPost("AddOrderAddress")]
+        public async Task<IActionResult> AddOrderAddressAsync([FromBody] AddAddressCommand command)
         {
+            try
+            {
+                await _orderService.AddOrderAddress(command);
 
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
+            }
         }
 
-        [HttpPost(nameof(SetOrderAdress))]
-        public void SetOrderAdress([FromBody] string address)
-        {
 
+        [HttpPost("SetPaymentMethod")]
+        public async Task<IActionResult> SetPaymentMethodAsync([FromBody] SetPaymentMethodCommand command)
+        {
+            try
+            {
+                await _orderService.SetPaymentMethod(command);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpPost("AcceptOrder")]
-        public void AcceptOrder([FromBody] string status)
+        public async Task<IActionResult> AcceptOrderAsync([FromBody] AcceptOrderCommand command)
         {
+            try
+            {
+                await _orderService.ConfirmOrder(command);
 
-        }
-
-        [HttpPost("UpdateOrderDetails")]
-        public void UpdateOrderDetails([FromBody] string payment, string shipment)
-        {
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpPost(nameof(AcceptPayment))]
-        public void AcceptPayment([FromBody] string value)
+        public async Task<IActionResult> AcceptPayment([FromBody] AcceptPaymentInput input)
         {
 
+            return Ok();
         }
-
     }
 }
