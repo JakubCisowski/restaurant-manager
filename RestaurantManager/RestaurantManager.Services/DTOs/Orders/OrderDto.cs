@@ -23,7 +23,7 @@ namespace RestaurantManager.Services.DTOs.Orders
     {
         public Guid Id { get; set; }
         public int OrderNo { get;  set; }
-        public float TotalPrice { get;  set; }
+        public decimal TotalPrice { get;  set; }
         public OrderStatus Status { get;  set; }
         public PaymentType PaymentType { get;  set; }
         public ShippingAddress ShippingAddress { get;  set; }

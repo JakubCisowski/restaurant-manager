@@ -28,10 +28,12 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly IGenericRepository<Customer> _customerRepository;
         private readonly ICustomerService _customerService;
         private readonly IOrderNoGeneratorService _orderNoGeneratorService;
+        private readonly IOrderCalculationService _orderCalculationService;
 
         public OrderService(IUnitOfWork unitOfWork,
                             ICustomerService customerService,
-                            IOrderNoGeneratorService orderNoGeneratorService)
+                            IOrderNoGeneratorService orderNoGeneratorService,
+                            IOrderCalculationService orderCalculationService)
         {
             _unitOfWork = unitOfWork;
             _orderRepository = _unitOfWork.GetRepository<Order>();
@@ -43,6 +45,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             _addressRepository = _unitOfWork.GetRepository<ShippingAddress>();
             _customerService = customerService;
             _orderNoGeneratorService = orderNoGeneratorService;
+            _orderCalculationService = orderCalculationService;
         }
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
@@ -79,6 +82,8 @@ namespace RestaurantManager.Services.Services.OrderServices
             _orderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
+
+            await _orderCalculationService.UpdateTotalPrice(order.Id);
         }
 
         public async Task<int> CreateOrderDraft(CreateOrderCommand command)

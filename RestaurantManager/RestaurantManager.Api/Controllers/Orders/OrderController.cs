@@ -24,7 +24,9 @@ namespace RestaurantManager.Api.Controllers.Orders
         private readonly IOrderService _orderService;
         private readonly ILogger _logger;
 
-        public OrderController(IOrderService orderService, ILogger logger)
+        public OrderController(
+            IOrderService orderService,
+            ILogger logger)
         {
             _orderService = orderService;
             _logger = logger;
@@ -72,7 +74,8 @@ namespace RestaurantManager.Api.Controllers.Orders
             try
             {
                 await _orderService.AddOrderItemAsync(
-                new AddOrderItemCommand(orderItemId, input.OrderNo, input.DishId, input.DishComment, input.ExtraIngredientIds));
+                    new AddOrderItemCommand(orderItemId, input.OrderNo, input.DishId, input.DishComment, input.ExtraIngredientIds));
+
             }
             catch (NotFoundException e)
             {
