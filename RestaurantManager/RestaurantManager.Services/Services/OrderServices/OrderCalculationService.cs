@@ -27,11 +27,13 @@ namespace RestaurantManager.Services.Services.OrderServices
                 .SelectMany(x => x.OrderItems);
 
             var dishPrices = orderItems.Sum(x => x.DishPrice);
-            var ingredientsPrices = orderItems.Select(x => x.DishExtraIngredients.Sum(d => d.Price));
-            var test = ingredientsPrices.ToList().Sum();
+            var ingredientsPrices = orderItems
+                .Select(x => x.DishExtraIngredients.Sum(d => d.Price))
+                .ToList()
+                .Sum();
 
             var order = await _orderRepository.GetByIdAsync(id);
-            order.SetTotalPrice(dishPrices + test);
+            order.SetTotalPrice(dishPrices + ingredientsPrices);
 
             _orderRepository.Update(order);
 
