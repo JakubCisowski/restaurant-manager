@@ -7,7 +7,7 @@ namespace RestaurantManager.Entities.Orders
     public class Order : Entity
     {
         public int OrderNo { get; private set; }
-        public float TotalPrice { get; private set; }
+        public decimal TotalPrice { get; private set; }
         public OrderStatus Status { get; private set; }
         public PaymentType PaymentType { get; private set; }
         public ShippingAddress ShippingAddress { get; private set; }
@@ -40,6 +40,11 @@ namespace RestaurantManager.Entities.Orders
         public void SetPaymentMethod(PaymentType paymentType)
         {
             PaymentType = paymentType;
+        }
+
+        public void SetTotalPrice(decimal price)
+        {
+            TotalPrice = price;
         }
 
         public void SetAsConfirmed()
