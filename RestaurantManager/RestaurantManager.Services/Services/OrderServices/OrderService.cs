@@ -20,6 +20,7 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Order> _orderRepository;
         private readonly IGenericRepository<OrderItem> _orderItemRepository;
+        private readonly IGenericRepository<ShippingAddress> _addressRepository;
         private readonly IGenericRepository<Dish> _dishRepository;
         private readonly IGenericRepository<Ingredient> _ingredientRepository;
         private readonly IGenericRepository<DishExtraIngredient> _dishExtraIngredientRepository;
@@ -38,6 +39,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
             _dishExtraIngredientRepository = _unitOfWork.GetRepository<DishExtraIngredient>();
             _customerRepository = _unitOfWork.GetRepository<Customer>();
+            _addressRepository = _unitOfWork.GetRepository<ShippingAddress>();
             _customerService = customerService;
             _orderNoGeneratorService = orderNoGeneratorService;
         }
@@ -159,6 +161,25 @@ namespace RestaurantManager.Services.Services.OrderServices
             return new OrdersListResponse(await ordersDto.ToListAsync());
         }
 
+        public async Task AddOrderAddress(AddAddressCommand command)
+        {
+            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
+
+            if (order is null)
+            {
+                //return new NotFoundException(command.OrderNo)
+                // do weryfikacji czy odpytujemy po orderNo
+            }
+
+            var address = new ShippingAddress(command.Country, command.City, command.Address1, command.Address2, command.PhoneNumber, command.ZipPostalCode);
+            await _addressRepository.AddAsync(address);
+
+            order.SetAddress(address);
+            _orderRepository.Update(order);
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         private async Task<Customer> GetCustomer(string phone)
         {
             var customer = await _customerService.GetCustomer(phone);
@@ -169,6 +190,25 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
 
             return customer;
+        }
+
+        public async Task SetPaymentMethod(SetPaymentMethodCommand command)
+        {
+            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
+            order.SetPaymentMethod(command.PaymentType);
+
+            _orderRepository.Update(order);
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task ConfirmOrder(AcceptOrderCommand command)
+        {
+            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
+            order.SetAsConfirmed();
+
+            _orderRepository.Update(order);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

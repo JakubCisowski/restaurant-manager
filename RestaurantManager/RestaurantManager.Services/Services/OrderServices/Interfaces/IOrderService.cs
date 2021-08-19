@@ -14,5 +14,8 @@ namespace RestaurantManager.Services.Services.OrderServices.Interfaces
         Task<IEnumerable<OrderDto>> GetAllOrdersAsync();
         Task DeleteOrderItemAsync(Guid id);
         Task<OrdersListResponse> GetOrdersAsync(string phone);
+        Task AddOrderAddress(AddAddressCommand command);
+        Task SetPaymentMethod(SetPaymentMethodCommand command);
+        Task ConfirmOrder(AcceptOrderCommand command);
     }
 }
