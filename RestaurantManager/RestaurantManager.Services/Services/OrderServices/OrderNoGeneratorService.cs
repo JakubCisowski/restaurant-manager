@@ -1,4 +1,5 @@
-﻿using RestaurantManager.Context;
+﻿using Microsoft.Extensions.Configuration;
+using RestaurantManager.Context;
 using RestaurantManager.Entities.Orders;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
 using System;
@@ -8,14 +9,14 @@ namespace RestaurantManager.Services.Services.OrderServices
 {
     public class OrderNoGeneratorService : IOrderNoGeneratorService
     {
-        private const int EXPIRATION_TIME_IN_DAYS = 30;
-
         private readonly RestaurantDbContext _dbContext;
+        private static IConfiguration _configuration;
         private static Random rand = new Random();
 
-        public OrderNoGeneratorService(RestaurantDbContext dbContext)
+        public OrderNoGeneratorService(RestaurantDbContext dbContext, IConfiguration iConfig)
         {
             _dbContext = dbContext;
+            _configuration = iConfig;
         }
 
         public int GenerateOrderNo()
@@ -49,6 +50,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         private static bool CheckIfOrderNumberExipred(int timeDifference)
         {
+            int EXPIRATION_TIME_IN_DAYS = Int32.Parse(_configuration.GetSection("Consts").GetSection("ORDER_NO_EXPIRATION_TIME_IN_DAYS").Value);
             return timeDifference > EXPIRATION_TIME_IN_DAYS;
         }
 
