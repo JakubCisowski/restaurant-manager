@@ -127,20 +127,14 @@ namespace RestaurantManager.Services.Services.OrderServices
             return await allOrders.ToListAsync();
         }
 
-        public async Task<IEnumerable<OrderDto>> GetOrdersAsync(string phone)
+        public async Task<OrdersListResponse> GetOrdersAsync(string phone)
         {
-            var orders =  _orderRepository
+            var orders = _orderRepository
                 .FindMany(x => x.Customer.Phone == phone);
 
-            //// Lepszy sposób?
-            //var orders2 = (await _customerRepository
-            //    .FindOneAsync(c => c.Phone == phone))
-            //    .Orders;
-
-            // Nie działa to sprawdzenie czy istnieje taki customer:
-            if(!(await orders.AnyAsync()))
+            if(!orders.Any())
             {
-                throw new NotFoundException(phone);
+                throw new NotFoundException(phone, nameof(Order));
             }
 
             var ordersDto = orders.Select(x => new OrderDto
@@ -162,7 +156,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                 })
             });
 
-            return ordersDto;
+            return new OrdersListResponse(await ordersDto.ToListAsync());
         }
 
         private async Task<Customer> GetCustomer(string phone)

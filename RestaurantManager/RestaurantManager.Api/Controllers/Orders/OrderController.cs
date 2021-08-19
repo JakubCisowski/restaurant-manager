@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using RestaurantManager.Api.ErrorResponses;
 using RestaurantManager.Api.Inputs.Orders;
 using RestaurantManager.Services.Commands.Orders;
 using RestaurantManager.Services.Commands.OrdersCommands;
@@ -35,14 +37,8 @@ namespace RestaurantManager.Api.Controllers.Orders
             return result;
         }
 
-        //[HttpGet("{id}")]
-        //public string GetOrder(int id)
-        //{
-        //    return "value";
-        //}
-
         [HttpGet("{phone}")]
-        public async Task<IEnumerable<OrderDto>> GetOrdersByPhone(string phone)
+        public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone(string phone)
         {
             try
             {
@@ -51,14 +47,12 @@ namespace RestaurantManager.Api.Controllers.Orders
             catch (NotFoundException e)
             {
                 _logger.Error(e.Message);
-                NotFound(e.Message);
-                return null;   
+                return NotFound(new FilterErrorResponse(e.Filter, e.Message));
             }
             catch (Exception e)
             {
                 _logger.Error(e.Message);
-                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-                return null;
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
         }
 
