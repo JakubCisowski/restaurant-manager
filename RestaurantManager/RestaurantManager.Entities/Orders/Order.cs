@@ -1,4 +1,4 @@
-﻿using RestaurantManager.Consts.Enums;
+using RestaurantManager.Consts.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -42,5 +42,4 @@ namespace RestaurantManager.Entities.Orders
             Status = OrderStatus.Confirmed;
         }
     }
-    //pobieranie zamówienia po nr telefonu
 }
