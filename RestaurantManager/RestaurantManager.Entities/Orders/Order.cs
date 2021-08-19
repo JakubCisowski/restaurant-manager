@@ -1,4 +1,4 @@
-﻿using RestaurantManager.Consts.Enums;
+using RestaurantManager.Consts.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -26,6 +26,20 @@ namespace RestaurantManager.Entities.Orders
         {
             OrderNo = orderNo;
         }
+
+        public void SetAddress(ShippingAddress address)
+        {
+            ShippingAddress = address;
+        }
+
+        public void SetPaymentMethod(PaymentType paymentType)
+        {
+            PaymentType = paymentType;
+        }
+
+        public void SetAsConfirmed()
+        {
+            Status = OrderStatus.Confirmed;
+        }
     }
-    //pobieranie zamówienia po nr telefonu
 }
