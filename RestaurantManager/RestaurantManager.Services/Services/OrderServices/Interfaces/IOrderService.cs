@@ -17,5 +17,6 @@ namespace RestaurantManager.Services.Services.OrderServices.Interfaces
         Task AddOrderAddress(AddAddressCommand command);
         Task SetPaymentMethod(SetPaymentMethodCommand command);
         Task ConfirmOrder(AcceptOrderCommand command);
+        Task<DinnerBillDto> GetDinnerBillAsync(int orderNo, string phone);
     }
 }

@@ -58,6 +58,25 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
         }
 
+        [HttpGet("DinnerBill")]
+        public async Task<ActionResult<DinnerBillDto>> GetDinnerBill([FromQuery]int orderNo, [FromQuery]string phone)
+        {
+            try
+            {
+                return await _orderService.GetDinnerBillAsync(orderNo, phone);
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(new FilterErrorResponse(e.Filter, e.Message));
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
+        }
+
         [HttpPost("CreateOrder")]
         public async Task<ActionResult<int>> CreateOrder([FromBody] CreateOrderCommand command)
         {
