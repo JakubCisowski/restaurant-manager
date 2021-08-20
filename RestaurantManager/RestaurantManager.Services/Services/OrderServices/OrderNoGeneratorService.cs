@@ -49,7 +49,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         private static bool CheckIfOrderNumberExipred(int timeDifference)
         {
-            int EXPIRATION_TIME_IN_DAYS = Int32.Parse(_configuration.GetSection("Consts").GetSection("ORDER_NO_EXPIRATION_TIME_IN_DAYS").Value);
+            int EXPIRATION_TIME_IN_DAYS = Int32.Parse(_configuration.GetSection("Consts").GetSection("OrderNoExpirationTimeInDays").Value);
             return timeDifference > EXPIRATION_TIME_IN_DAYS;
         }
 
