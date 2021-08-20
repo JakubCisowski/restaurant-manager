@@ -30,7 +30,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             // A to również trzeba zlockować
             // Bo nawet jak powyższe są zlockowane to wejdzie dwóm osobom do tej metody i w tym samym momencie wejdzie im do pierwszego ifa tam.
             // Tym samym tworząc dwa takie same numery
-            return OrderNoGeneratorService.CreateNewOrderNumber();\
+            return OrderNoGeneratorService.CreateNewOrderNumber();
         }
     }
 }
