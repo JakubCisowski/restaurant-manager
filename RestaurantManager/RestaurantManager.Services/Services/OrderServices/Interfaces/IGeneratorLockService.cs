@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestaurantManager.Entities.Orders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace RestaurantManager.Services.Services.OrderServices.Interfaces
 {
     public interface IGeneratorLockService
     {
-        public int GenerateOrderNo();
+        OrderNumber GetOldestAvailableNumberRecord();
+        int GenerateNewOrderNumberRecord();
     }
 }

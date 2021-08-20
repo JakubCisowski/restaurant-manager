@@ -9,16 +9,23 @@ namespace RestaurantManager.Services.Services.OrderServices
 {
     public class OrderNoGeneratorService : IOrderNoGeneratorService
     {
-        private readonly IGeneratorLockService _generatorLock;
+        private readonly IGeneratorLockService _lockService;
 
         public OrderNoGeneratorService(IGeneratorLockService generatorLock)
         {
-            _generatorLock = generatorLock;
+            _lockService = generatorLock;
         }
 
         public int GenerateOrderNo()
         {
-            return _generatorLock.GenerateOrderNo();
+            var oldestAvailableRecord = _lockService.GetOldestAvailableNumberRecord();
+
+            if (oldestAvailableRecord is not null)
+            {
+                return oldestAvailableRecord.Id;
+            }
+
+            return _lockService.GenerateNewOrderNumberRecord();
         }
     }
 }

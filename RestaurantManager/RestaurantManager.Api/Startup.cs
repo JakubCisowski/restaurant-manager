@@ -49,7 +49,7 @@ namespace RestaurantManager.Api
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            services.AddSingleton<IGeneratorLockService, GeneratorLockService>();
+            services.AddScoped<IGeneratorLockService, GeneratorLockService>();
 
             services.AddMvc().AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<Startup>());
 

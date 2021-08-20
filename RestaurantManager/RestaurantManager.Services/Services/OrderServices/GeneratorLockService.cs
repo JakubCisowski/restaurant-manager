@@ -24,65 +24,52 @@ namespace RestaurantManager.Services.Services.OrderServices
             _dbContext = dbContext;
         }
 
-
-        public int GenerateOrderNo()
+        public OrderNumber GetOldestAvailableNumberRecord()
         {
-            OrderNumber oldestAvailableRecord;
-
-            lock(_lock)
-            {
-                oldestAvailableRecord = GetOldestAvailableNumberRecord();
-            }
-
-            if (oldestAvailableRecord is not null)
-            {
-                return oldestAvailableRecord.Id;
-            }
-
             lock (_lock)
             {
-                return GenerateNewOrderNumberRecord();
-            }
-        }
+                var oldestNumberRecord = _dbContext
+                        .OrderNumbers
+                        .OrderByDescending(x => x.InUsageFrom)
+                        .FirstOrDefault();
 
-        private OrderNumber GetOldestAvailableNumberRecord()
-        {
-            var oldestNumberRecord = _dbContext
-                .OrderNumbers
-                .OrderByDescending(x => x.InUsageFrom)
-                .FirstOrDefault();
+                if (oldestNumberRecord is null)
+                {
+                    return null;
+                }
 
-            if (oldestNumberRecord is null)
-            {
-                return null;
-            }
-
-            int timeDifference = GetUsageTimeDays(oldestNumberRecord.InUsageFrom);
-            if (IsOrderNumberExipred(timeDifference))
-            {
-                oldestNumberRecord.ClearUsageFrom();
-                return oldestNumberRecord;
-            }
-            else
-            {
-                return null;
+                int timeDifference = GetUsageTimeDays(oldestNumberRecord.InUsageFrom);
+                if (IsOrderNumberExipred(timeDifference))
+                {
+                    oldestNumberRecord.ClearUsageFrom();
+                    _dbContext.OrderNumbers.Update(oldestNumberRecord);
+                    _dbContext.SaveChanges();
+                    return oldestNumberRecord;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
         public int GenerateNewOrderNumberRecord()
         {
-            var randomNo = rand.Next(0, 1000000);
-            var exitsts = _dbContext.OrderNumbers
-                .Any(x => x.Id == randomNo);
+            lock (_lock)
+            {
+                var randomNo = rand.Next(0, 1000000);
+                var exitsts = _dbContext.OrderNumbers
+                    .Any(x => x.Id == randomNo);
 
-            if (!exitsts)
-            {
-                CreateOrderNumberRecord(randomNo);
-                return randomNo;
-            }
-            else
-            {
-                return GenerateNewOrderNumberRecord();
+                if (!exitsts)
+                {
+                    CreateOrderNumberRecord(randomNo);
+                    return randomNo;
+                }
+                else
+                {
+                    return GenerateNewOrderNumberRecord();
+                }
             }
         }
         private void CreateOrderNumberRecord(int randomNo)
