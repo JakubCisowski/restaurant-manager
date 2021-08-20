@@ -9,29 +9,28 @@ namespace RestaurantManager.Services.Services.OrderServices
 {
     public class OrderNoGeneratorService : IOrderNoGeneratorService
     {
-        private readonly RestaurantDbContext _dbContext;
+        private readonly IGeneratorLockService _generatorLock;
         private static IConfiguration _configuration;
+        private static RestaurantDbContext _dbContext;
         private static Random rand = new Random();
 
-        public OrderNoGeneratorService(RestaurantDbContext dbContext, IConfiguration iConfig)
+        public OrderNoGeneratorService(RestaurantDbContext dbContext, IConfiguration iConfig, IGeneratorLockService generatorLock)
         {
             _dbContext = dbContext;
             _configuration = iConfig;
+            _generatorLock = generatorLock;
         }
 
         public int GenerateOrderNo()
         {
-            var availableNumber = GetNumberFromExpiredRecords();
-            if (availableNumber is not null)
+            // Doszedłem do wniosku że trzeba zlockować całą tę metodę - wyjaśnienie wewnątrz
+            lock(_generatorLock)
             {
-                availableNumber.ClearUsageFrom();
-                return availableNumber.Id;
+                return _generatorLock.GenerateOrderNo();
             }
-
-            return CreateNewOrderNumber();
         }
 
-        private int CreateNewOrderNumber()
+        public static int CreateNewOrderNumber()
         {
             var randomNo = rand.Next(0, 1000000);
             var exitsts = _dbContext.OrderNumbers
@@ -61,7 +60,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             return timeDifference;
         }
 
-        private OrderNumber GetNumberFromExpiredRecords()
+        public static OrderNumber GetNumberFromExpiredRecords()
         {
             var numberRecord = _dbContext
                 .OrderNumbers
@@ -84,7 +83,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
         }
 
-        private void CreateOrderNumberRecord(int randomNo)
+        private static void CreateOrderNumberRecord(int randomNo)
         {
             _dbContext.OrderNumbers.Add(new OrderNumber()
             {
