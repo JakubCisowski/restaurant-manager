@@ -13,7 +13,6 @@ namespace RestaurantManager.Services.Services.OrderServices
 {
     public class GeneratorLockService : IGeneratorLockService
     {
-        private readonly object _lock;
         private readonly RestaurantDbContext _dbContext;
         private readonly IConfiguration _configuration;
         private readonly Random rand = new Random();
@@ -26,7 +25,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public OrderNumber GetOldestAvailableNumberRecord()
         {
-            lock (_lock)
+            lock (LockFactory.LockObject)
             {
                 var oldestNumberRecord = _dbContext
                         .OrderNumbers
@@ -55,7 +54,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public int GenerateNewOrderNumberRecord()
         {
-            lock (_lock)
+            lock (LockFactory.LockObject)
             {
                 var randomNo = rand.Next(0, 1000000);
                 var exitsts = _dbContext.OrderNumbers
