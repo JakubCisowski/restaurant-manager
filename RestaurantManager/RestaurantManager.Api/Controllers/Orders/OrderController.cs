@@ -39,17 +39,17 @@ namespace RestaurantManager.Api.Controllers.Orders
             return result;
         }
 
-        [HttpGet("{phone}")]
-        public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone(string phone)
+        [HttpGet("OrdersByPhone")]
+        public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone([FromQuery] string phone, [FromQuery] int orderNo)
         {
             try
             {
-                return await _orderService.GetOrdersAsync(phone);
+                return await _orderService.GetOrdersAsync(phone, orderNo);
             }
-            catch (NotFoundException e)
+            catch (OrderNotFoundException e)
             {
                 _logger.Error(e.Message);
-                return NotFound(new FilterErrorResponse(e.Filter, e.Message));
+                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
             }
             catch (Exception e)
             {
@@ -59,16 +59,17 @@ namespace RestaurantManager.Api.Controllers.Orders
         }
 
         [HttpGet("DinnerBill")]
-        public async Task<ActionResult<DinnerBillDto>> GetDinnerBill([FromQuery]int orderNo, [FromQuery]string phone)
+        public async Task<ActionResult<DinnerBillDto>> GetDinnerBill([FromQuery] int orderNo, [FromQuery] string phone)
         {
             try
             {
                 return await _orderService.GetDinnerBillAsync(orderNo, phone);
             }
-            catch (NotFoundException e)
+            catch (OrderNotFoundException e)
             {
                 _logger.Error(e.Message);
-                return NotFound(new FilterErrorResponse(e.Filter, e.Message));
+                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
+
             }
             catch (Exception e)
             {
@@ -80,8 +81,15 @@ namespace RestaurantManager.Api.Controllers.Orders
         [HttpPost("CreateOrder")]
         public async Task<ActionResult<int>> CreateOrder([FromBody] CreateOrderCommand command)
         {
-            var result = await _orderService.CreateOrderDraft(command);
-            return result;
+            try
+            {
+                var result = await _orderService.CreateOrderDraft(command);
+                return result;
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
         }
 
 
@@ -97,6 +105,16 @@ namespace RestaurantManager.Api.Controllers.Orders
 
             }
             catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(e.Message);
+            }
+            catch (OrderNotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
+            }
+            catch(DishDoesNotContainIngredientException e)
             {
                 _logger.Error(e.Message);
                 return NotFound(e.Message);

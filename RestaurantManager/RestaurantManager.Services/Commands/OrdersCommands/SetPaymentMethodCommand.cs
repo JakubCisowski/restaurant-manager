@@ -10,6 +10,7 @@ namespace RestaurantManager.Services.Commands.OrdersCommands
     public class SetPaymentMethodCommand
     {
         public int OrderNo { get; set; }
+        public string Phone { get; set; }
         public PaymentType PaymentType { get; set; }
     }
 }
