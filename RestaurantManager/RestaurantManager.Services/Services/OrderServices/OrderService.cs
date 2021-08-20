@@ -234,7 +234,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task<DinnerBillDto> GetDinnerBillAsync(int orderNo, string phone)
         {
-            var order =  _orderRepository
+            var order =  await _orderRepository
                .FindMany(x => x.Customer.Phone == phone && x.OrderNo == orderNo)
                .Select(x => new DinnerBillDto {
                    OrderNo = orderNo,
@@ -251,7 +251,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                    }),
                    TotalPrice = x.TotalPrice
                })
-               .FirstOrDefault();
+               .FirstOrDefaultAsync();
 
             if (order == null)
             {
