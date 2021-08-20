@@ -50,6 +50,8 @@ namespace RestaurantManager.Api
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            services.AddScoped<IGeneratorLockService, GeneratorLockService>();
+
             services.AddMvc().AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             var keycloakConfig = new KeycloakConfig();
