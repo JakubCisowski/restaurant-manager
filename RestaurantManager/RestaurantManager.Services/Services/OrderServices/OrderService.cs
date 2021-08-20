@@ -19,7 +19,6 @@ namespace RestaurantManager.Services.Services.OrderServices
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IGenericRepository<Order> _orderRepository;
         private readonly IGenericRepository<OrderItem> _orderItemRepository;
         private readonly IGenericRepository<ShippingAddress> _addressRepository;
         private readonly IGenericRepository<Dish> _dishRepository;
@@ -29,14 +28,16 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly ICustomerService _customerService;
         private readonly IOrderNoGeneratorService _orderNoGeneratorService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly IOrderRepository _orderRepository;
 
         public OrderService(IUnitOfWork unitOfWork,
+                            IOrderRepository orderRepository,
                             ICustomerService customerService,
                             IOrderNoGeneratorService orderNoGeneratorService,
                             IOrderCalculationService orderCalculationService)
         {
             _unitOfWork = unitOfWork;
-            _orderRepository = _unitOfWork.GetRepository<Order>();
+            _orderRepository = orderRepository;
             _orderItemRepository = _unitOfWork.GetRepository<OrderItem>();
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
@@ -50,7 +51,9 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
         {
-            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
+            var order = await _orderRepository
+                .FindOneOrder(command.OrderNo, command.PhoneNumber);
+
             var dish = await _dishRepository.GetByIdAsync(command.DishId);
 
             var ingredients = _ingredientRepository
@@ -63,7 +66,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
             if (order == null)
             {
-                throw new NotFoundException(command.OrderNo.ToString(), nameof(Order));
+                throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
             }
             if (dish == null)
             {
@@ -136,14 +139,14 @@ namespace RestaurantManager.Services.Services.OrderServices
             return await allOrders.ToListAsync();
         }
 
-        public async Task<OrdersListResponse> GetOrdersAsync(string phone)
+        public async Task<OrdersListResponse> GetOrdersAsync(string phone, int orderNo)
         {
             var orders = _orderRepository
-                .FindMany(x => x.Customer.Phone == phone);
+                .FindOrders(orderNo, phone);
 
-            if(!orders.Any())
+            if (!orders.Any())
             {
-                throw new NotFoundException(phone, nameof(Order));
+                throw new OrderNotFoundException(phone, orderNo);
             }
 
             var ordersDto = orders.Select(x => new OrderDto
@@ -170,12 +173,12 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderAddress(AddAddressCommand command)
         {
-            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
+            var order = await _orderRepository
+                .FindOneOrder(command.OrderNo, command.PhoneNumber);
 
             if (order is null)
             {
-                //return new NotFoundException(command.OrderNo)
-                // do weryfikacji czy odpytujemy po orderNo
+                throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
             }
 
             var address = new ShippingAddress(command.Country, command.City, command.Address1, command.Address2, command.PhoneNumber, command.ZipPostalCode);
@@ -201,7 +204,9 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task SetPaymentMethod(SetPaymentMethodCommand command)
         {
-            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo);
+            var order = await _orderRepository
+                .FindOneOrder(command.OrderNo, command.Phone);
+
             order.SetPaymentMethod(command.PaymentType);
 
             _orderRepository.Update(order);
@@ -211,7 +216,8 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task ConfirmOrder(AcceptOrderCommand command)
         {
-            var order = await _orderRepository.FindOneAsync(x => x.OrderNo == command.OrderNo && x.Customer.Phone == command.PhoneNumber);
+            var order = await _orderRepository
+                .FindOneOrder(command.OrderNo, command.PhoneNumber, x => x.OrderItems, x => x.ShippingAddress);
 
             if (!order.OrderItems.Any())
             {
@@ -234,9 +240,10 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task<DinnerBillDto> GetDinnerBillAsync(int orderNo, string phone)
         {
-            var order =  _orderRepository
+            var order = await _orderRepository
                .FindMany(x => x.Customer.Phone == phone && x.OrderNo == orderNo)
-               .Select(x => new DinnerBillDto {
+               .Select(x => new DinnerBillDto
+               {
                    OrderNo = orderNo,
                    Phone = phone,
                    Dishes = x.OrderItems.Select(orderItem => new DishBillDto
@@ -251,11 +258,11 @@ namespace RestaurantManager.Services.Services.OrderServices
                    }),
                    TotalPrice = x.TotalPrice
                })
-               .FirstOrDefault();
+               .FirstOrDefaultAsync();
 
             if (order == null)
             {
-                throw new NotFoundException(orderNo.ToString(), nameof(Order));
+                throw new OrderNotFoundException(phone, orderNo);
             }
 
             return order;

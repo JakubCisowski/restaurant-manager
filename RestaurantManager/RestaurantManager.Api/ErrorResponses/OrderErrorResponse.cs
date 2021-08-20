@@ -5,16 +5,18 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.ErrorResponses
 {
-    public class FilterErrorResponse
+    public class OrderErrorResponse
     {
 
-        public FilterErrorResponse(string filter, string message)
+        public OrderErrorResponse(int orderNo ,string phone, string message)
         {
-            Filter = filter;
+            PhoneNumber = phone;
             ExceptionMessage = message;
+            OrderNo = orderNo;
         }
 
-        public string Filter { get; set; }
+        public string PhoneNumber { get; set; }
         public string ExceptionMessage { get; set; }
+        public int OrderNo { get; }
     }
 }

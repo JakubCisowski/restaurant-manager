@@ -11,6 +11,6 @@ namespace RestaurantManager.Services.DTOs.Orders
         public int OrderNo { get; set; }
         public string Phone { get; set; }
         public IEnumerable<DishBillDto> Dishes { get; set; }
-        public float TotalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
     }
 }

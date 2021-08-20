@@ -19,11 +19,5 @@ namespace RestaurantManager.Services.Exceptions
         public NotFoundException(string message) : base(message)
         {
         }
-
-        public NotFoundException(string filter, string entityName) : this($"Not found '{entityName}' entity for declared request data: {filter}")
-        {
-            Filter = filter;
-        }
-
     }
 }
