@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Consts.Enums;
 using RestaurantManager.Entities.Orders;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
@@ -266,6 +267,21 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
 
             return order;
+        }
+
+        public async Task AcceptPaymentAsync(int orderNo, string phone)
+        {
+            var order = await _orderRepository
+                .FindOneOrder(orderNo, phone);
+
+            if (order == null)
+            {
+                throw new OrderNotFoundException(phone, orderNo);
+            }
+
+            order.SetStatus(OrderStatus.Paid);
+            _orderRepository.Update(order);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

@@ -51,5 +51,10 @@ namespace RestaurantManager.Entities.Orders
         {
             Status = OrderStatus.Confirmed;
         }
+
+        public void SetStatus(OrderStatus newStatus)
+        {
+            Status = newStatus;
+        }
     }
 }

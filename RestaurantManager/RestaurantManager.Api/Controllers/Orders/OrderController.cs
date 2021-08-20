@@ -88,6 +88,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
         }
@@ -160,6 +161,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
             }
         }
@@ -176,6 +178,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
             }
         }
@@ -191,6 +194,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
             }
         }
@@ -198,7 +202,28 @@ namespace RestaurantManager.Api.Controllers.Orders
         [HttpPost(nameof(AcceptPayment))]
         public async Task<IActionResult> AcceptPayment([FromBody] AcceptPaymentInput input)
         {
-            return Ok();
+            try
+            {
+                if(input.IsPaymentCorrect)
+                {
+                    await _orderService.AcceptPaymentAsync(input.OrderNo, input.Phone);
+                    return Ok();
+                }
+                else
+                {
+                    return Problem("Payment is not correct. Couldn't accept the payment.");
+                }
+            }
+            catch (OrderNotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
+            }
         }
     }
 }
