@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Consts.Configs;
+using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
@@ -20,13 +22,17 @@ namespace RestaurantManager.Services.RestaurantServices
         private readonly IGenericRepository<Dish> _dishRepository;
         private readonly IGenericRepository<Menu> _menuRepository;
         private readonly IGenericRepository<Ingredient> _ingredientRepository;
+        private readonly ICacheService _cacheService;
+        private readonly ICacheKeyService _cacheKeyService;
 
-        public DishService(IUnitOfWork unitOfWork)
+        public DishService(IUnitOfWork unitOfWork, ICacheService cacheService, ICacheKeyService cacheKeyService)
         {
             _unitOfWork = unitOfWork;
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _menuRepository = _unitOfWork.GetRepository<Menu>();
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
+            _cacheService = cacheService;
+            _cacheKeyService = cacheKeyService;
         }
 
         public async Task AddDishAsync(CreateDishCommand newDish)
@@ -78,31 +84,40 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task<DishDto> GetDishAsync(Guid id)
         {
-            var dish = await _dishRepository
-                .FindOneAsync(x => x.Id == id);
-
-            var dishDto = new DishDto
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetDishAsync), id);
+            var result = await _cacheService.Get(cacheKey, async () =>
             {
-                Id = dish.Id,
-                Name = dish.Name,
-                Description = dish.Description,
-                BasePrice = dish.BasePrice,
-                MenuId = dish.MenuId,
-                Ingredients = dish.Ingredients
-                    .Select(x => new DTOs.Ingredients.IngredientBaseDto
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Price = x.Price
-                    })
-            };
+                var dish = await _dishRepository
+                    .FindOneAsync(x => x.Id == id);
 
-            return dishDto;
+                var dishDto = new DishDto
+                {
+                    Id = dish.Id,
+                    Name = dish.Name,
+                    Description = dish.Description,
+                    BasePrice = dish.BasePrice,
+                    MenuId = dish.MenuId,
+                    Ingredients = dish.Ingredients
+                        .Select(x => new DTOs.Ingredients.IngredientBaseDto
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            Price = x.Price
+                        })
+                };
+
+                return dishDto;
+            }, 10);
+
+            return result;
         }
 
         public async Task<IEnumerable<DishDto>> GetAllDishesAsync()
         {
-            var allDishes = _dishRepository
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetDishAsync));
+            var result = await _cacheService.Get(cacheKey, async () =>
+            {
+                var allDishes = _dishRepository
                 .GetAll()
                 .Select(x => new DishDto
                 {
@@ -119,7 +134,10 @@ namespace RestaurantManager.Services.RestaurantServices
                     MenuId = x.Menu.Id
                 });
 
-            return await allDishes.ToListAsync();
+                return allDishes;
+            }, 10);
+
+            return result;
         }
 
         public async Task UpdateDishAsync(UpdateDishCommand dish)
