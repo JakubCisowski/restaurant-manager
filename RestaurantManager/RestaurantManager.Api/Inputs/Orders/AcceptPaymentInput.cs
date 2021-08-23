@@ -9,6 +9,5 @@ namespace RestaurantManager.Api.Inputs.Orders
     {
         public string Phone { get; set; }
         public int OrderNo { get; set; }
-        public bool IsPaymentCorrect { get; set; }
     }
 }

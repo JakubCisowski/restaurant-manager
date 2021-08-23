@@ -279,9 +279,12 @@ namespace RestaurantManager.Services.Services.OrderServices
                 throw new OrderNotFoundException(phone, orderNo);
             }
 
-            order.SetStatus(OrderStatus.Paid);
-            _orderRepository.Update(order);
-            await _unitOfWork.SaveChangesAsync();
+            if(order.Status < OrderStatus.Paid)
+            {
+                order.SetStatus(OrderStatus.Paid);
+                _orderRepository.Update(order);
+                await _unitOfWork.SaveChangesAsync();
+            }
         }
     }
 }

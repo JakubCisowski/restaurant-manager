@@ -204,15 +204,8 @@ namespace RestaurantManager.Api.Controllers.Orders
         {
             try
             {
-                if(input.IsPaymentCorrect)
-                {
-                    await _orderService.AcceptPaymentAsync(input.OrderNo, input.Phone);
-                    return Ok();
-                }
-                else
-                {
-                    return Problem("Payment is not correct. Couldn't accept the payment.");
-                }
+                await _orderService.AcceptPaymentAsync(input.OrderNo, input.Phone);
+                return Ok();
             }
             catch (OrderNotFoundException e)
             {
