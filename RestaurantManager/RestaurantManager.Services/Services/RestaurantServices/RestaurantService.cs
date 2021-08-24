@@ -39,6 +39,7 @@ namespace RestaurantManager.Services.RestaurantServices
         {
             await _restaurantRepository.AddAsync(new Restaurant(restaurant.Id, restaurant.Name, restaurant.Phone, restaurant.Address));
             await _unitOfWork.SaveChangesAsync();
+
             _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
@@ -84,14 +85,14 @@ namespace RestaurantManager.Services.RestaurantServices
             return result;
         }
 
-        public IEnumerable<RestaurantNamesDto> GetRestaurantNames()
+        public async Task<IEnumerable<RestaurantNamesDto>> GetRestaurantNamesAsync()
         {
-            var restaurantNames = _restaurantRepository
+            var restaurantNames = await _restaurantRepository
                 .FindMany(x => true)
                 .Select(x => new RestaurantNamesDto
                 {
                     Name = x.Name
-                });
+                }).ToListAsync();
 
             return restaurantNames;
         }

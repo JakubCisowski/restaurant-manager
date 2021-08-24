@@ -8,7 +8,7 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
 {
     public interface IRestaurantService
     {
-        IEnumerable<RestaurantNamesDto> GetRestaurantNames();
+        Task<IEnumerable<RestaurantNamesDto>> GetRestaurantNamesAsync();
         Task<IEnumerable<RestaurantDto>> GetRestaurantsAsync();
         Task AddRestaurantAsync(CreateRestaurantCommand newRestaurant);
         Task UpdateRestaurantAsync(UpdateRestaurantCommand restaurant);

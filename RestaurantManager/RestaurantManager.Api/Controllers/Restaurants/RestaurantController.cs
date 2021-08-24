@@ -46,9 +46,9 @@ namespace RestaurantManager.Api.Controllers
         }
 
         [HttpGet("RestaurantNames")]
-        public IEnumerable<RestaurantNamesDto> GetNames()
+        public async Task<IEnumerable<RestaurantNamesDto>> GetNames()
         {
-            return _restaurantService.GetRestaurantNames();
+            return await _restaurantService.GetRestaurantNamesAsync();
         }
 
         [HttpPost("Create")]

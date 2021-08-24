@@ -50,8 +50,12 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task AddAvailableIngredient(AddIngredientCommand command)
         {
-            var dish = await _dishRepository.GetByIdAsync(command.DishId);
-            var ingredient = await _ingredientRepository.GetByIdAsync(command.IngredientId);
+            var dishTask = _dishRepository.GetByIdAsync(command.DishId);
+            var ingredientTask = _ingredientRepository.GetByIdAsync(command.IngredientId);
+            await Task.WhenAll(dishTask, ingredientTask);
+
+            var dish = await dishTask;
+            var ingredient = await ingredientTask;
 
             if (dish == null)
             {
@@ -61,10 +65,6 @@ namespace RestaurantManager.Services.RestaurantServices
             {
                 throw new NotFoundException(command.IngredientId, nameof(Ingredient));
             }
-
-            //await Task.WhenAll(dish, ingredient);
-            //var dishResult = await dish;
-            //var ingredientsResult = await ingredient;
 
             dish.Ingredients.Add(ingredient);
             ingredient.Dishes.Add(dish);
@@ -89,29 +89,33 @@ namespace RestaurantManager.Services.RestaurantServices
         public async Task<DishDto> GetDishAsync(Guid id)
         {
             var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishAsync), id);
-            var result = await _cacheService.Get(cacheKey, async () =>
+            var result = await _cacheService.Get(cacheKey, () =>
             {
-                var dish = await _dishRepository
-                    .FindOneAsync(x => x.Id == id);
-
-                var dishDto = new DishDto
-                {
-                    Id = dish.Id,
-                    Name = dish.Name,
-                    Description = dish.Description,
-                    BasePrice = dish.BasePrice,
-                    MenuId = dish.MenuId,
-                    Ingredients = dish.Ingredients
+                var dish = _dishRepository
+                   .FindMany(x => x.Id == id)
+                   .Select(dish => new DishDto
+                   {
+                       Id = dish.Id,
+                       Name = dish.Name,
+                       Description = dish.Description,
+                       BasePrice = dish.BasePrice,
+                       MenuId = dish.MenuId,
+                       Ingredients = dish.Ingredients
                         .Select(x => new DTOs.Ingredients.IngredientBaseDto
                         {
                             Id = x.Id,
                             Name = x.Name,
                             Price = x.Price
                         })
-                };
+                   }).FirstOrDefaultAsync();
 
-                return dishDto;
+                return dish;
             }, 10);
+
+            if (result is null)
+            {
+                throw new NotFoundException(id, nameof(Dish));
+            }
 
             return result;
         }
@@ -166,8 +170,12 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task RemoveAvailableIngredient(RemoveIngredientCommand command)
         {
-            var dish = await _dishRepository.GetByIdAsync(command.DishId, x => x.Ingredients);
-            var ingredient = await _ingredientRepository.GetByIdAsync(command.IngredientId, x => x.Dishes);
+            var dishTask = _dishRepository.GetByIdAsync(command.DishId, x => x.Ingredients);
+            var ingredientTask = _ingredientRepository.GetByIdAsync(command.IngredientId, x => x.Dishes);
+
+            await Task.WhenAll(dishTask, ingredientTask);
+            var dish = await dishTask;
+            var ingredient = await ingredientTask;
 
             if (dish == null)
             {

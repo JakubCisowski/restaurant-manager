@@ -52,10 +52,14 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
         {
-            var order = await _orderRepository
+            var orderTask = _orderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber);
 
-            var dish = await _dishRepository.GetByIdAsync(command.DishId);
+            var dishTask = _dishRepository.GetByIdAsync(command.DishId);
+
+            await Task.WhenAll(orderTask, dishTask);
+            var order = await orderTask;
+            var dish = await dishTask;
 
             var ingredients = _ingredientRepository
                 .FindMany(x => command.ExtraIngredientIds.Contains(x.Id)
@@ -78,19 +82,21 @@ namespace RestaurantManager.Services.Services.OrderServices
                 throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
             }
 
-            var dishExtraIngredients = ingredients
+            var dishExtraIngredients = await ingredients
                 .Select(x => new DishExtraIngredient(x.Name, x.Price, command.Id))
-                .ToList();
+                .ToListAsync();
 
             var orderItem = new OrderItem(command.Id, command.OrderNo, dish, command.DishComment, dishExtraIngredients);
             order.AddOrderItem(orderItem);
+            
+            //toDo: sprawdzić czy add ingredients potrzebne
+            await Task.WhenAll(
+                _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients),
+                _orderItemRepository.AddAsync(orderItem));
 
-            await _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients);
-            await _orderItemRepository.AddAsync(orderItem);
             _orderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
-
             await _orderCalculationService.UpdateTotalPrice(order.Id);
         }
 
@@ -160,7 +166,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                 throw new OrderNotFoundException(phone, orderNo);
             }
 
-            var ordersDto = orders.Select(x => new OrderDto
+            var ordersDto = await orders.Select(x => new OrderDto
             {
                 Id = x.Id,
                 OrderNo = x.OrderNo,
@@ -177,9 +183,9 @@ namespace RestaurantManager.Services.Services.OrderServices
                     DishPrice = x.DishPrice,
                     DishComment = x.DishComment
                 })
-            });
+            }).ToListAsync();
 
-            return new OrdersListResponse(await ordersDto.ToListAsync());
+            return new OrdersListResponse(ordersDto);
         }
 
         public async Task AddOrderAddress(AddAddressCommand command)

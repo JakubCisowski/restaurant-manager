@@ -80,22 +80,6 @@ namespace RestaurantManager.Services.RestaurantServices
                 return ingredientDto;
             }, 10);
 
-            //var ingredientDto = new IngredientDto
-            //{
-            //    Id = ingredient.Id,
-            //    Name = ingredient.Name,
-            //    Price = ingredient.Price,
-            //    Dishes = ingredient.Dishes.Select(x => new DishBaseDto
-            //    {
-            //        Id = x.Id,
-            //        Name = x.Name,
-            //        BasePrice = x.BasePrice,
-            //        Description = x.Description,
-            //        MenuId = x.MenuId
-            //    })
-
-            //};
-
             return result;
         }
 
@@ -123,7 +107,7 @@ namespace RestaurantManager.Services.RestaurantServices
                 });
 
                 return allIngredients;
-            }, 10); 
+            }, 10);
 
             return result;
         }
