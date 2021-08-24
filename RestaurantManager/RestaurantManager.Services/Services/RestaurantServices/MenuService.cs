@@ -56,7 +56,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices
 
         public async Task<DishesListResponse> GetDishesAsync(Guid menuId)
         {
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetDishesAsync), menuId);
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishesAsync), menuId);
             var result = await _cacheService.Get(cacheKey, async () =>
             {
                 var menu = _menuRepository
