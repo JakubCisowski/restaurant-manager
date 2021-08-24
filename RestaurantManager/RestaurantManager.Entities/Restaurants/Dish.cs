@@ -16,6 +16,7 @@ namespace RestaurantManager.Entities.Restaurants
         public string Name { get; private set; }
         public decimal BasePrice { get; private set; }
         public string Description { get; private set; }
+        public bool IsAvailable { get; private set; }
         public virtual ICollection<Ingredient> Ingredients { get; private set; } = new List<Ingredient>();
 
         public Guid MenuId { get; private set; }
@@ -42,5 +43,9 @@ namespace RestaurantManager.Entities.Restaurants
             Menu = menu;
         }
 
+        public void SetAvailability(bool isAvailable)
+        {
+            IsAvailable = isAvailable;
+        }
     }
 }
