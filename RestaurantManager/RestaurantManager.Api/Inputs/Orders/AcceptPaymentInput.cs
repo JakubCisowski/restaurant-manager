@@ -7,7 +7,7 @@ namespace RestaurantManager.Api.Inputs.Orders
 {
     public class AcceptPaymentInput
     {
+        public string Phone { get; set; }
         public int OrderNo { get; set; }
-        public bool IsPaymentCorrect { get; set; }
     }
 }
