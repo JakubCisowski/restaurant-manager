@@ -59,10 +59,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishesAsync), menuId);
             var result = await _cacheService.Get(cacheKey, async () =>
             {
-                var menu = _menuRepository
-                    .FindMany(x => x.Id == menuId);
-
-                if (menu == null)
+                if (!_menuRepository.GetAll().Any(x => x.Id == menuId))
                 {
                     throw new NotFoundException(menuId, nameof(Menu));
                 }
