@@ -1,4 +1,5 @@
-﻿using RestaurantManager.Consts.Configs;
+﻿using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Consts.Configs;
 using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
@@ -55,18 +56,18 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
-        public async Task<DishesListResponse> GetDishesAsync(Guid menuId)
+        public async Task<DishesListResponse> GetDishesAsync(Guid menuId, bool displayNonAvailableDishes = false)
         {
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishesAsync), menuId);
-            var result = await _cacheService.Get(cacheKey, async () =>
+            if (!_menuRepository.FindMany(x => x.Id == menuId).Any())
             {
-                if (!_menuRepository.GetAll().Any(x => x.Id == menuId))
-                {
-                    throw new NotFoundException(menuId, nameof(Menu));
-                }
+                throw new NotFoundException(menuId, nameof(Menu));
+            }
 
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishesAsync), menuId, displayNonAvailableDishes);
+            var result = await _cacheService.Get(cacheKey, () =>
+            {
                 var dishesDto = _dishRepository
-                    .FindMany(x => x.MenuId == menuId)
+                    .FindMany(x => x.MenuId == menuId && ( x.IsAvailable == !displayNonAvailableDishes || x.IsAvailable))
                     .Select(dish => new DishDto
                     {
                         Id = dish.Id,
@@ -81,14 +82,13 @@ namespace RestaurantManager.Services.Services.RestaurantServices
                                 Name = x.Name,
                                 Price = x.Price
                             })
-                    });
+                    }).ToListAsync();
 
                 return dishesDto;
             }, 10);
 
             return new DishesListResponse(result.ToList());
         }
-
 
         public async Task SetAvailableDish(SetAvailableDishCommand command)
         {
@@ -104,6 +104,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             _dishRepository.Update(dish);
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
     }
 }

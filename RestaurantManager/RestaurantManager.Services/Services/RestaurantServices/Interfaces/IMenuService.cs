@@ -11,7 +11,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices.Interfaces
     public interface IMenuService
     {
         Task AddMenuAsync(Guid restaurantId);
-        Task<DishesListResponse> GetDishesAsync(Guid menuId);
+        Task<DishesListResponse> GetDishesAsync(Guid menuId, bool displayNonAvailableDishes);
         Task SetAvailableDish(SetAvailableDishCommand command);
     }
 }

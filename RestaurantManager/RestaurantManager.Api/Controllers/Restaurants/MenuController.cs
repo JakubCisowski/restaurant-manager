@@ -43,12 +43,12 @@ namespace RestaurantManager.Api.Controllers.Restaurants
             }
         }
 
-        [HttpGet("GetDishes/{menuId}")]
-        public async Task<ActionResult<DishesListResponse>> GetMenuDishes(Guid menuId)
+        [HttpGet("GetDishes")]
+        public async Task<ActionResult<DishesListResponse>> GetMenuDishes(Guid menuId, bool displayNonAvailableDishes = false)
         {
             try
             {
-                return await _menuService.GetDishesAsync(menuId);
+                return await _menuService.GetDishesAsync(menuId, displayNonAvailableDishes);
             }
             catch (NotFoundException e)
             {
