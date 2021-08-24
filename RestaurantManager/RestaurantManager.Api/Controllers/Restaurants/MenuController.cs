@@ -11,16 +11,15 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers.Restaurants
 {
-    public class MenuController : Controller
+    public class MenuController : BaseApiController
     {
         private readonly IMenuService _menuService;
-        private readonly ILogger _logger;
 
         public MenuController(IMenuService menuService,
-                              ILogger logger)
+                              ILogger logger) : base(logger)
         {
             _menuService = menuService;
-            _logger = logger;
+
         }
 
         [HttpPost("CreateMenu")]
@@ -31,16 +30,8 @@ namespace RestaurantManager.Api.Controllers.Restaurants
                 await _menuService.AddMenuAsync(newMenu.RestaurantId);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpGet("GetDishes")]
@@ -50,16 +41,8 @@ namespace RestaurantManager.Api.Controllers.Restaurants
             {
                 return await _menuService.GetDishesAsync(menuId, displayNonAvailableDishes);
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
 
@@ -71,16 +54,8 @@ namespace RestaurantManager.Api.Controllers.Restaurants
                 await _menuService.SetAvailableDish(command);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
     }

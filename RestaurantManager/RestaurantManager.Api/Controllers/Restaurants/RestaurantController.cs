@@ -17,16 +17,14 @@ namespace RestaurantManager.Api.Controllers
     //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class RestaurantController : ControllerBase
+    public class RestaurantController : BaseApiController
     {
         private readonly IRestaurantService _restaurantService;
-        private readonly ILogger _logger;
 
         public RestaurantController(IRestaurantService restaurantService,
-                                    ILogger logger)
+                                    ILogger logger) : base(logger)
         {
             _restaurantService = restaurantService;
-            _logger = logger;
         }
 
         [HttpGet("AllRestaurants")]
@@ -43,16 +41,8 @@ namespace RestaurantManager.Api.Controllers
             {
                 return await _restaurantService.GetRestaurantAsync(id);
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpGet("RestaurantNames")]
@@ -70,11 +60,7 @@ namespace RestaurantManager.Api.Controllers
                 await _restaurantService.AddRestaurantAsync(
                     new CreateRestaurantCommand(restaurantId, input.Name, input.Phone, input.Address));
             }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (Exception e) { return ReturnException(e); }
 
             return Ok(restaurantId);
         }
@@ -87,16 +73,8 @@ namespace RestaurantManager.Api.Controllers
                 await _restaurantService.UpdateRestaurantAsync(updatedRestaurant);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpDelete("{id}")]
@@ -107,18 +85,8 @@ namespace RestaurantManager.Api.Controllers
                 await _restaurantService.DeleteRestaurantAsync(id);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
-
-      
     }
 }

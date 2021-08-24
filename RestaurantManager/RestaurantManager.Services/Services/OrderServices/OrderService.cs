@@ -242,6 +242,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             var order = await _orderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber, x => x.OrderItems, x => x.ShippingAddress);
 
+            //toDo: refactor
             if (!order.OrderItems.Any())
             {
                 throw new Exception("Empty order");

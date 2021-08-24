@@ -17,15 +17,14 @@ namespace RestaurantManager.Api.Controllers
     //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class DishController : ControllerBase
+    public class DishController : BaseApiController
     {
         private readonly IDishService _dishService;
-        private readonly ILogger _logger;
 
         public DishController(IDishService dishService, ILogger logger)
+            : base(logger)
         {
             _dishService = dishService;
-            _logger = logger;
         }
 
         [HttpGet("AllDishes")]
@@ -42,16 +41,8 @@ namespace RestaurantManager.Api.Controllers
             {
                 return await _dishService.GetDishAsync(id);
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpPost("Create")]
@@ -64,11 +55,7 @@ namespace RestaurantManager.Api.Controllers
                 await _dishService.AddDishAsync(
                 new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
             }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (Exception e) { return ReturnException(e); }
 
             return Ok(dishId);
         }
@@ -81,16 +68,8 @@ namespace RestaurantManager.Api.Controllers
                 await _dishService.UpdateDishAsync(updatedDish);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpDelete("{id}")]
@@ -101,16 +80,8 @@ namespace RestaurantManager.Api.Controllers
                 await _dishService.DeleteDishAsync(id);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpPost("AddAvailableIngredient")]
@@ -121,16 +92,8 @@ namespace RestaurantManager.Api.Controllers
                 await _dishService.AddAvailableIngredient(command);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpDelete("RemoveAvailableIngredient")]
@@ -141,16 +104,8 @@ namespace RestaurantManager.Api.Controllers
                 await _dishService.RemoveAvailableIngredient(command);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
     }
 }

@@ -66,7 +66,7 @@ namespace RestaurantManager.Services.RestaurantServices
             //var dishResult = await dish;
             //var ingredientsResult = await ingredient;
 
-            dish.Ingredients.Add(ingredient); // nie można dodawać do listy która jest null
+            dish.Ingredients.Add(ingredient);
             ingredient.Dishes.Add(dish);
 
             await _unitOfWork.SaveChangesAsync();
