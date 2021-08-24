@@ -16,15 +16,14 @@ namespace RestaurantManager.Api.Controllers
     //[Authorize] for test
     [Route("api/[controller]")]
     [ApiController]
-    public class IngredientController : ControllerBase
+    public class IngredientController : BaseApiController
     {
         private readonly IIngredientService _ingredientService;
-        private readonly ILogger _logger;
 
         public IngredientController(IIngredientService ingredientService, ILogger logger)
+            : base(logger)
         {
             _ingredientService = ingredientService;
-            _logger = logger;
         }
 
         [HttpGet("AllIngredients")]
@@ -41,22 +40,13 @@ namespace RestaurantManager.Api.Controllers
             {
                 return await _ingredientService.GetIngredientAsync(id);
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] IngredientInput input)
         {
-
             var ingredientId = Guid.NewGuid();
 
             try
@@ -64,11 +54,7 @@ namespace RestaurantManager.Api.Controllers
                 await _ingredientService.AddIngredientAsync(
                 new CreateIngredientCommand(ingredientId, input.Name, input.Price));
             }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (Exception e) { return ReturnException(e); }
 
             return Ok(ingredientId);
         }
@@ -81,16 +67,8 @@ namespace RestaurantManager.Api.Controllers
                 await _ingredientService.UpdateIngredientAsync(updatedIngredient);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpDelete("{id}")]
@@ -101,16 +79,8 @@ namespace RestaurantManager.Api.Controllers
                 await _ingredientService.DeleteIngredientAsync(id);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
     }
 }

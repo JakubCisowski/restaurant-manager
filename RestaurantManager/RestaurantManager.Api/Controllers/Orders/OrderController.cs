@@ -19,17 +19,15 @@ namespace RestaurantManager.Api.Controllers.Orders
     //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderController : ControllerBase
+    public class OrderController : BaseApiController
     {
         private readonly IOrderService _orderService;
-        private readonly ILogger _logger;
 
         public OrderController(
             IOrderService orderService,
-            ILogger logger)
+            ILogger logger) : base(logger)
         {
             _orderService = orderService;
-            _logger = logger;
         }
 
         [HttpGet("AllOrders")]
@@ -46,16 +44,8 @@ namespace RestaurantManager.Api.Controllers.Orders
             {
                 return await _orderService.GetOrdersAsync(phone, orderNo);
             }
-            catch (OrderNotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpGet("DinnerBill")]
@@ -65,17 +55,8 @@ namespace RestaurantManager.Api.Controllers.Orders
             {
                 return await _orderService.GetDinnerBillAsync(orderNo, phone);
             }
-            catch (OrderNotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
-
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpPost("CreateOrder")]
@@ -88,8 +69,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
             catch (Exception e)
             {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+                return ReturnException(e);
             }
         }
 
@@ -103,36 +83,17 @@ namespace RestaurantManager.Api.Controllers.Orders
             {
                 await _orderService.AddOrderItemAsync(
                     new AddOrderItemCommand(orderItemId, input.OrderNo, input.DishId, input.DishComment, input.ExtraIngredientIds));
-
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (OrderNotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
-            }
-            catch(DishDoesNotContainIngredientException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch(IncorrectOrderStatus e)
-            {
-                _logger.Error(e.Message);
-                BadRequest(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (DishDoesNotContainIngredientException e) { return ReturnException(e); }
+            catch (IncorrectOrderStatus e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
 
             return Ok(orderItemId);
         }
+
+
 
         [HttpDelete("RemoveOrderItem/{id}")]
         public async Task<IActionResult> DeleteByIdAsync(Guid id)
@@ -142,23 +103,10 @@ namespace RestaurantManager.Api.Controllers.Orders
                 await _orderService.DeleteOrderItemAsync(id);
                 return Ok();
             }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch(IncorrectOrderStatus e)
-            {
-                _logger.Error(e.Message);
-                return BadRequest(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
+            catch (NotFoundException e) { return ReturnException(e); }
+            catch (IncorrectOrderStatus e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
-
 
         [HttpPost("AddOrderAddress")]
         public async Task<IActionResult> AddOrderAddressAsync([FromBody] AddAddressCommand command)
@@ -166,26 +114,12 @@ namespace RestaurantManager.Api.Controllers.Orders
             try
             {
                 await _orderService.AddOrderAddress(command);
-
                 return Ok();
             }
-            catch (OrderNotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
-            }
-            catch (IncorrectOrderStatus e)
-            {
-                _logger.Error(e.Message);
-                return BadRequest(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
-            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (IncorrectOrderStatus e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
-
 
         [HttpPost("SetPaymentMethod")]
         public async Task<IActionResult> SetPaymentMethodAsync([FromBody] SetPaymentMethodCommand command)
@@ -193,14 +127,11 @@ namespace RestaurantManager.Api.Controllers.Orders
             try
             {
                 await _orderService.SetPaymentMethod(command);
-
                 return Ok();
             }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
-            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (IncorrectOrderStatus e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
 
         [HttpPost("AcceptOrder")]
@@ -214,8 +145,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
             catch (Exception e)
             {
-                _logger.Error(e.Message);
-                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
+                return ReturnException(e);
             }
         }
 
@@ -227,21 +157,9 @@ namespace RestaurantManager.Api.Controllers.Orders
                 await _orderService.AcceptPaymentAsync(input.OrderNo, input.Phone);
                 return Ok();
             }
-            catch (OrderNotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
-            }
-            catch(IncorrectOrderStatus e)
-            {
-                _logger.Error(e.Message);
-                return BadRequest(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, null, (int)HttpStatusCode.InternalServerError);
-            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (IncorrectOrderStatus e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
         }
     }
 }
