@@ -64,24 +64,23 @@ namespace RestaurantManager.Services.Services.RestaurantServices
                     throw new NotFoundException(menuId, nameof(Menu));
                 }
 
-                var dishes = _dishRepository
-                    .FindMany(x => x.MenuId == menuId);
-
-                var dishesDto = dishes.Select(dish => new DishDto
-                {
-                    Id = dish.Id,
-                    Name = dish.Name,
-                    Description = dish.Description,
-                    BasePrice = dish.BasePrice,
-                    MenuId = dish.MenuId,
-                    Ingredients = dish.Ingredients
-                        .Select(x => new DTOs.Ingredients.IngredientBaseDto
-                        {
-                            Id = x.Id,
-                            Name = x.Name,
-                            Price = x.Price
-                        })
-                });
+                var dishesDto = _dishRepository
+                    .FindMany(x => x.MenuId == menuId)
+                    .Select(dish => new DishDto
+                    {
+                        Id = dish.Id,
+                        Name = dish.Name,
+                        Description = dish.Description,
+                        BasePrice = dish.BasePrice,
+                        MenuId = dish.MenuId,
+                        Ingredients = dish.Ingredients
+                            .Select(x => new DTOs.Ingredients.IngredientBaseDto
+                            {
+                                Id = x.Id,
+                                Name = x.Name,
+                                Price = x.Price
+                            })
+                    });
 
                 return dishesDto;
             }, 10);
