@@ -3,6 +3,7 @@ using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
+using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.Services.RestaurantServices.Interfaces;
 using System;
@@ -18,15 +19,20 @@ namespace RestaurantManager.Services.Services.RestaurantServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Restaurant> _restaurantRepository;
         private readonly IGenericRepository<Menu> _menuRepository;
+        private readonly IGenericRepository<Dish> _dishRepository;
         private readonly ICacheService _cacheService;
+        private readonly ICacheKeyService _cacheKeyService;
 
         public MenuService(IUnitOfWork unitOfWork,
-                           ICacheService cacheService)
+                           ICacheService cacheService, 
+                           ICacheKeyService cacheKeyService)
         {
             _unitOfWork = unitOfWork;
             _restaurantRepository = unitOfWork.GetRepository<Restaurant>();
             _menuRepository = unitOfWork.GetRepository<Menu>();
+            _dishRepository = unitOfWork.GetRepository<Dish>();
             _cacheService = cacheService;
+            _cacheKeyService = cacheKeyService;
         }
 
         public async Task AddMenuAsync(Guid restaurantId)
@@ -46,6 +52,44 @@ namespace RestaurantManager.Services.Services.RestaurantServices
 
             await _unitOfWork.SaveChangesAsync();
             _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
+        }
+
+        public async Task<DishesListResponse> GetDishesAsync(Guid menuId)
+        {
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetDishesAsync), menuId);
+            var result = await _cacheService.Get(cacheKey, async () =>
+            {
+                var menu = _menuRepository
+                    .FindMany(x => x.Id == menuId);
+
+                if (menu == null)
+                {
+                    throw new NotFoundException(menuId, nameof(Menu));
+                }
+
+                var dishes = _dishRepository
+                    .FindMany(x => x.MenuId == menuId);
+
+                var dishesDto = dishes.Select(dish => new DishDto
+                {
+                    Id = dish.Id,
+                    Name = dish.Name,
+                    Description = dish.Description,
+                    BasePrice = dish.BasePrice,
+                    MenuId = dish.MenuId,
+                    Ingredients = dish.Ingredients
+                        .Select(x => new DTOs.Ingredients.IngredientBaseDto
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            Price = x.Price
+                        })
+                });
+
+                return dishesDto;
+            }, 10);
+
+            return new DishesListResponse(result.ToList());
         }
     }
 }
