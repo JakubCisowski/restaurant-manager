@@ -248,18 +248,17 @@ namespace RestaurantManager.Services.Services.OrderServices
             var order = await _orderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber, x => x.OrderItems, x => x.ShippingAddress);
 
-            //toDo: refactor
             if (!order.OrderItems.Any())
             {
-                throw new Exception("Empty order");
+                throw new NotFoundException("Empty order");
             }
             if (order.ShippingAddress is null)
             {
-                throw new Exception("Empty address");
+                throw new NotFoundException("Empty address");
             }
             if (order.PaymentType == Consts.Enums.PaymentType.NotSet)
             {
-                throw new Exception("Empty payment method");
+                throw new PaymentTypeNotSetException("Empty payment method");
             }
 
             order.SetAsConfirmed();
