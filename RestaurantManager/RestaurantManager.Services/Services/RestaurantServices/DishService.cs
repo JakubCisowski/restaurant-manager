@@ -5,6 +5,7 @@ using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Dishes;
+using RestaurantManager.Services.Commands.RestaurantCommands.Dishes;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.DTOs.Ingredients;
 using RestaurantManager.Services.Exceptions;
@@ -118,7 +119,7 @@ namespace RestaurantManager.Services.RestaurantServices
         public async Task<IEnumerable<DishDto>> GetAllDishesAsync()
         {
             var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishAsync));
-            var result = await _cacheService.Get(cacheKey, async () =>
+            var result = await _cacheService.Get(cacheKey, () =>
             {
                 var allDishes = _dishRepository
                 .GetAll()
@@ -135,7 +136,7 @@ namespace RestaurantManager.Services.RestaurantServices
                         Price = x.Price
                     }),
                     MenuId = x.Menu.Id
-                });
+                }).ToListAsync();
 
                 return allDishes;
             }, 10);
@@ -160,6 +161,30 @@ namespace RestaurantManager.Services.RestaurantServices
             _dishRepository.Update(requestedDish);
             await _unitOfWork.SaveChangesAsync();
 
+            _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
+        }
+
+        public async Task RemoveAvailableIngredient(RemoveIngredientCommand command)
+        {
+            var dish = await _dishRepository.GetByIdAsync(command.DishId, x => x.Ingredients);
+            var ingredient = await _ingredientRepository.GetByIdAsync(command.IngredientId, x => x.Dishes);
+
+            if (dish == null)
+            {
+                throw new NotFoundException(command.DishId, nameof(Dish));
+            }
+            if (ingredient == null)
+            {
+                throw new NotFoundException(command.IngredientId, nameof(Ingredient));
+            }
+
+            dish.Ingredients.Remove(ingredient);
+            ingredient.Dishes.Remove(dish);
+
+            _dishRepository.Update(dish);
+            _ingredientRepository.Update(ingredient);
+
+            await _unitOfWork.SaveChangesAsync();
             _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using RestaurantManager.Services.Commands.Dishes;
+using RestaurantManager.Services.Commands.RestaurantCommands.Dishes;
 using RestaurantManager.Services.DTOs;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,6 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
         Task<DishDto> GetDishAsync(Guid id);
         Task DeleteDishAsync(Guid id);
         Task AddAvailableIngredient(AddIngredientCommand command);
+        Task RemoveAvailableIngredient(RemoveIngredientCommand command);
     }
 }
