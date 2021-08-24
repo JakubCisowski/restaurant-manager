@@ -50,12 +50,14 @@ namespace RestaurantManager.Services.RestaurantServices
             _restaurantRepository.Update(restaurant);
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
         public async Task AddRestaurantAsync(CreateRestaurantCommand restaurant)
         {
             await _restaurantRepository.AddAsync(new Restaurant(restaurant.Id, restaurant.Name, restaurant.Phone, restaurant.Address));
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
         public async Task DeleteRestaurantAsync(Guid id)
@@ -68,6 +70,7 @@ namespace RestaurantManager.Services.RestaurantServices
             }
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
         public async Task<RestaurantDto> GetRestaurantAsync(Guid id)

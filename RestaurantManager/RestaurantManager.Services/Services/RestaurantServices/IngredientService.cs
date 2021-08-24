@@ -37,6 +37,7 @@ namespace RestaurantManager.Services.RestaurantServices
         {
             await _ingredientRepository.AddAsync(new Ingredient(newIngredient.Id, newIngredient.Name, newIngredient.Price));
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
 
         public async Task DeleteIngredientAsync(Guid id)
@@ -49,6 +50,7 @@ namespace RestaurantManager.Services.RestaurantServices
             }
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
 
         public async Task<IngredientDto> GetIngredientAsync(Guid id)
@@ -141,6 +143,8 @@ namespace RestaurantManager.Services.RestaurantServices
 
             _ingredientRepository.Update(requestedIngredient);
             await _unitOfWork.SaveChangesAsync();
+
+            _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
     }
 }

@@ -44,6 +44,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
             await _dishRepository.AddAsync(dish);
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
 
         public async Task AddAvailableIngredient(AddIngredientCommand command)
@@ -68,6 +69,7 @@ namespace RestaurantManager.Services.RestaurantServices
             ingredient.Dishes.Add(dish);
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
 
         public async Task DeleteDishAsync(Guid id)
@@ -80,6 +82,7 @@ namespace RestaurantManager.Services.RestaurantServices
             }
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
 
         public async Task<DishDto> GetDishAsync(Guid id)
@@ -156,6 +159,8 @@ namespace RestaurantManager.Services.RestaurantServices
 
             _dishRepository.Update(requestedDish);
             await _unitOfWork.SaveChangesAsync();
+
+            _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
     }
 }
