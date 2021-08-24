@@ -4,8 +4,15 @@ namespace RestaurantManager.Entities.Orders
 {
     public class Customer : Entity
     {
-        //public string FirstName { get; private set; }
-        //public string LastName { get; private set; }
+        public Customer()
+        {
+
+        }
+        public Customer(string phone)
+        {
+            Phone = phone;
+        }
+
         public string Phone { get; private set; }
 
         public virtual ICollection<Order> Orders { get; private set; }

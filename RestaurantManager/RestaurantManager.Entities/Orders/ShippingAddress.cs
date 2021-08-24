@@ -4,6 +4,16 @@ namespace RestaurantManager.Entities.Orders
 {
     public class ShippingAddress : Entity
     {
+        public ShippingAddress(string country, string city, string address1, string address2, string phoneNumber, string zipPostalCode)
+        {
+            Country = country;
+            City = city;
+            Address1 = address1;
+            Address2 = address2;
+            PhoneNumber = phoneNumber;
+            ZipPostalCode = zipPostalCode;
+        }
+
         public string Country { get; private set; }
         public string City { get; private set; }
         public string Address1 { get; private set; }
