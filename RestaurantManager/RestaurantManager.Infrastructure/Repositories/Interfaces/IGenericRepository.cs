@@ -14,9 +14,9 @@ namespace RestaurantManager.Infrastructure.Repositories.Interfaces
         IQueryable<TEntity> GetAll();
         IQueryable<TEntity> FindMany(Expression<Func<TEntity, bool>> filter);
         bool RemoveOne(Expression<Func<TEntity, bool>> filter);
-        Task<TEntity> GetByIdAsync(Guid id);
         Task<TEntity> FindOneAsync(Expression<Func<TEntity, bool>> filter);
         Task AddAsync(TEntity entity);
         Task AddManyAsync(IEnumerable<TEntity> entity);
+        Task<TEntity> GetByIdAsync(Guid id, params Expression<Func<TEntity, object>>[] includes);
     }
 }

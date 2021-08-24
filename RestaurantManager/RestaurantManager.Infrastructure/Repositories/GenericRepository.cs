@@ -54,10 +54,17 @@ namespace RestaurantManager.Infrastructure.Repositories
             return _dbSet.AsNoTracking();
         }
 
-        public async Task<TEntity> GetByIdAsync(Guid id)
+        public async Task<TEntity> GetByIdAsync(Guid id, params Expression<Func<TEntity, object>>[] includes)
         {
-            var entity = await _dbSet.FindAsync(id);
-            return entity;
+            var query = _dbSet.AsQueryable();
+
+            foreach (var include in includes)
+            {
+                query = includes.Aggregate(query, (q, w) => q.Include(w));
+            }
+
+            return await query
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public bool RemoveOne(Expression<Func<TEntity, bool>> filter)

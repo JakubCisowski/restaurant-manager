@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Dishes;
+using RestaurantManager.Services.Commands.RestaurantCommands.Dishes;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
@@ -117,7 +118,28 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                await _dishService.AddAvailableIngredient(command); return Ok();
+                await _dishService.AddAvailableIngredient(command);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [HttpDelete("RemoveAvailableIngredient")]
+        public async Task<IActionResult> RemoveAvailableIngredient([FromBody] RemoveIngredientCommand command)
+        {
+            try
+            {
+                await _dishService.RemoveAvailableIngredient(command);
+                return Ok();
             }
             catch (NotFoundException e)
             {

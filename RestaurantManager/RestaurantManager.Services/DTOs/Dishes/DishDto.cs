@@ -4,6 +4,16 @@ using System.Collections.Generic;
 
 namespace RestaurantManager.Services.DTOs
 {
+    public class DishesListResponse
+    {
+        public DishesListResponse(List<DishDto> dishDtos)
+        {
+            Dishes = dishDtos;
+        }
+
+        public IEnumerable<DishDto> Dishes { get; set; }
+    }
+
     public class DishDto
     {
         public Guid Id { get; set; }

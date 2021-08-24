@@ -11,7 +11,6 @@ namespace RestaurantManager.Services.RestaurantServices.Interfaces
         IEnumerable<RestaurantNamesDto> GetRestaurantNames();
         Task<IEnumerable<RestaurantDto>> GetRestaurantsAsync();
         Task AddRestaurantAsync(CreateRestaurantCommand newRestaurant);
-        Task AddMenuAsync(Guid restaurantId);
         Task UpdateRestaurantAsync(UpdateRestaurantCommand restaurant);
         Task<RestaurantDto> GetRestaurantAsync(Guid id);
         Task DeleteRestaurantAsync(Guid id);
