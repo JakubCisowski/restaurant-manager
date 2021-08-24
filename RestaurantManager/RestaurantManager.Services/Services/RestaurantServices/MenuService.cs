@@ -3,6 +3,7 @@ using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
+using RestaurantManager.Services.Commands.RestaurantCommands.Menu;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.Services.RestaurantServices.Interfaces;
@@ -24,14 +25,14 @@ namespace RestaurantManager.Services.Services.RestaurantServices
         private readonly ICacheKeyService _cacheKeyService;
 
         public MenuService(IUnitOfWork unitOfWork,
-                           ICacheService cacheService, 
+                           ICacheService cacheService,
                            ICacheKeyService cacheKeyService)
         {
             _unitOfWork = unitOfWork;
             _restaurantRepository = unitOfWork.GetRepository<Restaurant>();
             _menuRepository = unitOfWork.GetRepository<Menu>();
-            _dishRepository = unitOfWork.GetRepository<Dish>();
             _cacheService = cacheService;
+            _dishRepository = unitOfWork.GetRepository<Dish>();
             _cacheKeyService = cacheKeyService;
         }
 
@@ -86,6 +87,23 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             }, 10);
 
             return new DishesListResponse(result.ToList());
+        }
+
+
+        public async Task SetAvailableDish(SetAvailableDishCommand command)
+        {
+            var dish = await _dishRepository
+                .FindOneAsync(x => x.MenuId == command.MenuId && x.Id == command.DishId);
+
+            if (dish is null)
+            {
+                throw new NotFoundException(command.DishId, nameof(Dish));
+            }
+
+            dish.SetAvailability(command.IsAvailable);
+            _dishRepository.Update(dish);
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
