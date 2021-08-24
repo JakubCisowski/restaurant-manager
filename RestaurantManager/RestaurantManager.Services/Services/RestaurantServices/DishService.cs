@@ -84,7 +84,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task<DishDto> GetDishAsync(Guid id)
         {
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetDishAsync), id);
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishAsync), id);
             var result = await _cacheService.Get(cacheKey, async () =>
             {
                 var dish = await _dishRepository
@@ -114,7 +114,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task<IEnumerable<DishDto>> GetAllDishesAsync()
         {
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetDishAsync));
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishAsync));
             var result = await _cacheService.Get(cacheKey, async () =>
             {
                 var allDishes = _dishRepository

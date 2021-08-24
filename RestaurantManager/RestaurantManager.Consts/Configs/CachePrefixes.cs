@@ -9,5 +9,7 @@ namespace RestaurantManager.Consts.Configs
     public static class CachePrefixes
     {
         public const string RestaurantKey = "Restaurant";
+        public const string DishKey = "Dish";
+        public const string IngredientKey = "Ingredient";
     }
 }
