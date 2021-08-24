@@ -22,7 +22,8 @@ namespace RestaurantManager.Api.Controllers
         private readonly IRestaurantService _restaurantService;
         private readonly ILogger _logger;
 
-        public RestaurantController(IRestaurantService restaurantService, ILogger logger)
+        public RestaurantController(IRestaurantService restaurantService,
+                                    ILogger logger)
         {
             _restaurantService = restaurantService;
             _logger = logger;

@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RestaurantManager.Core\RestaurantManager.Core.csproj" />
     <ProjectReference Include="..\RestaurantManager.Infrastructure\RestaurantManager.Infrastructure.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Consts.Configs;
+using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
@@ -18,12 +20,18 @@ namespace RestaurantManager.Services.RestaurantServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Menu> _menuRepository;
         private readonly IGenericRepository<Restaurant> _restaurantRepository;
+        private readonly ICacheService _cacheService;
+        private readonly ICacheKeyService _cacheKeyService;
 
-        public RestaurantService(IUnitOfWork unitOfWork)
+        public RestaurantService(IUnitOfWork unitOfWork,
+                                 ICacheService cacheService,
+                                 ICacheKeyService cacheKeyService)
         {
             _unitOfWork = unitOfWork;
             _menuRepository = _unitOfWork.GetRepository<Menu>();
             _restaurantRepository = _unitOfWork.GetRepository<Restaurant>();
+            _cacheService = cacheService;
+            _cacheKeyService = cacheKeyService;
         }
 
         public async Task AddMenuAsync(Guid restaurantId)
@@ -42,12 +50,14 @@ namespace RestaurantManager.Services.RestaurantServices
             _restaurantRepository.Update(restaurant);
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
         public async Task AddRestaurantAsync(CreateRestaurantCommand restaurant)
         {
             await _restaurantRepository.AddAsync(new Restaurant(restaurant.Id, restaurant.Name, restaurant.Phone, restaurant.Address));
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
         public async Task DeleteRestaurantAsync(Guid id)
@@ -60,11 +70,15 @@ namespace RestaurantManager.Services.RestaurantServices
             }
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
         public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
         {
-            var restaurantDto = await _restaurantRepository
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetRestaurantAsync), id);
+            var result = await _cacheService.Get(cacheKey, () =>
+            {
+                var restaurantDto = _restaurantRepository
                 .FindMany(x => x.Id == id)
                 .Select(restaurant => new RestaurantDto
                 {
@@ -76,12 +90,16 @@ namespace RestaurantManager.Services.RestaurantServices
                 })
                 .FirstOrDefaultAsync();
 
-            if (restaurantDto == null)
+                return restaurantDto;
+
+            }, 10);
+
+            if (result == null)
             {
                 throw new NotFoundException(id, nameof(Restaurant));
             }
 
-            return restaurantDto;
+            return result;
         }
 
         public IEnumerable<RestaurantNamesDto> GetRestaurantNames()
@@ -98,18 +116,22 @@ namespace RestaurantManager.Services.RestaurantServices
 
         public async Task<IEnumerable<RestaurantDto>> GetRestaurantsAsync()
         {
-            var allRestaurants = _restaurantRepository
-                .GetAll()
-                .Select(x => new RestaurantDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Address = x.Address,
-                    Phone = x.Phone,
-                    MenuId = x.Menu.Id
-                });
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetRestaurantsAsync));
+            var result = await _cacheService.Get(cacheKey, () =>
+            {
+                return _restaurantRepository
+                 .GetAll()
+                 .Select(x => new RestaurantDto
+                 {
+                     Id = x.Id,
+                     Name = x.Name,
+                     Address = x.Address,
+                     Phone = x.Phone,
+                     MenuId = x.Menu.Id
+                 }).ToListAsync();
+            });
 
-            return await allRestaurants.ToListAsync();
+            return result;
         }
 
         public async Task UpdateRestaurantAsync(UpdateRestaurantCommand restaurant)
@@ -128,6 +150,8 @@ namespace RestaurantManager.Services.RestaurantServices
 
             _restaurantRepository.Update(requestedRestaurant);
             await _unitOfWork.SaveChangesAsync();
+
+            _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
     }
 }

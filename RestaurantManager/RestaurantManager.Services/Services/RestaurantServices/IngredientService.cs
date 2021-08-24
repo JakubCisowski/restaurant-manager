@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Consts.Configs;
+using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
@@ -19,18 +21,23 @@ namespace RestaurantManager.Services.RestaurantServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Dish> _dishRepository;
         private readonly IGenericRepository<Ingredient> _ingredientRepository;
+        private readonly ICacheService _cacheService;
+        private readonly ICacheKeyService _cacheKeyService;
 
-        public IngredientService(IUnitOfWork unitOfWork)
+        public IngredientService(IUnitOfWork unitOfWork, ICacheService cacheService, ICacheKeyService cacheKeyService)
         {
             _unitOfWork = unitOfWork;
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
+            _cacheService = cacheService;
+            _cacheKeyService = cacheKeyService;
         }
 
         public async Task AddIngredientAsync(CreateIngredientCommand newIngredient)
         {
             await _ingredientRepository.AddAsync(new Ingredient(newIngredient.Id, newIngredient.Name, newIngredient.Price));
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
 
         public async Task DeleteIngredientAsync(Guid id)
@@ -43,11 +50,15 @@ namespace RestaurantManager.Services.RestaurantServices
             }
 
             await _unitOfWork.SaveChangesAsync();
+            _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
 
         public async Task<IngredientDto> GetIngredientAsync(Guid id)
         {
-            var ingredientDto = await _ingredientRepository
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.IngredientKey, nameof(GetIngredientAsync), id);
+            var result = await _cacheService.Get(cacheKey, async () =>
+            {
+                var ingredientDto = await _ingredientRepository
                 .FindMany(x => x.Id == id)
                 .Select(ingredient => new IngredientDto
                 {
@@ -66,6 +77,9 @@ namespace RestaurantManager.Services.RestaurantServices
                 })
                 .FirstOrDefaultAsync();
 
+                return ingredientDto;
+            }, 10);
+
             //var ingredientDto = new IngredientDto
             //{
             //    Id = ingredient.Id,
@@ -82,12 +96,15 @@ namespace RestaurantManager.Services.RestaurantServices
 
             //};
 
-            return ingredientDto;
+            return result;
         }
 
         public async Task<IEnumerable<IngredientDto>> GetAllIngredientsAsync()
         {
-            var allIngredients = _ingredientRepository
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.IngredientKey, nameof(GetAllIngredientsAsync));
+            var result = await _cacheService.Get(cacheKey, async ()  =>
+            {
+                var allIngredients = _ingredientRepository
                 .GetAll()
                 .Select(x => new IngredientDto
                 {
@@ -105,7 +122,10 @@ namespace RestaurantManager.Services.RestaurantServices
 
                 });
 
-            return await allIngredients.ToListAsync();
+                return allIngredients;
+            }, 10); 
+
+            return result;
         }
 
         public async Task UpdateIngredientAsync(UpdateIngredientCommand ingredient)
@@ -123,6 +143,8 @@ namespace RestaurantManager.Services.RestaurantServices
 
             _ingredientRepository.Update(requestedIngredient);
             await _unitOfWork.SaveChangesAsync();
+
+            _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
     }
 }
