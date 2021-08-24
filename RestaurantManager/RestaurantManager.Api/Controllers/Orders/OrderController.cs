@@ -120,6 +120,11 @@ namespace RestaurantManager.Api.Controllers.Orders
                 _logger.Error(e.Message);
                 return NotFound(e.Message);
             }
+            catch(IncorrectOrderStatus e)
+            {
+                _logger.Error(e.Message);
+                BadRequest(e.Message);
+            }
             catch (Exception e)
             {
                 _logger.Error(e.Message);
@@ -142,6 +147,11 @@ namespace RestaurantManager.Api.Controllers.Orders
                 _logger.Error(e.Message);
                 return NotFound(e.Message);
             }
+            catch(IncorrectOrderStatus e)
+            {
+                _logger.Error(e.Message);
+                return BadRequest(e.Message);
+            }
             catch (Exception e)
             {
                 _logger.Error(e.Message);
@@ -158,6 +168,16 @@ namespace RestaurantManager.Api.Controllers.Orders
                 await _orderService.AddOrderAddress(command);
 
                 return Ok();
+            }
+            catch (OrderNotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
+            }
+            catch (IncorrectOrderStatus e)
+            {
+                _logger.Error(e.Message);
+                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -211,6 +231,11 @@ namespace RestaurantManager.Api.Controllers.Orders
             {
                 _logger.Error(e.Message);
                 return NotFound(new OrderErrorResponse(e.OrderNo, e.Phone, e.Message));
+            }
+            catch(IncorrectOrderStatus e)
+            {
+                _logger.Error(e.Message);
+                return BadRequest(e.Message);
             }
             catch (Exception e)
             {

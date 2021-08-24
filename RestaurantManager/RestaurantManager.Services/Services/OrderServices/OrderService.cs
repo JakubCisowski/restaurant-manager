@@ -73,6 +73,10 @@ namespace RestaurantManager.Services.Services.OrderServices
             {
                 throw new NotFoundException(command.DishId, nameof(Dish));
             }
+            if (order.Status != OrderStatus.New)
+            {
+                throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
+            }
 
             var dishExtraIngredients = ingredients
                 .Select(x => new DishExtraIngredient(x.Name, x.Price, command.Id))
@@ -104,6 +108,12 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task DeleteOrderItemAsync(System.Guid id)
         {
+            var order = await _orderRepository.GetByIdAsync(id);
+            if (order?.Status != OrderStatus.New)
+            {
+                throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
+            }
+
             var deletionResult = _orderItemRepository.RemoveOne(x => x.Id == id);
 
             if (deletionResult == false)
@@ -181,6 +191,10 @@ namespace RestaurantManager.Services.Services.OrderServices
             {
                 throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
             }
+            if (order.Status != OrderStatus.New)
+            {
+                throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
+            }
 
             var address = new ShippingAddress(command.Country, command.City, command.Address1, command.Address2, command.PhoneNumber, command.ZipPostalCode);
             await _addressRepository.AddAsync(address);
@@ -208,6 +222,14 @@ namespace RestaurantManager.Services.Services.OrderServices
             var order = await _orderRepository
                 .FindOneOrder(command.OrderNo, command.Phone);
 
+            if (order is null)
+            {
+                throw new OrderNotFoundException(command.Phone, command.OrderNo);
+            }
+            if (order.Status != OrderStatus.New)
+            {
+                throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
+            }
             order.SetPaymentMethod(command.PaymentType);
 
             _orderRepository.Update(order);
@@ -284,6 +306,10 @@ namespace RestaurantManager.Services.Services.OrderServices
                 order.SetStatus(OrderStatus.Paid);
                 _orderRepository.Update(order);
                 await _unitOfWork.SaveChangesAsync();
+            }
+            else
+            {
+                throw new IncorrectOrderStatus(orderNo, order.Status, OrderStatus.Confirmed);
             }
         }
     }
