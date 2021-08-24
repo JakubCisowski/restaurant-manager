@@ -119,24 +119,6 @@ namespace RestaurantManager.Api.Controllers
             }
         }
 
-        [HttpPost("CreateMenu")]
-        public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuCommand newMenu)
-        {
-            try
-            {
-                await _restaurantService.AddMenuAsync(newMenu.RestaurantId);
-                return Ok();
-            }
-            catch (NotFoundException e)
-            {
-                _logger.Error(e.Message);
-                return NotFound(e.Message);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
-            }
-        }
+      
     }
 }
