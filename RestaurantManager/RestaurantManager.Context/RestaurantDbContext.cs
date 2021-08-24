@@ -39,7 +39,7 @@ namespace RestaurantManager.Context
             modelBuilder.ApplyConfiguration(new DishExtraIngredientConfiguration());
             modelBuilder.ApplyConfiguration(new ShippingAdressConfiguration());
 
-            modelBuilder.ApplyConfiguration(new OrderNoConfiguration());
+            //modelBuilder.ApplyConfiguration(new OrderNoConfiguration());
         }
     }
 }

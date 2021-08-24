@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RestaurantManager.Entities.Orders;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantManager.SqlContext.Configuration.Orders
 {

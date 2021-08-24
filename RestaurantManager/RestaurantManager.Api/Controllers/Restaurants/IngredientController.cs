@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Api.Controllers
 {
-    [Authorize]
+    //[Authorize] for test
     [Route("api/[controller]")]
     [ApiController]
     public class IngredientController : ControllerBase

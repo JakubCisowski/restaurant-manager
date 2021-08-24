@@ -5,9 +5,20 @@ namespace RestaurantManager.Services.Commands.Orders
 {
     public class AddOrderItemCommand
     {
-        public Guid OrderId { get; set; }
+        public Guid Id { get; set; }
+        public int OrderNo { get; set; }
+        public string PhoneNumber { get; set; }
         public Guid DishId { get; set; }
+        public string DishComment { get; set; }
         public ICollection<Guid> ExtraIngredientIds { get; set; }
 
+        public AddOrderItemCommand(Guid orderItemId, int orderNo, Guid dishId, string dishComment, ICollection<Guid> extraIngredientIds)
+        {
+            Id = orderItemId;
+            OrderNo = orderNo;
+            DishId = dishId;
+            DishComment = dishComment;
+            ExtraIngredientIds = extraIngredientIds;
+        }
     }
 }

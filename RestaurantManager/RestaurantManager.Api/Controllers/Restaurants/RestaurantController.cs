@@ -46,7 +46,7 @@ namespace RestaurantManager.Api.Controllers
             catch (NotFoundException e)
             {
                 _logger.Error(e.Message);
-                return NotFound(e.Message);
+                return NotFound(e);
             }
             catch (Exception e)
             {
@@ -73,7 +73,7 @@ namespace RestaurantManager.Api.Controllers
             catch (Exception e)
             {
                 _logger.Error(e.Message);
-                Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
             }
 
             return Ok(restaurantId);

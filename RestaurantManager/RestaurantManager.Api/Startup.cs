@@ -44,10 +44,16 @@ namespace RestaurantManager.Api
             services.AddTransient<IDishService, DishService>();
             services.AddTransient<IIngredientService, IngredientService>();
             services.AddTransient<IOrderService, OrderService>();
+            services.AddTransient<ICustomerService, CustomerService>();
+            services.AddTransient<IOrderNoGeneratorService, OrderNoGeneratorService>();
+            services.AddTransient<IOrderCalculationService, OrderCalculationService>();
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<IGeneratorLockService, GeneratorLockService>();
 
             services.AddMvc().AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<Startup>());
 

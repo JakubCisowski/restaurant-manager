@@ -20,6 +20,9 @@ namespace RestaurantManager.SqlContext.Configuration.Orders
             builder.HasOne(x => x.ShippingAddress)
                 .WithOne(x => x.Order)
                 .HasForeignKey<ShippingAddress>(x => x.OrderId);
+
+            builder.Property(p => p.TotalPrice)
+                .HasPrecision(18, 2);
         }
     }
 }

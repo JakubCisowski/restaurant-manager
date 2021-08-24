@@ -3,6 +3,7 @@ using RestaurantManager.Context;
 using RestaurantManager.Entities;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -23,6 +24,11 @@ namespace RestaurantManager.Infrastructure.Repositories
         public async Task AddAsync(TEntity entity)
         {
             await _dbSet.AddAsync(entity);
+        }
+
+        public async Task AddManyAsync(IEnumerable<TEntity> entity)
+        {
+            await _dbSet.AddRangeAsync(entity);
         }
 
         public void Delete(TEntity entity)
