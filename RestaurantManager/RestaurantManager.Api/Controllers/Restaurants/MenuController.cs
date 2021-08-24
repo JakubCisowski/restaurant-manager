@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Services.Commands.Menu;
+using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.Services.RestaurantServices.Interfaces;
 using Serilog;
@@ -31,6 +32,25 @@ namespace RestaurantManager.Api.Controllers.Restaurants
             {
                 await _menuService.AddMenuAsync(newMenu.RestaurantId);
                 return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                _logger.Error(e.Message);
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+                return Problem(e.Message, "", (int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [HttpGet("GetDishes/{menuId}")]
+        public async Task<ActionResult<DishesListResponse>> GetMenuDishes(Guid menuId)
+        {
+            try
+            {
+                return await _menuService.GetDishesAsync(menuId);
             }
             catch (NotFoundException e)
             {
