@@ -93,8 +93,6 @@ namespace RestaurantManager.Api.Controllers.Orders
             return Ok(orderItemId);
         }
 
-
-
         [HttpDelete("RemoveOrderItem/{id}")]
         public async Task<IActionResult> DeleteByIdAsync(Guid id)
         {

@@ -88,7 +88,5 @@ namespace RestaurantManager.Api.Controllers
             catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
         }
-
-
     }
 }
