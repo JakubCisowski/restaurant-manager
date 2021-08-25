@@ -23,12 +23,13 @@ namespace RestaurantManager.Services.Services.OrderServices
             _dbContext = dbContext;
         }
 
-        public OrderNumber GetOldestAvailableNumberRecord()
+        public OrderNumber GetOldestAvailableNumberRecord(Guid restaurantId)
         {
             lock (LockFactory.LockObject)
             {
                 var oldestNumberRecord = _dbContext
                         .OrderNumbers
+                        .Where(x => x.RestaurantId == restaurantId)
                         .OrderByDescending(x => x.InUsageFrom)
                         .FirstOrDefault();
 
@@ -52,33 +53,28 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
         }
 
-        public int GenerateNewOrderNumberRecord()
+        public int GenerateNewOrderNumberRecord(Guid restaurantId)
         {
             lock (LockFactory.LockObject)
             {
                 var randomNo = rand.Next(0, 1000000);
                 var exitsts = _dbContext.OrderNumbers
-                    .Any(x => x.Id == randomNo);
+                    .Any(x => x.OrderNo == randomNo && x.RestaurantId == restaurantId);
 
                 if (!exitsts)
                 {
-                    CreateOrderNumberRecord(randomNo);
+                    CreateOrderNumberRecord(randomNo, restaurantId);
                     return randomNo;
                 }
                 else
                 {
-                    return GenerateNewOrderNumberRecord();
+                    return GenerateNewOrderNumberRecord(restaurantId);
                 }
             }
         }
-        private void CreateOrderNumberRecord(int randomNo)
+        private void CreateOrderNumberRecord(int randomNo, Guid restaurantId)
         {
-            _dbContext.OrderNumbers.Add(new OrderNumber()
-            {
-                Id = randomNo,
-                InUsageFrom = DateTime.Now,
-            });
-
+            _dbContext.OrderNumbers.Add(new OrderNumber(randomNo ,restaurantId));
             _dbContext.SaveChanges();
         }
 

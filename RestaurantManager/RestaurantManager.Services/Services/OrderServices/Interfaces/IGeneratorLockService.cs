@@ -9,7 +9,7 @@ namespace RestaurantManager.Services.Services.OrderServices.Interfaces
 {
     public interface IGeneratorLockService
     {
-        OrderNumber GetOldestAvailableNumberRecord();
-        int GenerateNewOrderNumberRecord();
+        OrderNumber GetOldestAvailableNumberRecord(Guid restaurantId);
+        int GenerateNewOrderNumberRecord(Guid restaurantId);
     }
 }

@@ -7,6 +7,7 @@ namespace RestaurantManager.Entities.Orders
     public class Order : Entity
     {
         public int OrderNo { get; private set; }
+        public Guid RestaurantId { get; private set; }
         public decimal TotalPrice { get; private set; }
         public OrderStatus Status { get; private set; }
         public PaymentType PaymentType { get; private set; }
@@ -55,6 +56,11 @@ namespace RestaurantManager.Entities.Orders
         public void SetStatus(OrderStatus newStatus)
         {
             Status = newStatus;
+        }
+
+        public void SetRestaurant(Guid restaurantId)
+        {
+            RestaurantId = restaurantId;
         }
     }
 }

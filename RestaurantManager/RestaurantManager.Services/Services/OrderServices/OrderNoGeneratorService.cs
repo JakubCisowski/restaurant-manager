@@ -16,16 +16,16 @@ namespace RestaurantManager.Services.Services.OrderServices
             _lockService = generatorLock;
         }
 
-        public int GenerateOrderNo()
+        public int GenerateOrderNo(Guid restaurantId)
         {
-            var oldestAvailableRecord = _lockService.GetOldestAvailableNumberRecord();
+            var oldestAvailableRecord = _lockService.GetOldestAvailableNumberRecord(restaurantId);
 
             if (oldestAvailableRecord is not null)
             {
-                return oldestAvailableRecord.Id;
+                return oldestAvailableRecord.OrderNo;
             }
 
-            return _lockService.GenerateNewOrderNumberRecord();
+            return _lockService.GenerateNewOrderNumberRecord(restaurantId);
         }
     }
 }

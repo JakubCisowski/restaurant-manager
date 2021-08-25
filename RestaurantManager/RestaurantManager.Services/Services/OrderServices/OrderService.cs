@@ -106,7 +106,8 @@ namespace RestaurantManager.Services.Services.OrderServices
         {
             var order = new Order();
             order.SetCustomer(await GetCustomer(command.Phone));
-            order.SetOrderNumber(_orderNoGeneratorService.GenerateOrderNo());
+            order.SetOrderNumber(_orderNoGeneratorService.GenerateOrderNo(command.RestaurantId));
+            order.SetRestaurant(command.RestaurantId);
 
             await _orderRepository.AddAsync(order);
             await _unitOfWork.SaveChangesAsync();
