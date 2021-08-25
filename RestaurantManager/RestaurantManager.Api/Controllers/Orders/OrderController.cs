@@ -37,6 +37,17 @@ namespace RestaurantManager.Api.Controllers.Orders
             return result;
         }
 
+        [HttpGet("RestaurantOrders")]
+        public async Task<ActionResult<OrdersListResponse>> GetRestaurantOrders([FromQuery] Guid restaurantId)
+        {
+            try
+            {
+                return await _orderService.RestaurantOrders(restaurantId);
+            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
+        }
+
         [HttpGet("CustomerOrdersByPhone")]
         public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone([FromQuery] string phone)
         {

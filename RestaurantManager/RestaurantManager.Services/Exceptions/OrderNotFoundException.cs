@@ -18,7 +18,13 @@ namespace RestaurantManager.Services.Exceptions
             OrderNo = orderNo;
         }
 
+        public OrderNotFoundException(Guid restaurantId) : this($"No orders found for declared restaurant id: {restaurantId}")
+        {
+            RestaurantId = restaurantId;
+        }
+
         public string Phone { get; }
         public int OrderNo { get; }
+        public Guid RestaurantId { get; }
     }
 }

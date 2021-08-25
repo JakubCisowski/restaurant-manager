@@ -356,5 +356,36 @@ namespace RestaurantManager.Services.Services.OrderServices
 
             return new OrdersListResponse(orderDto);
         }
+
+        public async Task<OrdersListResponse> RestaurantOrders(Guid restaurantId)
+        {
+            var orders = _orderRepository
+                .FindMany(x => x.RestaurantId == restaurantId);
+
+            if (!orders.Any())
+            {
+                throw new OrderNotFoundException(restaurantId);
+            }
+
+            var orderDto = await orders.Select(x => new OrderDto
+            {
+                Id = x.Id,
+                OrderNo = x.OrderNo,
+                TotalPrice = x.TotalPrice,
+                Status = x.Status,
+                PaymentType = x.PaymentType,
+                ShippingAddress = new ShippingAddressDto(x.ShippingAddress),
+                CustomerPhone = x.Customer.Phone,
+                OrderItems = x.OrderItems.Select(x => new OrderSimpleItemDto
+                {
+                    Id = x.Id,
+                    DishName = x.DishName,
+                    DishPrice = x.DishPrice,
+                    DishComment = x.DishComment
+                })
+            }).ToListAsync();
+
+            return new OrdersListResponse(orderDto);
+        }
     }
 }

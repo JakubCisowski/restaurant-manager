@@ -20,5 +20,6 @@ namespace RestaurantManager.Services.Services.OrderServices.Interfaces
         Task<DinnerBillDto> GetDinnerBillAsync(int orderNo, string phone);
         Task AcceptPaymentAsync(int orderNo, string phone);
         Task<OrdersListResponse> CustomerOrders(string phone);
+        Task<OrdersListResponse> RestaurantOrders(Guid restaurantId);
     }
 }
