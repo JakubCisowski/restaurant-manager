@@ -1,37 +1,32 @@
 version: "3"
 services:
+  postgres:
+    ports:
+      - "5432:5432"
+    image: postgres
+    volumes:
+        - postgres_data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_DB: "RestaurantDb"
+      POSTGRES_USER: "sa"
+      POSTGRES_PASSWORD: "Password123"
   keycloak:
     image: jboss/keycloak
     depends_on:
-      - mssql
-      - mssqlscripts
+      - postgres
     ports:
       - 8080:8080
     environment:
+      - DB_VENDOR = POSTGRES
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
-      - DB_VENDOR=mssql 
       - DB_USER=sa
       - DB_PASSWORD=Password123
-      - DB_ADDR=mssql
+      - DB_ADDR=postgres
       - DB_DATABASE=RestaurantDb
-  mssql:
-    image: mcr.microsoft.com/mssql/server
-    # container_name: restaurant_manager_sql_server
-    environment: 
-        SA_PASSWORD: "Password123"
-        ACCEPT_EULA: "Y"
-        MSSQL_PID: "Express"
-    ports: 
-        - "1433:1433"
-    volumes:
-      - mssql:/var/opt/mssql
-  mssqlscripts:
-    image: mcr.microsoft.com/mssql-tools
-    depends_on:
-      - mssql
-    command: /bin/bash -c 'until /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P "Password123!" -Q "create database RestaurantDb"; do sleep 5; done'
-
+      - DB_SCHEMA=public
+ 
 volumes:
-  mssql:
-    driver: local
+  postgres_data:
+      driver: local
