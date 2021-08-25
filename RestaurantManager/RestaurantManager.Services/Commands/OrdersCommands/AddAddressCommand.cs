@@ -9,6 +9,7 @@ namespace RestaurantManager.Services.Commands.OrdersCommands
     public class AddAddressCommand
     {
         public int OrderNo { get; set; }
+        public string CustomerPhone { get; set; }
         public string Country { get; set; }
         public string City { get; set; }
         public string Address1 { get; set; }

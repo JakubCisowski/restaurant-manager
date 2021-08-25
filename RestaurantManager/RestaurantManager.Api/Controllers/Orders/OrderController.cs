@@ -37,12 +37,23 @@ namespace RestaurantManager.Api.Controllers.Orders
             return result;
         }
 
-        [HttpGet("OrdersByPhone")]
-        public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone([FromQuery] string phone, [FromQuery] int orderNo)
+        [HttpGet("CustomerOrdersByPhone")]
+        public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone([FromQuery] string phone)
         {
             try
             {
-                return await _orderService.GetOrdersAsync(phone, orderNo);
+                return await _orderService.CustomerOrders(phone);
+            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
+        }
+
+        [HttpGet("OrderDetails")]
+        public async Task<ActionResult<OrderDetailsDto>> OrderDetails([FromQuery] string phone, [FromQuery] int orderNo)
+        {
+            try
+            {
+                return await _orderService.GetOrderDetailsAsync(phone, orderNo);
             }
             catch (OrderNotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
@@ -82,7 +93,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             try
             {
                 await _orderService.AddOrderItemAsync(
-                    new AddOrderItemCommand(orderItemId, input.OrderNo, input.DishId, input.DishComment, input.ExtraIngredientIds));
+                    new AddOrderItemCommand(orderItemId,input.PhoneNumber, input.OrderNo, input.DishId, input.DishComment, input.ExtraIngredientIds));
             }
             catch (NotFoundException e) { return ReturnException(e); }
             catch (OrderNotFoundException e) { return ReturnException(e); }

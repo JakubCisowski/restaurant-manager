@@ -12,14 +12,15 @@ namespace RestaurantManager.Entities.Orders
 
         }
 
-        public OrderItem(Guid id, int orderNo, Dish dish, string dishComment, List<DishExtraIngredient> extraIngredients)
+        public OrderItem(Guid id, Guid orderId, int orderNo, Dish dish, string dishComment, List<DishExtraIngredient> extraIngredients)
         {
             Id = id;
             OrderNo = orderNo;
             DishComment = dishComment;
             DishName = dish.Name;
             DishExtraIngredients = extraIngredients;
-            DishPrice = dish.BasePrice; // tutaj nie wiem, co oznacza ta cena, czy to jest łączna Disha z ExtraIngredientami?
+            DishPrice = dish.BasePrice;
+            OrderId = orderId;
         }
 
         public string DishName { get; private set; }

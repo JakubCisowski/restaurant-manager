@@ -6,6 +6,7 @@ using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Orders;
 using RestaurantManager.Services.Commands.OrdersCommands;
+using RestaurantManager.Services.DTOs.Ingredients;
 using RestaurantManager.Services.DTOs.OrderItems;
 using RestaurantManager.Services.DTOs.Orders;
 using RestaurantManager.Services.Exceptions;
@@ -65,7 +66,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                 .FindMany(x => command.ExtraIngredientIds.Contains(x.Id)
                           && x.Dishes.Any(x => x.Id == command.DishId));
 
-            if (ingredients.Count() != command.ExtraIngredientIds.Count)
+            if (ingredients.Count() != command.ExtraIngredientIds.Distinct().Count())
             {
                 throw new DishDoesNotContainIngredientException(command.DishId);
             }
@@ -82,17 +83,18 @@ namespace RestaurantManager.Services.Services.OrderServices
                 throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
             }
 
-            var dishExtraIngredients = await ingredients
-                .Select(x => new DishExtraIngredient(x.Name, x.Price, command.Id))
-                .ToListAsync();
+            var dishExtraIngredients = command.ExtraIngredientIds
+                .Select(x =>
+                {
+                    var ingredient = ingredients.FirstOrDefault(i => i.Id == x);
+                    return new DishExtraIngredient(ingredient.Name, ingredient.Price, command.OrderItemId);
+                }).ToList();
 
-            var orderItem = new OrderItem(command.Id, command.OrderNo, dish, command.DishComment, dishExtraIngredients);
+            var orderItem = new OrderItem(command.OrderItemId, order.Id, command.OrderNo, dish, command.DishComment, dishExtraIngredients);
             order.AddOrderItem(orderItem);
-            
-            //toDo: sprawdzić czy add ingredients potrzebne
-            await Task.WhenAll(
-                _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients),
-                _orderItemRepository.AddAsync(orderItem));
+
+            await _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients);
+            await _orderItemRepository.AddAsync(orderItem);
 
             _orderRepository.Update(order);
 
@@ -141,10 +143,9 @@ namespace RestaurantManager.Services.Services.OrderServices
                     TotalPrice = x.TotalPrice,
                     Status = x.Status,
                     PaymentType = x.PaymentType,
-                    ShippingAddress = x.ShippingAddress,
-                    CustomerId = x.CustomerId,
-                    Customer = x.Customer,
-                    OrderItems = x.OrderItems.Select(x => new OrderItemDto
+                    ShippingAddress = new ShippingAddressDto(x.ShippingAddress),
+                    CustomerPhone = x.Customer.Phone,
+                    OrderItems = x.OrderItems.Select(x => new OrderSimpleItemDto
                     {
                         Id = x.Id,
                         DishName = x.DishName,
@@ -156,7 +157,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             return await allOrders.ToListAsync();
         }
 
-        public async Task<OrdersListResponse> GetOrdersAsync(string phone, int orderNo)
+        public async Task<OrderDetailsDto> GetOrderDetailsAsync(string phone, int orderNo)
         {
             var orders = _orderRepository
                 .FindOrders(orderNo, phone);
@@ -166,43 +167,48 @@ namespace RestaurantManager.Services.Services.OrderServices
                 throw new OrderNotFoundException(phone, orderNo);
             }
 
-            var ordersDto = await orders.Select(x => new OrderDto
+            var orderDto = await orders.Select(x => new OrderDetailsDto
             {
                 Id = x.Id,
                 OrderNo = x.OrderNo,
                 TotalPrice = x.TotalPrice,
                 Status = x.Status,
                 PaymentType = x.PaymentType,
-                ShippingAddress = x.ShippingAddress,
-                CustomerId = x.CustomerId,
-                Customer = x.Customer,
+                ShippingAddress = new ShippingAddressDto(x.ShippingAddress),
+                CustomerPhone = x.Customer.Phone,
                 OrderItems = x.OrderItems.Select(x => new OrderItemDto
                 {
                     Id = x.Id,
                     DishName = x.DishName,
                     DishPrice = x.DishPrice,
-                    DishComment = x.DishComment
+                    DishComment = x.DishComment,
+                    DishExtraIngredients = x.DishExtraIngredients.Select(i => new IngredientBaseDto
+                    {
+                        Id = i.Id,
+                        Name = i.Name,
+                        Price = i.Price
+                    })
                 })
-            }).ToListAsync();
+            }).FirstOrDefaultAsync();
 
-            return new OrdersListResponse(ordersDto);
+            return orderDto;
         }
 
         public async Task AddOrderAddress(AddAddressCommand command)
         {
             var order = await _orderRepository
-                .FindOneOrder(command.OrderNo, command.PhoneNumber);
+                .FindOneOrder(command.OrderNo, command.CustomerPhone);
 
             if (order is null)
             {
-                throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
+                throw new OrderNotFoundException(command.CustomerPhone, command.OrderNo);
             }
             if (order.Status != OrderStatus.New)
             {
                 throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
             }
 
-            var address = new ShippingAddress(command.Country, command.City, command.Address1, command.Address2, command.PhoneNumber, command.ZipPostalCode);
+            var address = new ShippingAddress(command.Country, command.City, command.Address1, command.Address2, command.PhoneNumber, command.ZipPostalCode, order.Id);
             await _addressRepository.AddAsync(address);
 
             order.SetAddress(address);
@@ -308,7 +314,7 @@ namespace RestaurantManager.Services.Services.OrderServices
                 throw new OrderNotFoundException(phone, orderNo);
             }
 
-            if(order.Status < OrderStatus.Paid)
+            if (order.Status < OrderStatus.Paid)
             {
                 order.SetStatus(OrderStatus.Paid);
                 _orderRepository.Update(order);
@@ -318,6 +324,37 @@ namespace RestaurantManager.Services.Services.OrderServices
             {
                 throw new IncorrectOrderStatus(orderNo, order.Status, OrderStatus.Confirmed);
             }
+        }
+
+        public async Task<OrdersListResponse> CustomerOrders(string phone)
+        {
+            var orders = _orderRepository
+                .FindMany(x => x.Customer.Phone == phone);
+
+            if (!orders.Any())
+            {
+                throw new OrderNotFoundException(phone, 0);
+            }
+
+            var orderDto = await orders.Select(x => new OrderDto
+            {
+                Id = x.Id,
+                OrderNo = x.OrderNo,
+                TotalPrice = x.TotalPrice,
+                Status = x.Status,
+                PaymentType = x.PaymentType,
+                ShippingAddress = new ShippingAddressDto(x.ShippingAddress),
+                CustomerPhone = x.Customer.Phone,
+                OrderItems = x.OrderItems.Select(x => new OrderSimpleItemDto
+                {
+                    Id = x.Id,
+                    DishName = x.DishName,
+                    DishPrice = x.DishPrice,
+                    DishComment = x.DishComment
+                })
+            }).ToListAsync();
+
+            return new OrdersListResponse(orderDto);
         }
     }
 }

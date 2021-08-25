@@ -8,17 +8,7 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.DTOs.Orders
 {
-    public class OrdersListResponse
-    {
-        public OrdersListResponse(List<OrderDto> orderDtos)
-        {
-            Orders = orderDtos;
-        }
-
-        public IEnumerable<OrderDto> Orders { get; set; }
-    }
-
-    public class OrderDto
+    public class OrderDetailsDto
     {
         public Guid Id { get; set; }
         public int OrderNo { get; set; }
@@ -27,7 +17,6 @@ namespace RestaurantManager.Services.DTOs.Orders
         public PaymentType PaymentType { get; set; }
         public ShippingAddressDto ShippingAddress { get; set; }
         public string CustomerPhone { get; set; }
-        public IEnumerable<OrderSimpleItemDto> OrderItems { get; set; }
+        public IEnumerable<OrderItemDto> OrderItems { get; set; }
     }
-
 }

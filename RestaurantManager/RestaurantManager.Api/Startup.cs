@@ -40,7 +40,10 @@ namespace RestaurantManager.Api
         {
             services.AddControllers();
 
-            services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddPooledDbContextFactory<RestaurantDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            //services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddTransient<RestaurantDbContext>();
 
             services.AddTransient<IRestaurantService, RestaurantService>();
             services.AddTransient<IDishService, DishService>();
