@@ -258,7 +258,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
             if (order.PaymentType == Consts.Enums.PaymentType.NotSet)
             {
-                throw new PaymentTypeNotSetException("Empty payment method");
+                throw new PaymentTypeNotSetException(order.OrderNo, order.PaymentType);
             }
 
             order.SetAsConfirmed();

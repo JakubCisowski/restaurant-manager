@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestaurantManager.Consts.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +16,15 @@ namespace RestaurantManager.Services.Exceptions
         public PaymentTypeNotSetException(string message) : base(message)
         {
         }
+
+        public PaymentTypeNotSetException(int orderNo, PaymentType paymentType)
+            : this($"(Incorrect order payment type: {paymentType} for order orderNo: {orderNo}.")
+        {
+            OrderNo = orderNo;
+            PaymentType = paymentType;
+        }
+
+        public int OrderNo { get; }
+        public PaymentType PaymentType { get; }
     }
 }
