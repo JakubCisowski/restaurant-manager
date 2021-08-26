@@ -36,11 +36,16 @@ namespace RestaurantManager.Services.RestaurantServices
             _cacheKeyService = cacheKeyService;
         }
 
-        public async Task AddDishAsync(CreateDishCommand newDish)
+        public async Task AddDishAsync(CreateDishCommand command)
         {
-            var menu = await _menuRepository.GetByIdAsync(newDish.MenuId);
+            var menu = await _menuRepository.GetByIdAsync(command.MenuId);
 
-            var dish = new Dish(newDish.Id, newDish.Name, newDish.BasePrice, newDish.Description);
+            if (menu is null)
+            {
+                throw new NotFoundException(command.MenuId, nameof(Menu));
+            }
+
+            var dish = new Dish(command.Id, command.Name, command.BasePrice, command.Description);
             dish.SetMenu(menu);
 
             await _dishRepository.AddAsync(dish);

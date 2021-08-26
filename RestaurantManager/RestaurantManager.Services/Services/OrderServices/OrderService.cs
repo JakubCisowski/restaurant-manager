@@ -30,16 +30,13 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly ICustomerService _customerService;
         private readonly IOrderNoGeneratorService _orderNoGeneratorService;
         private readonly IOrderCalculationService _orderCalculationService;
-        private readonly IOrderRepository _orderRepository;
 
         public OrderService(IUnitOfWork unitOfWork,
-                            IOrderRepository orderRepository,
                             ICustomerService customerService,
                             IOrderNoGeneratorService orderNoGeneratorService,
                             IOrderCalculationService orderCalculationService)
         {
             _unitOfWork = unitOfWork;
-            _orderRepository = orderRepository;
             _orderItemRepository = _unitOfWork.GetRepository<OrderItem>();
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
@@ -53,7 +50,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
         {
-            var orderTask = _orderRepository
+            var orderTask = _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber);
 
             var dishTask = _dishRepository.GetByIdAsync(command.DishId);
@@ -96,7 +93,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             await _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients);
             await _orderItemRepository.AddAsync(orderItem);
 
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
             await _orderCalculationService.UpdateTotalPrice(order.Id);
@@ -109,7 +106,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             order.SetOrderNumber(_orderNoGeneratorService.GenerateOrderNo(command.RestaurantId));
             order.SetRestaurant(command.RestaurantId);
 
-            await _orderRepository.AddAsync(order);
+            await _unitOfWork.OrderRepository.AddAsync(order);
             await _unitOfWork.SaveChangesAsync();
 
             return order.OrderNo;
@@ -117,7 +114,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task DeleteOrderItemAsync(System.Guid id)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(id);
             if (order?.Status != OrderStatus.New)
             {
                 throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
@@ -135,7 +132,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
         {
-            var allOrders = _orderRepository
+            var allOrders = _unitOfWork.OrderRepository
                 .GetAll()
                 .Select(x => new OrderDto
                 {
@@ -160,7 +157,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task<OrderDetailsDto> GetOrderDetailsAsync(string phone, int orderNo)
         {
-            var orders = _orderRepository
+            var orders = _unitOfWork.OrderRepository
                 .FindOrders(orderNo, phone);
 
             if (!orders.Any())
@@ -197,7 +194,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderAddress(AddAddressCommand command)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.CustomerPhone);
 
             if (order is null)
@@ -213,7 +210,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             await _addressRepository.AddAsync(address);
 
             order.SetAddress(address);
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
         }
@@ -232,7 +229,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task SetPaymentMethod(SetPaymentMethodCommand command)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.Phone);
 
             if (order is null)
@@ -245,14 +242,14 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
             order.SetPaymentMethod(command.PaymentType);
 
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task ConfirmOrder(AcceptOrderCommand command)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber, x => x.OrderItems, x => x.ShippingAddress);
 
             if (!order.OrderItems.Any())
@@ -270,13 +267,13 @@ namespace RestaurantManager.Services.Services.OrderServices
 
             order.SetAsConfirmed();
 
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<DinnerBillDto> GetDinnerBillAsync(int orderNo, string phone)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                .FindMany(x => x.Customer.Phone == phone && x.OrderNo == orderNo)
                .Select(x => new DinnerBillDto
                {
@@ -306,7 +303,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AcceptPaymentAsync(int orderNo, string phone)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(orderNo, phone);
 
             if (order == null)
@@ -317,7 +314,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             if (order.Status < OrderStatus.Paid)
             {
                 order.SetStatus(OrderStatus.Paid);
-                _orderRepository.Update(order);
+                _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.SaveChangesAsync();
             }
             else
@@ -328,7 +325,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task<OrdersListResponse> CustomerOrders(string phone)
         {
-            var orders = _orderRepository
+            var orders = _unitOfWork.OrderRepository
                 .FindMany(x => x.Customer.Phone == phone);
 
             if (!orders.Any())
@@ -359,7 +356,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task<OrdersListResponse> RestaurantOrders(Guid restaurantId)
         {
-            var orders = _orderRepository
+            var orders = _unitOfWork.OrderRepository
                 .FindMany(x => x.RestaurantId == restaurantId);
 
             if (!orders.Any())

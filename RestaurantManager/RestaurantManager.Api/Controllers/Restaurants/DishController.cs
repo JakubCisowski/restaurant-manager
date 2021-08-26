@@ -55,6 +55,7 @@ namespace RestaurantManager.Api.Controllers
                 await _dishService.AddDishAsync(
                 new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
             }
+            catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
 
             return Ok(dishId);

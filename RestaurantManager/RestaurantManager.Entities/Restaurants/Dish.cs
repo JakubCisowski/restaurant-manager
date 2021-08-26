@@ -11,6 +11,7 @@ namespace RestaurantManager.Entities.Restaurants
             Name = name;
             BasePrice = basePrice;
             Description = description;
+            IsAvailable = true;
         }
 
         public string Name { get; private set; }
