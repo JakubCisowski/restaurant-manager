@@ -47,16 +47,14 @@ namespace RestaurantManager.Api.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] IngredientInput input)
         {
-            var ingredientId = Guid.NewGuid();
-
             try
             {
+                var ingredientId = Guid.NewGuid();
                 await _ingredientService.AddIngredientAsync(
                 new CreateIngredientCommand(ingredientId, input.Name, input.Price));
+                return Ok(ingredientId);
             }
             catch (Exception e) { return ReturnException(e); }
-
-            return Ok(ingredientId);
         }
 
         [HttpPut("Update")]

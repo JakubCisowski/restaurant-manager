@@ -27,8 +27,9 @@ namespace RestaurantManager.Api.Controllers.Restaurants
         {
             try
             {
-                await _menuService.AddMenuAsync(newMenu.RestaurantId);
-                return Ok();
+                var menuId = Guid.NewGuid();
+                await _menuService.AddMenuAsync(menuId, newMenu.RestaurantId);
+                return Ok(menuId);
             }
             catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }

@@ -37,7 +37,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             _cacheKeyService = cacheKeyService;
         }
 
-        public async Task AddMenuAsync(Guid restaurantId)
+        public async Task AddMenuAsync(Guid menuId, Guid restaurantId)
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
 
@@ -46,7 +46,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices
                 throw new NotFoundException(restaurantId, nameof(Restaurant));
             }
 
-            var menu = new Menu();
+            var menu = new Menu(menuId);
             await _menuRepository.AddAsync(menu);
 
             restaurant.AddMenu(menu);

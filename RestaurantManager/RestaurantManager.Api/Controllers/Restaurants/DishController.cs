@@ -48,17 +48,15 @@ namespace RestaurantManager.Api.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] DishInput input)
         {
-            var dishId = Guid.NewGuid();
-
             try
             {
+                var dishId = Guid.NewGuid();
                 await _dishService.AddDishAsync(
                 new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
+                return Ok(dishId);
             }
             catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
-
-            return Ok(dishId);
         }
 
         [HttpPut("Update")]
