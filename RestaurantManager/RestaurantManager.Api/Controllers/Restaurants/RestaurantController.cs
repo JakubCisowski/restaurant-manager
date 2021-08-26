@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Menu;
+using RestaurantManager.Services.Commands.RestaurantCommands.Restaurants;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.Restaurants;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using Serilog;
 using System;
@@ -39,7 +41,7 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                return await _restaurantService.GetRestaurantAsync(id);
+                return await _restaurantService.GetRestaurantAsync(new GetRestaurantQuery(id));
             }
             catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
@@ -81,7 +83,7 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                await _restaurantService.DeleteRestaurantAsync(id);
+                await _restaurantService.DeleteRestaurantAsync(new DeleteRestaurantCommand(id));
                 return Ok();
             }
             catch (NotFoundException e) { return ReturnException(e); }

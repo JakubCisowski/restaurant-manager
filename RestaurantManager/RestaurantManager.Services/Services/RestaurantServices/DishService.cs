@@ -9,6 +9,7 @@ using RestaurantManager.Services.Commands.RestaurantCommands.Dishes;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.DTOs.Ingredients;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.RestaurantQueries.Dishes;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -78,26 +79,26 @@ namespace RestaurantManager.Services.RestaurantServices
             _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
 
-        public async Task DeleteDishAsync(Guid id)
+        public async Task DeleteDishAsync(DeleteDishCommand command)
         {
-            var deletionResult = _dishRepository.RemoveOne(x => x.Id == id);
+            var deletionResult = _dishRepository.RemoveOne(x => x.Id == command.Id);
 
             if (deletionResult == false)
             {
-                throw new NotFoundException(id, nameof(Dish));
+                throw new NotFoundException(command.Id, nameof(Dish));
             }
 
             await _unitOfWork.SaveChangesAsync();
             _cacheService.RemoveByPrefix(CachePrefixes.DishKey);
         }
 
-        public async Task<DishDto> GetDishAsync(Guid id)
+        public async Task<DishDto> GetDishAsync(GetDishQuery query)
         {
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishAsync), id);
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishAsync), query.Id);
             var result = await _cacheService.Get(cacheKey, () =>
             {
                 var dish = _dishRepository
-                   .FindMany(x => x.Id == id)
+                   .FindMany(x => x.Id == query.Id)
                    .Select(dish => new DishDto
                    {
                        Id = dish.Id,
@@ -119,7 +120,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
             if (result is null)
             {
-                throw new NotFoundException(id, nameof(Dish));
+                throw new NotFoundException(query.Id, nameof(Dish));
             }
 
             return result;
@@ -153,19 +154,19 @@ namespace RestaurantManager.Services.RestaurantServices
             return result;
         }
 
-        public async Task UpdateDishAsync(UpdateDishCommand dish)
+        public async Task UpdateDishAsync(UpdateDishCommand command)
         {
             var requestedDish = await _dishRepository
-                .FindOneAsync(x => x.Id == dish.Id);
+                .FindOneAsync(x => x.Id == command.Id);
 
             if (requestedDish == null)
             {
-                throw new NotFoundException(dish.Id, nameof(Dish));
+                throw new NotFoundException(command.Id, nameof(Dish));
             }
 
-            requestedDish.SetName(dish.Name);
-            requestedDish.SetDescription(dish.Description);
-            requestedDish.SetBasePrice(dish.BasePrice);
+            requestedDish.SetName(command.Name);
+            requestedDish.SetDescription(command.Description);
+            requestedDish.SetBasePrice(command.BasePrice);
 
             _dishRepository.Update(requestedDish);
             await _unitOfWork.SaveChangesAsync();

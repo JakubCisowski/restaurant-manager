@@ -5,9 +5,11 @@ using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.Ingredients;
+using RestaurantManager.Services.Commands.RestaurantCommands.Ingredients;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.DTOs.Dishes;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.RestaurantQueries.Ingredients;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -33,33 +35,33 @@ namespace RestaurantManager.Services.RestaurantServices
             _cacheKeyService = cacheKeyService;
         }
 
-        public async Task AddIngredientAsync(CreateIngredientCommand newIngredient)
+        public async Task AddIngredientAsync(CreateIngredientCommand command)
         {
-            await _ingredientRepository.AddAsync(new Ingredient(newIngredient.Id, newIngredient.Name, newIngredient.Price));
+            await _ingredientRepository.AddAsync(new Ingredient(command.Id, command.Name, command.Price));
             await _unitOfWork.SaveChangesAsync();
             _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
 
-        public async Task DeleteIngredientAsync(Guid id)
+        public async Task DeleteIngredientAsync(DeleteIngredientCommand command)
         {
-            var deletionResult = _ingredientRepository.RemoveOne(x => x.Id == id);
+            var deletionResult = _ingredientRepository.RemoveOne(x => x.Id == command.Id);
 
             if (deletionResult == false)
             {
-                throw new NotFoundException(id, nameof(Ingredient));
+                throw new NotFoundException(command.Id, nameof(Ingredient));
             }
 
             await _unitOfWork.SaveChangesAsync();
             _cacheService.RemoveByPrefix(CachePrefixes.IngredientKey);
         }
 
-        public async Task<IngredientDto> GetIngredientAsync(Guid id)
+        public async Task<IngredientDto> GetIngredientAsync(GetIngredientQuery query)
         {
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.IngredientKey, nameof(GetIngredientAsync), id);
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.IngredientKey, nameof(GetIngredientAsync), query.Id);
             var result = await _cacheService.Get(cacheKey, async () =>
             {
                 var ingredientDto = await _ingredientRepository
-                .FindMany(x => x.Id == id)
+                .FindMany(x => x.Id == query.Id)
                 .Select(ingredient => new IngredientDto
                 {
                     Id = ingredient.Id,
@@ -112,18 +114,18 @@ namespace RestaurantManager.Services.RestaurantServices
             return result;
         }
 
-        public async Task UpdateIngredientAsync(UpdateIngredientCommand ingredient)
+        public async Task UpdateIngredientAsync(UpdateIngredientCommand command)
         {
             var requestedIngredient = await _ingredientRepository
-                .FindOneAsync(x => x.Id == ingredient.Id);
+                .FindOneAsync(x => x.Id == command.Id);
 
             if (requestedIngredient == null)
             {
-                throw new NotFoundException(ingredient.Id, nameof(Ingredient));
+                throw new NotFoundException(command.Id, nameof(Ingredient));
             }
 
-            requestedIngredient.SetName(ingredient.Name);
-            requestedIngredient.SetPrice(ingredient.Price);
+            requestedIngredient.SetName(command.Name);
+            requestedIngredient.SetPrice(command.Price);
 
             _ingredientRepository.Update(requestedIngredient);
             await _unitOfWork.SaveChangesAsync();

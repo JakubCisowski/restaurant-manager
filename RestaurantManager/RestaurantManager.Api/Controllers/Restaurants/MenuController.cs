@@ -8,6 +8,7 @@ using Serilog;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using RestaurantManager.Services.Queries.RestaurantQueries.Menu;
 
 namespace RestaurantManager.Api.Controllers.Restaurants
 {
@@ -23,12 +24,12 @@ namespace RestaurantManager.Api.Controllers.Restaurants
         }
 
         [HttpPost("CreateMenu")]
-        public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuCommand newMenu)
+        public async Task<IActionResult> CreateMenuAsync([FromQuery] Guid restaurantId)
         {
             try
             {
                 var menuId = Guid.NewGuid();
-                await _menuService.AddMenuAsync(menuId, newMenu.RestaurantId);
+                await _menuService.AddMenuAsync(new CreateMenuCommand(menuId, restaurantId));
                 return Ok(menuId);
             }
             catch (NotFoundException e) { return ReturnException(e); }
@@ -40,7 +41,7 @@ namespace RestaurantManager.Api.Controllers.Restaurants
         {
             try
             {
-                return await _menuService.GetDishesAsync(menuId, displayNonAvailableDishes);
+                return await _menuService.GetDishesAsync(new GetMenuDishesQuery(menuId, displayNonAvailableDishes));
             }
             catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
