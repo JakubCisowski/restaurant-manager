@@ -50,14 +50,16 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
         {
-            var orderTask = _unitOfWork.OrderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber);
 
-            var dishTask = _dishRepository.GetByIdAsync(command.DishId);
+            if (order == null)
+            {
+                throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
+            }
 
-            await Task.WhenAll(orderTask, dishTask);
-            var order = await orderTask;
-            var dish = await dishTask;
+            var dish = await _dishRepository
+                .FindOneAsync(x => x.Id == command.DishId && x.Menu.RestaurantId == order.RestaurantId);
 
             var ingredients = _ingredientRepository
                 .FindMany(x => command.ExtraIngredientIds.Contains(x.Id)
@@ -66,10 +68,6 @@ namespace RestaurantManager.Services.Services.OrderServices
             if (ingredients.Count() != command.ExtraIngredientIds.Distinct().Count())
             {
                 throw new DishDoesNotContainIngredientException(command.DishId);
-            }
-            if (order == null)
-            {
-                throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
             }
             if (dish == null)
             {
