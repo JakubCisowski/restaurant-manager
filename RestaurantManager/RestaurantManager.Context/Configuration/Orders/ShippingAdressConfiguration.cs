@@ -9,7 +9,6 @@ namespace RestaurantManager.SqlContext.Configuration.Orders
         public void Configure(EntityTypeBuilder<ShippingAddress> builder)
         {
             builder.HasKey(x => x.Id);
-
         }
     }
 }

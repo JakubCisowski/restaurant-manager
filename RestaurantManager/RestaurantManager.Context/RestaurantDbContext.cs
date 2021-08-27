@@ -13,6 +13,7 @@ namespace RestaurantManager.Context
 
         }
         public DbSet<Restaurant> Restaurants { get; set; }
+        public DbSet<RestaurantAddress> RestaurantAddresses { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
@@ -32,6 +33,7 @@ namespace RestaurantManager.Context
             modelBuilder.ApplyConfiguration(new MenuConfiguration());
             modelBuilder.ApplyConfiguration(new IngredientConfiguration());
             modelBuilder.ApplyConfiguration(new DishConfiguration());
+            modelBuilder.ApplyConfiguration(new RestaurantAddressConfiguration());
 
             modelBuilder.ApplyConfiguration(new CustomerConfiguration());
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
