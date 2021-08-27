@@ -39,7 +39,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             _cacheKeyService = cacheKeyService;
         }
 
-        public async Task AddMenuAsync(Guid newId, CreateMenuCommand command)
+        public async Task AddMenuAsync(CreateMenuCommand command)
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(command.RestaurantId);
 
@@ -49,7 +49,7 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             }
 
 
-            var menu = new Menu(newId);
+            var menu = new Menu(command.MenuId);
             await _menuRepository.AddAsync(menu);
 
             restaurant.AddMenu(menu);

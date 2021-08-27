@@ -24,12 +24,12 @@ namespace RestaurantManager.Api.Controllers.Restaurants
         }
 
         [HttpPost("CreateMenu")]
-        public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuCommand newMenu)
+        public async Task<IActionResult> CreateMenuAsync([FromBody] Guid restaurantId)
         {
             try
             {
                 var menuId = Guid.NewGuid();
-                await _menuService.AddMenuAsync(menuId, newMenu);
+                await _menuService.AddMenuAsync(new CreateMenuCommand(menuId, restaurantId));
                 return Ok(menuId);
             }
             catch (NotFoundException e) { return ReturnException(e); }
