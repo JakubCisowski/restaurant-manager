@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestaurantManager.Entities.Restaurants;
+using System;
 
 namespace RestaurantManager.Services.Commands.Restaurants
 {
@@ -7,9 +8,9 @@ namespace RestaurantManager.Services.Commands.Restaurants
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
-        public string Address { get; set; }
+        public RestaurantAddress Address { get; set; }
 
-        public CreateRestaurantCommand(Guid restaurantId, string name, string phone, string address)
+        public CreateRestaurantCommand(Guid restaurantId, string name, string phone, RestaurantAddress address)
         {
             Id = restaurantId;
             Name = name;

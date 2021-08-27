@@ -8,7 +8,7 @@ namespace RestaurantManager.Entities.Restaurants
         {
         }
 
-        public Restaurant(Guid id, string name, string phone, string address)
+        public Restaurant(Guid id, string name, string phone, RestaurantAddress address)
         {
             Id = id;
             Name = name;
@@ -27,14 +27,14 @@ namespace RestaurantManager.Entities.Restaurants
 
         }
 
-        public void SetAddress(string address)
+        public void SetAddress(RestaurantAddress address)
         {
             Address = address;
         }
 
         public string Name { get; private set; }
         public string Phone { get; private set; }
-        public string Address { get; private set; }
+        public RestaurantAddress Address { get; private set; }
 
         public virtual Menu Menu { get; private set; } = default!;
 

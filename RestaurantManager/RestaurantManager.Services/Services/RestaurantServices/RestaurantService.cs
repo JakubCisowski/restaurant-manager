@@ -7,6 +7,7 @@ using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.RestaurantCommands.Restaurants;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.DTOs.Restaurant;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.Queries.Restaurants;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
@@ -69,7 +70,7 @@ namespace RestaurantManager.Services.RestaurantServices
                 {
                     Id = restaurant.Id,
                     Name = restaurant.Name,
-                    Address = restaurant.Address,
+                    Address = new RestaurantAddressDto(restaurant.Address),
                     Phone = restaurant.Phone,
                     MenuId = restaurant.Menu.Id
                 })
@@ -110,7 +111,7 @@ namespace RestaurantManager.Services.RestaurantServices
                  {
                      Id = x.Id,
                      Name = x.Name,
-                     Address = x.Address,
+                     Address = new RestaurantAddressDto(x.Address),
                      Phone = x.Phone,
                      MenuId = x.Menu.Id
                  }).ToListAsync();
