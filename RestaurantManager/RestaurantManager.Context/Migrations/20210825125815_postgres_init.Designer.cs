@@ -10,7 +10,7 @@ using RestaurantManager.Context;
 namespace RestaurantManager.SqlContext.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20210825122131_postgres_init")]
+    [Migration("20210825125815_postgres_init")]
     partial class postgres_init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,6 +88,9 @@ namespace RestaurantManager.SqlContext.Migrations
                     b.Property<int>("PaymentType")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -133,11 +136,18 @@ namespace RestaurantManager.SqlContext.Migrations
 
             modelBuilder.Entity("RestaurantManager.Entities.Orders.OrderNumber", b =>
                 {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("InUsageFrom")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("OrderNo")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

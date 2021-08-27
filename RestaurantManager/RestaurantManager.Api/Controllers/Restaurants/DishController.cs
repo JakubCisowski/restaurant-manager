@@ -5,6 +5,7 @@ using RestaurantManager.Services.Commands.Dishes;
 using RestaurantManager.Services.Commands.RestaurantCommands.Dishes;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.RestaurantQueries.Dishes;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using Serilog;
 using System;
@@ -39,7 +40,7 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                return await _dishService.GetDishAsync(id);
+                return await _dishService.GetDishAsync(new GetDishQuery(id));
             }
             catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
@@ -48,16 +49,15 @@ namespace RestaurantManager.Api.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] DishInput input)
         {
-            var dishId = Guid.NewGuid();
-
             try
             {
+                var dishId = Guid.NewGuid();
                 await _dishService.AddDishAsync(
                 new CreateDishCommand(dishId, input.Name, input.BasePrice, input.Description, input.MenuId));
+                return Ok(dishId);
             }
+            catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
-
-            return Ok(dishId);
         }
 
         [HttpPut("Update")]
@@ -77,7 +77,7 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                await _dishService.DeleteDishAsync(id);
+                await _dishService.DeleteDishAsync(new DeleteDishCommand(id));
                 return Ok();
             }
             catch (NotFoundException e) { return ReturnException(e); }

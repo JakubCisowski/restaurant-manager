@@ -36,8 +36,10 @@ namespace RestaurantManager.SqlContext.Migrations
                 name: "OrderNumbers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false),
-                    InUsageFrom = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrderNo = table.Column<int>(type: "integer", nullable: false),
+                    InUsageFrom = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    RestaurantId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,6 +66,7 @@ namespace RestaurantManager.SqlContext.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderNo = table.Column<int>(type: "integer", nullable: false),
+                    RestaurantId = table.Column<Guid>(type: "uuid", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     PaymentType = table.Column<int>(type: "integer", nullable: false),

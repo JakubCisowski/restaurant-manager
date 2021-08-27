@@ -7,6 +7,7 @@ namespace RestaurantManager.Infrastructure.UnitOfWork
     public interface IUnitOfWork
     {
         IRestaurantRepository RestaurantRepository { get; }
+        IOrderRepository OrderRepository { get; }
 
         public IGenericRepository<T> GetRepository<T>() where T : Entity;
         Task SaveChangesAsync();

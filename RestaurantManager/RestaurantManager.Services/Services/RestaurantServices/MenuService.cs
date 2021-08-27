@@ -4,9 +4,11 @@ using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
+using RestaurantManager.Services.Commands.Menu;
 using RestaurantManager.Services.Commands.RestaurantCommands.Menu;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.RestaurantQueries.Menu;
 using RestaurantManager.Services.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -37,16 +39,17 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             _cacheKeyService = cacheKeyService;
         }
 
-        public async Task AddMenuAsync(Guid restaurantId)
+        public async Task AddMenuAsync(CreateMenuCommand command)
         {
-            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+            var restaurant = await _restaurantRepository.GetByIdAsync(command.RestaurantId);
 
             if (restaurant == null)
             {
-                throw new NotFoundException(restaurantId, nameof(Restaurant));
+                throw new NotFoundException(command.RestaurantId, nameof(Restaurant));
             }
 
-            var menu = new Menu();
+
+            var menu = new Menu(command.MenuId);
             await _menuRepository.AddAsync(menu);
 
             restaurant.AddMenu(menu);
@@ -56,18 +59,18 @@ namespace RestaurantManager.Services.Services.RestaurantServices
             _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
-        public async Task<DishesListResponse> GetDishesAsync(Guid menuId, bool displayNonAvailableDishes = false)
+        public async Task<DishesListResponse> GetDishesAsync(GetMenuDishesQuery query)
         {
-            if (!_menuRepository.FindMany(x => x.Id == menuId).Any())
+            if (!_menuRepository.FindMany(x => x.Id == query.MenuId).Any())
             {
-                throw new NotFoundException(menuId, nameof(Menu));
+                throw new NotFoundException(query.MenuId, nameof(Menu));
             }
 
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishesAsync), menuId, displayNonAvailableDishes);
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.DishKey, nameof(GetDishesAsync), query.MenuId, query.DisplayNonAvailableDishes);
             var result = await _cacheService.Get(cacheKey, () =>
             {
                 var dishesDto = _dishRepository
-                    .FindMany(x => x.MenuId == menuId && ( x.IsAvailable == !displayNonAvailableDishes || x.IsAvailable))
+                    .FindMany(x => x.MenuId == query.MenuId && ( x.IsAvailable == !query.DisplayNonAvailableDishes || x.IsAvailable))
                     .Select(dish => new DishDto
                     {
                         Id = dish.Id,

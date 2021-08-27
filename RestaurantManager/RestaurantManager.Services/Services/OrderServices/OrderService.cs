@@ -10,6 +10,7 @@ using RestaurantManager.Services.DTOs.Ingredients;
 using RestaurantManager.Services.DTOs.OrderItems;
 using RestaurantManager.Services.DTOs.Orders;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.OrdersQueries;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -30,16 +31,13 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly ICustomerService _customerService;
         private readonly IOrderNoGeneratorService _orderNoGeneratorService;
         private readonly IOrderCalculationService _orderCalculationService;
-        private readonly IOrderRepository _orderRepository;
 
         public OrderService(IUnitOfWork unitOfWork,
-                            IOrderRepository orderRepository,
                             ICustomerService customerService,
                             IOrderNoGeneratorService orderNoGeneratorService,
                             IOrderCalculationService orderCalculationService)
         {
             _unitOfWork = unitOfWork;
-            _orderRepository = orderRepository;
             _orderItemRepository = _unitOfWork.GetRepository<OrderItem>();
             _dishRepository = _unitOfWork.GetRepository<Dish>();
             _ingredientRepository = _unitOfWork.GetRepository<Ingredient>();
@@ -53,14 +51,16 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
         {
-            var orderTask = _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber);
 
-            var dishTask = _dishRepository.GetByIdAsync(command.DishId);
+            if (order == null)
+            {
+                throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
+            }
 
-            await Task.WhenAll(orderTask, dishTask);
-            var order = await orderTask;
-            var dish = await dishTask;
+            var dish = await _dishRepository
+                .FindOneAsync(x => x.Id == command.DishId && x.Menu.RestaurantId == order.RestaurantId);
 
             var ingredients = _ingredientRepository
                 .FindMany(x => command.ExtraIngredientIds.Contains(x.Id)
@@ -69,10 +69,6 @@ namespace RestaurantManager.Services.Services.OrderServices
             if (ingredients.Count() != command.ExtraIngredientIds.Distinct().Count())
             {
                 throw new DishDoesNotContainIngredientException(command.DishId);
-            }
-            if (order == null)
-            {
-                throw new OrderNotFoundException(command.PhoneNumber, command.OrderNo);
             }
             if (dish == null)
             {
@@ -96,7 +92,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             await _dishExtraIngredientRepository.AddManyAsync(dishExtraIngredients);
             await _orderItemRepository.AddAsync(orderItem);
 
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
             await _orderCalculationService.UpdateTotalPrice(order.Id);
@@ -106,27 +102,28 @@ namespace RestaurantManager.Services.Services.OrderServices
         {
             var order = new Order();
             order.SetCustomer(await GetCustomer(command.Phone));
-            order.SetOrderNumber(_orderNoGeneratorService.GenerateOrderNo());
+            order.SetOrderNumber(_orderNoGeneratorService.GenerateOrderNo(command.RestaurantId));
+            order.SetRestaurant(command.RestaurantId);
 
-            await _orderRepository.AddAsync(order);
+            await _unitOfWork.OrderRepository.AddAsync(order);
             await _unitOfWork.SaveChangesAsync();
 
             return order.OrderNo;
         }
 
-        public async Task DeleteOrderItemAsync(System.Guid id)
+        public async Task DeleteOrderItemAsync(DeleteOrderItemCommand command)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(command.Id);
             if (order?.Status != OrderStatus.New)
             {
                 throw new IncorrectOrderStatus(order.OrderNo, order.Status, OrderStatus.New);
             }
 
-            var deletionResult = _orderItemRepository.RemoveOne(x => x.Id == id);
+            var deletionResult = _orderItemRepository.RemoveOne(x => x.Id == command.Id);
 
             if (deletionResult == false)
             {
-                throw new NotFoundException(id, nameof(OrderItem));
+                throw new NotFoundException(command.Id, nameof(OrderItem));
             }
 
             await _unitOfWork.SaveChangesAsync();
@@ -134,7 +131,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
         {
-            var allOrders = _orderRepository
+            var allOrders = _unitOfWork.OrderRepository
                 .GetAll()
                 .Select(x => new OrderDto
                 {
@@ -157,14 +154,14 @@ namespace RestaurantManager.Services.Services.OrderServices
             return await allOrders.ToListAsync();
         }
 
-        public async Task<OrderDetailsDto> GetOrderDetailsAsync(string phone, int orderNo)
+        public async Task<OrderDetailsDto> GetOrderDetailsAsync(GetOrderDetailsQuery query)
         {
-            var orders = _orderRepository
-                .FindOrders(orderNo, phone);
+            var orders = _unitOfWork.OrderRepository
+                .FindOrders(query.OrderNo, query.Phone);
 
             if (!orders.Any())
             {
-                throw new OrderNotFoundException(phone, orderNo);
+                throw new OrderNotFoundException(query.Phone, query.OrderNo);
             }
 
             var orderDto = await orders.Select(x => new OrderDetailsDto
@@ -196,7 +193,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task AddOrderAddress(AddAddressCommand command)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.CustomerPhone);
 
             if (order is null)
@@ -212,7 +209,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             await _addressRepository.AddAsync(address);
 
             order.SetAddress(address);
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
         }
@@ -231,7 +228,7 @@ namespace RestaurantManager.Services.Services.OrderServices
 
         public async Task SetPaymentMethod(SetPaymentMethodCommand command)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.Phone);
 
             if (order is null)
@@ -244,14 +241,14 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
             order.SetPaymentMethod(command.PaymentType);
 
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
 
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task ConfirmOrder(AcceptOrderCommand command)
         {
-            var order = await _orderRepository
+            var order = await _unitOfWork.OrderRepository
                 .FindOneOrder(command.OrderNo, command.PhoneNumber, x => x.OrderItems, x => x.ShippingAddress);
 
             if (!order.OrderItems.Any())
@@ -269,18 +266,18 @@ namespace RestaurantManager.Services.Services.OrderServices
 
             order.SetAsConfirmed();
 
-            _orderRepository.Update(order);
+            _unitOfWork.OrderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<DinnerBillDto> GetDinnerBillAsync(int orderNo, string phone)
+        public async Task<DinnerBillDto> GetDinnerBillAsync(GetDinnerBillQuery query)
         {
-            var order = await _orderRepository
-               .FindMany(x => x.Customer.Phone == phone && x.OrderNo == orderNo)
+            var order = await _unitOfWork.OrderRepository
+               .FindMany(x => x.Customer.Phone == query.Phone && x.OrderNo == query.OrderNo)
                .Select(x => new DinnerBillDto
                {
-                   OrderNo = orderNo,
-                   Phone = phone,
+                   OrderNo = query.OrderNo,
+                   Phone = query.Phone,
                    Dishes = x.OrderItems.Select(orderItem => new DishBillDto
                    {
                        Name = orderItem.DishName,
@@ -297,42 +294,73 @@ namespace RestaurantManager.Services.Services.OrderServices
 
             if (order == null)
             {
-                throw new OrderNotFoundException(phone, orderNo);
+                throw new OrderNotFoundException(query.Phone, query.OrderNo);
             }
 
             return order;
         }
 
-        public async Task AcceptPaymentAsync(int orderNo, string phone)
+        public async Task AcceptPaymentAsync(AcceptPaymentCommand command)
         {
-            var order = await _orderRepository
-                .FindOneOrder(orderNo, phone);
+            var order = await _unitOfWork.OrderRepository
+                .FindOneOrder(command.OrderNo, command.Phone);
 
             if (order == null)
             {
-                throw new OrderNotFoundException(phone, orderNo);
+                throw new OrderNotFoundException(command.Phone, command.OrderNo);
             }
 
             if (order.Status < OrderStatus.Paid)
             {
                 order.SetStatus(OrderStatus.Paid);
-                _orderRepository.Update(order);
+                _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.SaveChangesAsync();
             }
             else
             {
-                throw new IncorrectOrderStatus(orderNo, order.Status, OrderStatus.Confirmed);
+                throw new IncorrectOrderStatus(command.OrderNo, order.Status, OrderStatus.Confirmed);
             }
         }
 
-        public async Task<OrdersListResponse> CustomerOrders(string phone)
+        public async Task<OrdersListResponse> CustomerOrders(GetCustomerOrdersQuery query)
         {
-            var orders = _orderRepository
-                .FindMany(x => x.Customer.Phone == phone);
+            var orders = _unitOfWork.OrderRepository
+                .FindMany(x => x.Customer.Phone == query.Phone);
 
             if (!orders.Any())
             {
-                throw new OrderNotFoundException(phone, 0);
+                throw new OrderNotFoundException(query.Phone, 0);
+            }
+
+            var orderDto = await orders.Select(x => new OrderDto
+            {
+                Id = x.Id,
+                OrderNo = x.OrderNo,
+                TotalPrice = x.TotalPrice,
+                Status = x.Status,
+                PaymentType = x.PaymentType,
+                ShippingAddress = new ShippingAddressDto(x.ShippingAddress),
+                CustomerPhone = x.Customer.Phone,
+                OrderItems = x.OrderItems.Select(x => new OrderSimpleItemDto
+                {
+                    Id = x.Id,
+                    DishName = x.DishName,
+                    DishPrice = x.DishPrice,
+                    DishComment = x.DishComment
+                })
+            }).ToListAsync();
+
+            return new OrdersListResponse(orderDto);
+        }
+
+        public async Task<OrdersListResponse> RestaurantOrders(GetRestaurantOrdersQuery query)
+        {
+            var orders = _unitOfWork.OrderRepository
+                .FindMany(x => x.RestaurantId == query.RestaurantId);
+
+            if (!orders.Any())
+            {
+                throw new OrderNotFoundException(query.RestaurantId);
             }
 
             var orderDto = await orders.Select(x => new OrderDto

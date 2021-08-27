@@ -9,13 +9,15 @@ namespace RestaurantManager.Infrastructure.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly RestaurantDbContext _dbContext;
-        public IRestaurantRepository RestaurantRepository { get; }
 
-        public UnitOfWork(RestaurantDbContext dbContext,
-                          IRestaurantRepository restaurantRepository)
+        public IRestaurantRepository RestaurantRepository { get; }
+        public IOrderRepository OrderRepository { get; }
+
+        public UnitOfWork(RestaurantDbContext dbContext)
         {
             _dbContext = dbContext;
-            RestaurantRepository = restaurantRepository;
+            OrderRepository = new OrderRepository(_dbContext);
+            RestaurantRepository = new RestaurantRepository(_dbContext);
         }
 
         public async Task SaveChangesAsync()

@@ -2,6 +2,6 @@
 {
     public interface IOrderNoGeneratorService
     {
-        int GenerateOrderNo();
+        int GenerateOrderNo(System.Guid restaurantId);
     }
 }

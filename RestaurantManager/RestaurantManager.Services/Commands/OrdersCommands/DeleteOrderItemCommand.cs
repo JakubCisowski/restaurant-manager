@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Services.Commands.OrdersCommands
 {
-    public class CreateOrderCommand
+    public class DeleteOrderItemCommand
     {
-        public Guid RestaurantId { get; set; }
-        public string Phone { get; set; }
+        public DeleteOrderItemCommand(Guid id)
+        {
+            Id = id;
+        }
+
+        public Guid Id { get; }
     }
 }

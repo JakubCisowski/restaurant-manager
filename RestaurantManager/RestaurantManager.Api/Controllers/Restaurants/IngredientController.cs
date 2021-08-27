@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantManager.Api.Inputs.Restaurants;
 using RestaurantManager.Services.Commands.Ingredients;
+using RestaurantManager.Services.Commands.RestaurantCommands.Ingredients;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.RestaurantQueries.Ingredients;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using Serilog;
 using System;
@@ -38,7 +40,7 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                return await _ingredientService.GetIngredientAsync(id);
+                return await _ingredientService.GetIngredientAsync(new GetIngredientQuery(id));
             }
             catch (NotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
@@ -47,16 +49,14 @@ namespace RestaurantManager.Api.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] IngredientInput input)
         {
-            var ingredientId = Guid.NewGuid();
-
             try
             {
+                var ingredientId = Guid.NewGuid();
                 await _ingredientService.AddIngredientAsync(
                 new CreateIngredientCommand(ingredientId, input.Name, input.Price));
+                return Ok(ingredientId);
             }
             catch (Exception e) { return ReturnException(e); }
-
-            return Ok(ingredientId);
         }
 
         [HttpPut("Update")]
@@ -76,7 +76,7 @@ namespace RestaurantManager.Api.Controllers
         {
             try
             {
-                await _ingredientService.DeleteIngredientAsync(id);
+                await _ingredientService.DeleteIngredientAsync(new DeleteIngredientCommand(id));
                 return Ok();
             }
             catch (NotFoundException e) { return ReturnException(e); }

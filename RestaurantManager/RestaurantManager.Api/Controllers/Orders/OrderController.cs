@@ -7,6 +7,7 @@ using RestaurantManager.Services.Commands.Orders;
 using RestaurantManager.Services.Commands.OrdersCommands;
 using RestaurantManager.Services.DTOs.Orders;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.OrdersQueries;
 using RestaurantManager.Services.Services.OrderServices.Interfaces;
 using Serilog;
 using System;
@@ -37,12 +38,23 @@ namespace RestaurantManager.Api.Controllers.Orders
             return result;
         }
 
+        [HttpGet("RestaurantOrders")]
+        public async Task<ActionResult<OrdersListResponse>> GetRestaurantOrders([FromQuery] Guid restaurantId)
+        {
+            try
+            {
+                return await _orderService.RestaurantOrders(new GetRestaurantOrdersQuery(restaurantId));
+            }
+            catch (OrderNotFoundException e) { return ReturnException(e); }
+            catch (Exception e) { return ReturnException(e); }
+        }
+
         [HttpGet("CustomerOrdersByPhone")]
         public async Task<ActionResult<OrdersListResponse>> GetOrdersByPhone([FromQuery] string phone)
         {
             try
             {
-                return await _orderService.CustomerOrders(phone);
+                return await _orderService.CustomerOrders(new GetCustomerOrdersQuery(phone));
             }
             catch (OrderNotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
@@ -53,7 +65,7 @@ namespace RestaurantManager.Api.Controllers.Orders
         {
             try
             {
-                return await _orderService.GetOrderDetailsAsync(phone, orderNo);
+                return await _orderService.GetOrderDetailsAsync(new GetOrderDetailsQuery(phone, orderNo));
             }
             catch (OrderNotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
@@ -64,7 +76,7 @@ namespace RestaurantManager.Api.Controllers.Orders
         {
             try
             {
-                return await _orderService.GetDinnerBillAsync(orderNo, phone);
+                return await _orderService.GetDinnerBillAsync(new GetDinnerBillQuery(orderNo, phone));
             }
             catch (OrderNotFoundException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
@@ -109,7 +121,7 @@ namespace RestaurantManager.Api.Controllers.Orders
         {
             try
             {
-                await _orderService.DeleteOrderItemAsync(id);
+                await _orderService.DeleteOrderItemAsync(new DeleteOrderItemCommand(id));
                 return Ok();
             }
             catch (NotFoundException e) { return ReturnException(e); }
@@ -163,7 +175,7 @@ namespace RestaurantManager.Api.Controllers.Orders
         {
             try
             {
-                await _orderService.AcceptPaymentAsync(input.OrderNo, input.Phone);
+                await _orderService.AcceptPaymentAsync(new AcceptPaymentCommand(input.OrderNo, input.Phone));
                 return Ok();
             }
             catch (OrderNotFoundException e) { return ReturnException(e); }

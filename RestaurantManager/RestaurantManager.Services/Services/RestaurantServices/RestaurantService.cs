@@ -4,9 +4,11 @@ using RestaurantManager.Core.Cache;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
+using RestaurantManager.Services.Commands.RestaurantCommands.Restaurants;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
 using RestaurantManager.Services.Exceptions;
+using RestaurantManager.Services.Queries.Restaurants;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -35,34 +37,34 @@ namespace RestaurantManager.Services.RestaurantServices
         }
 
 
-        public async Task AddRestaurantAsync(CreateRestaurantCommand restaurant)
+        public async Task AddRestaurantAsync(CreateRestaurantCommand command)
         {
-            await _restaurantRepository.AddAsync(new Restaurant(restaurant.Id, restaurant.Name, restaurant.Phone, restaurant.Address));
+            await _restaurantRepository.AddAsync(new Restaurant(command.Id, command.Name, command.Phone, command.Address));
             await _unitOfWork.SaveChangesAsync();
 
             _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
-        public async Task DeleteRestaurantAsync(Guid id)
+        public async Task DeleteRestaurantAsync(DeleteRestaurantCommand command)
         {
-            var deletionResult = _restaurantRepository.RemoveOne(x => x.Id == id);
+            var deletionResult = _restaurantRepository.RemoveOne(x => x.Id == command.Id);
 
             if (deletionResult == false)
             {
-                throw new NotFoundException(id, nameof(Restaurant));
+                throw new NotFoundException(command.Id, nameof(Restaurant));
             }
 
             await _unitOfWork.SaveChangesAsync();
             _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
         }
 
-        public async Task<RestaurantDto> GetRestaurantAsync(Guid id)
+        public async Task<RestaurantDto> GetRestaurantAsync(GetRestaurantQuery query)
         {
-            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetRestaurantAsync), id);
+            var cacheKey = _cacheKeyService.GetCacheKey(CachePrefixes.RestaurantKey, nameof(GetRestaurantAsync), query.Id);
             var result = await _cacheService.Get(cacheKey, () =>
             {
                 var restaurantDto = _restaurantRepository
-                .FindMany(x => x.Id == id)
+                .FindMany(x => x.Id == query.Id)
                 .Select(restaurant => new RestaurantDto
                 {
                     Id = restaurant.Id,
@@ -79,7 +81,7 @@ namespace RestaurantManager.Services.RestaurantServices
 
             if (result == null)
             {
-                throw new NotFoundException(id, nameof(Restaurant));
+                throw new NotFoundException(query.Id, nameof(Restaurant));
             }
 
             return result;
@@ -117,19 +119,19 @@ namespace RestaurantManager.Services.RestaurantServices
             return result;
         }
 
-        public async Task UpdateRestaurantAsync(UpdateRestaurantCommand restaurant)
+        public async Task UpdateRestaurantAsync(UpdateRestaurantCommand command)
         {
             var requestedRestaurant = await _restaurantRepository
-                .FindOneAsync(x => x.Id == restaurant.Id);
+                .FindOneAsync(x => x.Id == command.Id);
 
             if (requestedRestaurant == null)
             {
-                throw new NotFoundException(restaurant.Id, nameof(Restaurant));
+                throw new NotFoundException(command.Id, nameof(Restaurant));
             }
 
-            requestedRestaurant.SetName(restaurant.Name);
-            requestedRestaurant.SetAddress(restaurant.Address);
-            requestedRestaurant.SetPhone(restaurant.Phone);
+            requestedRestaurant.SetName(command.Name);
+            requestedRestaurant.SetAddress(command.Address);
+            requestedRestaurant.SetPhone(command.Phone);
 
             _restaurantRepository.Update(requestedRestaurant);
             await _unitOfWork.SaveChangesAsync();
