@@ -19,20 +19,23 @@ namespace RestaurantManager.Core.Integration
     {
         private readonly RestClient _client;
         private readonly IConfiguration _configuration;
+        private readonly string _apiKey;
 
         public GeocodingApi(IConfiguration iConfig)
         {
-            //config
-            string apiUrl = _configuration.GetSection("GeocodingApiConfig").GetSection("ApiUrl").Value;
+            var apiUrl = _configuration.GetSection("GeocodingApiConfig").GetSection("ApiUrl").Value;
+            _apiKey = _configuration.GetSection("GeocodingApiConfig").GetSection("ApiKey").Value;
 
-            _client = new RestClient();//api url
+            _client = new RestClient(apiUrl);
             _configuration = iConfig;
-            //client.Authenticator = new HttpBasicAuthenticator("username", "password");
-
         }
 
-        public GeocodingApiResponse GetCordinatesFromAdress(string adress)
+        public GeocodingApiResponse GetCordinatesFromAdress(string address)
         {
+            var request = new RestRequest($"?api_key={_apiKey}&query={address}", DataFormat.Json);
+            var response = _client.Get(request);
+
+            // Map IRestResponse to GeocodingApiResponse.
 
             return new GeocodingApiResponse();
         }
