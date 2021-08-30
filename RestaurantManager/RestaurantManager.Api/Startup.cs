@@ -75,6 +75,7 @@ namespace RestaurantManager.Api
             services.AddScoped<ICacheKeyService, CacheKeyService>();
 
             services.Configure<CacheConfig>(Configuration.GetSection(nameof(CacheConfig)));
+
             services.Configure<GeocodingConfig>(Configuration.GetSection(nameof(GeocodingConfig)));
 
 
