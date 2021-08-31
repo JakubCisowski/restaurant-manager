@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestaurantManager.Services.DTOs.Restaurant;
+using System;
 
 namespace RestaurantManager.Services.DTOs
 {
@@ -7,7 +8,7 @@ namespace RestaurantManager.Services.DTOs
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
-        public string Address { get; set; }
+        public RestaurantAddressDto Address { get; set; } 
         public Guid? MenuId { get; set; }
     }
 }

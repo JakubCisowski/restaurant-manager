@@ -46,5 +46,11 @@ namespace RestaurantManager.Api.Controllers
             _logger.Error(e.Message);
             return NotFound(e.Message);
         }
+
+        protected ActionResult ReturnException(ShippingDistanceException e)
+        {
+            _logger.Error(e.Message);
+            return NotFound(e.Message);
+        }
     }
 }

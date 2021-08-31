@@ -1,12 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantManager.Consts.Configs;
 using RestaurantManager.Core.Cache;
+using RestaurantManager.Core.Helpers;
+using RestaurantManager.Core.Integration;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
 using RestaurantManager.Services.Commands.RestaurantCommands.Restaurants;
 using RestaurantManager.Services.Commands.Restaurants;
 using RestaurantManager.Services.DTOs;
+using RestaurantManager.Services.DTOs.Restaurant;
 using RestaurantManager.Services.Exceptions;
 using RestaurantManager.Services.Queries.Restaurants;
 using RestaurantManager.Services.RestaurantServices.Interfaces;
@@ -24,22 +27,39 @@ namespace RestaurantManager.Services.RestaurantServices
         private readonly IGenericRepository<Restaurant> _restaurantRepository;
         private readonly ICacheService _cacheService;
         private readonly ICacheKeyService _cacheKeyService;
+        private readonly IGeocodingApiService _geocodingApiService;
 
         public RestaurantService(IUnitOfWork unitOfWork,
                                  ICacheService cacheService,
-                                 ICacheKeyService cacheKeyService)
+                                 ICacheKeyService cacheKeyService,
+                                 IGeocodingApiService geocodingApiService)
         {
             _unitOfWork = unitOfWork;
             _menuRepository = _unitOfWork.GetRepository<Menu>();
             _restaurantRepository = _unitOfWork.GetRepository<Restaurant>();
             _cacheService = cacheService;
             _cacheKeyService = cacheKeyService;
+            _geocodingApiService = geocodingApiService;
         }
 
 
         public async Task AddRestaurantAsync(CreateRestaurantCommand command)
         {
-            await _restaurantRepository.AddAsync(new Restaurant(command.Id, command.Name, command.Phone, command.Address));
+            var coordinates = await _geocodingApiService.GetCordinatesFromAdressAsync(
+                AddressHelper.GetAddressString(
+                    command.Address.City, command.Address.Address1, command.Address.Address2));
+
+            var restaurantAddress = new RestaurantAddress(command.Address.Country,
+                                                          command.Address.City,
+                                                          command.Address.Address1,
+                                                          command.Address.Address2,
+                                                          command.Address.PhoneNumber,
+                                                          command.Address.ZipPostalCode,
+                                                          command.Id);
+
+            restaurantAddress.SetLatLong(coordinates.Latitude, coordinates.Longitude);
+            
+            await _restaurantRepository.AddAsync(new Restaurant(command.Id, command.Name, command.Phone, restaurantAddress, command.MaxShippingDistanceRadius));
             await _unitOfWork.SaveChangesAsync();
 
             _cacheService.RemoveByPrefix(CachePrefixes.RestaurantKey);
@@ -69,7 +89,7 @@ namespace RestaurantManager.Services.RestaurantServices
                 {
                     Id = restaurant.Id,
                     Name = restaurant.Name,
-                    Address = restaurant.Address,
+                    Address = new RestaurantAddressDto(restaurant.Address),
                     Phone = restaurant.Phone,
                     MenuId = restaurant.Menu.Id
                 })
@@ -110,7 +130,7 @@ namespace RestaurantManager.Services.RestaurantServices
                  {
                      Id = x.Id,
                      Name = x.Name,
-                     Address = x.Address,
+                     Address = new RestaurantAddressDto(x.Address),
                      Phone = x.Phone,
                      MenuId = x.Menu.Id
                  }).ToListAsync();

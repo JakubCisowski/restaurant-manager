@@ -13,6 +13,7 @@ using RestaurantManager.Api.Configs;
 using RestaurantManager.Consts.Configs;
 using RestaurantManager.Context;
 using RestaurantManager.Core.Cache;
+using RestaurantManager.Core.Integration;
 using RestaurantManager.Infrastructure.Repositories;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
 using RestaurantManager.Infrastructure.UnitOfWork;
@@ -73,9 +74,11 @@ namespace RestaurantManager.Api
 
             services.AddScoped<ICacheService, EasyCacheService>();
             services.AddScoped<ICacheKeyService, CacheKeyService>();
+            services.AddScoped<IGeocodingApiService, GeocodingApiService>();
+            services.AddScoped<IAddressValidationService, AddressValidationService>();
 
             services.Configure<CacheConfig>(Configuration.GetSection(nameof(CacheConfig)));
-
+            services.Configure<GeocodingApiConfig>(Configuration.GetSection(nameof(GeocodingApiConfig)));
 
             var keycloakConfig = new KeycloakConfig();
             Configuration.GetSection(nameof(KeycloakConfig)).Bind(keycloakConfig);
