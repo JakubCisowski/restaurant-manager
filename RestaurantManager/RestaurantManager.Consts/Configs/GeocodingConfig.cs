@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Consts.Configs
 {
-    public class GeocodingConfig
+    public class GeocodingApiConfig
     {
-        
+        public string ApiUrl { get; set; }
+        public string ApiKey { get; set; }
     }
 }

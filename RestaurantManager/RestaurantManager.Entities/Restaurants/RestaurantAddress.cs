@@ -25,9 +25,16 @@ namespace RestaurantManager.Entities.Restaurants
         public string Address2 { get; private set; }
         public string ZipPostalCode { get; private set; }
         public string PhoneNumber { get; private set; }
+        public double Latitude { get; private set; }
+        public double Longitude { get; private set; }
 
         public Guid RestaurantId { get; private set; }
-        public  Restaurant Restaurant { get; private set; }
+        public virtual Restaurant Restaurant { get; private set; }
 
+        public void SetLatLong(double latitude, double longitude)
+        {
+            Latitude = latitude;
+            Longitude = longitude;
+        }
     }
 }

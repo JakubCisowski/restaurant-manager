@@ -6,7 +6,6 @@ namespace RestaurantManager.Entities.Orders
 {
     public class OrderNumber : Entity
     {
-
         public OrderNumber()
         {
 

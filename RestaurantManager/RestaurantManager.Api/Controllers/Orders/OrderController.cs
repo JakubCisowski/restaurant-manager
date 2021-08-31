@@ -139,6 +139,7 @@ namespace RestaurantManager.Api.Controllers.Orders
             }
             catch (OrderNotFoundException e) { return ReturnException(e); }
             catch (IncorrectOrderStatus e) { return ReturnException(e); }
+            catch (ShippingDistanceException e) { return ReturnException(e); }
             catch (Exception e) { return ReturnException(e); }
         }
 

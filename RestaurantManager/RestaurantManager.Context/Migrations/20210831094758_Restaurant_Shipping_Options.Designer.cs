@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RestaurantManager.Context;
@@ -9,9 +10,10 @@ using RestaurantManager.Context;
 namespace RestaurantManager.SqlContext.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210831094758_Restaurant_Shipping_Options")]
+    partial class Restaurant_Shipping_Options
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,7 +265,12 @@ namespace RestaurantManager.SqlContext.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("ShippingOptionsId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ShippingOptionsId");
 
                     b.ToTable("Restaurants");
                 });
@@ -318,13 +325,7 @@ namespace RestaurantManager.SqlContext.Migrations
                     b.Property<double>("MaxShippingDistanceRadius")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("RestaurantId")
-                        .IsUnique();
 
                     b.ToTable("ShippingOptions");
                 });
@@ -410,22 +411,20 @@ namespace RestaurantManager.SqlContext.Migrations
                     b.Navigation("Restaurant");
                 });
 
+            modelBuilder.Entity("RestaurantManager.Entities.Restaurants.Restaurant", b =>
+                {
+                    b.HasOne("RestaurantManager.Entities.Restaurants.ShippingOptions", "ShippingOptions")
+                        .WithMany()
+                        .HasForeignKey("ShippingOptionsId");
+
+                    b.Navigation("ShippingOptions");
+                });
+
             modelBuilder.Entity("RestaurantManager.Entities.Restaurants.RestaurantAddress", b =>
                 {
                     b.HasOne("RestaurantManager.Entities.Restaurants.Restaurant", "Restaurant")
                         .WithOne("Address")
                         .HasForeignKey("RestaurantManager.Entities.Restaurants.RestaurantAddress", "RestaurantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Restaurant");
-                });
-
-            modelBuilder.Entity("RestaurantManager.Entities.Restaurants.ShippingOptions", b =>
-                {
-                    b.HasOne("RestaurantManager.Entities.Restaurants.Restaurant", "Restaurant")
-                        .WithOne("ShippingOptions")
-                        .HasForeignKey("RestaurantManager.Entities.Restaurants.ShippingOptions", "RestaurantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -459,8 +458,6 @@ namespace RestaurantManager.SqlContext.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Menu");
-
-                    b.Navigation("ShippingOptions");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantManager.Consts.Enums;
+using RestaurantManager.Core.Integration;
 using RestaurantManager.Entities.Orders;
 using RestaurantManager.Entities.Restaurants;
 using RestaurantManager.Infrastructure.Repositories.Interfaces;
@@ -31,11 +32,13 @@ namespace RestaurantManager.Services.Services.OrderServices
         private readonly ICustomerService _customerService;
         private readonly IOrderNoGeneratorService _orderNoGeneratorService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly IAddressValidationService _addressValidationService;
 
         public OrderService(IUnitOfWork unitOfWork,
                             ICustomerService customerService,
                             IOrderNoGeneratorService orderNoGeneratorService,
-                            IOrderCalculationService orderCalculationService)
+                            IOrderCalculationService orderCalculationService,
+                            IAddressValidationService addressValidationService)
         {
             _unitOfWork = unitOfWork;
             _orderItemRepository = _unitOfWork.GetRepository<OrderItem>();
@@ -47,6 +50,7 @@ namespace RestaurantManager.Services.Services.OrderServices
             _customerService = customerService;
             _orderNoGeneratorService = orderNoGeneratorService;
             _orderCalculationService = orderCalculationService;
+            _addressValidationService = addressValidationService;
         }
 
         public async Task AddOrderItemAsync(AddOrderItemCommand command)
@@ -206,6 +210,14 @@ namespace RestaurantManager.Services.Services.OrderServices
             }
 
             var address = new ShippingAddress(command.Country, command.City, command.Address1, command.Address2, command.PhoneNumber, command.ZipPostalCode, order.Id);
+
+
+            var validationResult = await _addressValidationService.Validate(order.RestaurantId, address);
+            if (!validationResult.IsShippingAllowed)
+            {
+                throw new ShippingDistanceException(validationResult.Distance, validationResult.MaxShippingDistanceRadius);
+            }
+
             await _addressRepository.AddAsync(address);
 
             order.SetAddress(address);

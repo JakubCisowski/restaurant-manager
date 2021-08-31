@@ -6,9 +6,15 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Core.Integration.Model
 {
-    public class CordinatesResponse
+    public class CoordinatesResponse
     {
-        public string Lat { get; set; }
-        public string Long { get; set; }
+        public CoordinatesResponse(List<double> coordinates)
+        {
+            Longitude = coordinates[0];
+            Latitude = coordinates[1];
+        }
+
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }

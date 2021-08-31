@@ -11,10 +11,10 @@ namespace RestaurantManager.Entities.Orders
         public decimal TotalPrice { get; private set; }
         public OrderStatus Status { get; private set; }
         public PaymentType PaymentType { get; private set; }
-        public ShippingAddress ShippingAddress { get; private set; }
+        public virtual ShippingAddress ShippingAddress { get; private set; }
 
         public Guid CustomerId { get; private set; }
-        public Customer Customer { get; private set; }
+        public virtual Customer Customer { get; private set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; private set; } = new List<OrderItem>();
 

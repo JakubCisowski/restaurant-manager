@@ -6,8 +6,15 @@ using System.Threading.Tasks;
 
 namespace RestaurantManager.Core.Integration.Model
 {
-    public class GeocodingApiResponse
+    public class GeocodingApiResponseItem
     {
-        public List<decimal> Cordinates { get; set; }
+        public Point point { get; set; }
+        public double score { get; set; }
+    }
+
+    public class Point
+    {
+        public string type { get; set; }
+        public List<double> coordinates { get; set; }
     }
 }

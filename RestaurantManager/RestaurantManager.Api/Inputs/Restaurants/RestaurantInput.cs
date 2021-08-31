@@ -1,4 +1,5 @@
 ﻿using RestaurantManager.Entities.Restaurants;
+using RestaurantManager.Services.Commands.RestaurantCommands.Restaurants;
 
 namespace RestaurantManager.Api.Inputs.Restaurants
 {
@@ -6,6 +7,9 @@ namespace RestaurantManager.Api.Inputs.Restaurants
     {
         public string Name { get; set; }
         public string Phone { get; set; }
-        public RestaurantAddress Address { get; set; }
+        public Address Address { get; set; }
+        public double MaxShippingDistanceRadius { get; set; }
+
+
     }
 }

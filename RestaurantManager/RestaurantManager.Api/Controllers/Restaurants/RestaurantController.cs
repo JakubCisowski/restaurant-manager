@@ -60,7 +60,7 @@ namespace RestaurantManager.Api.Controllers
             {
                 var restaurantId = Guid.NewGuid();
                 await _restaurantService.AddRestaurantAsync(
-                    new CreateRestaurantCommand(restaurantId, input.Name, input.Phone, input.Address));
+                    new CreateRestaurantCommand(restaurantId, input.Name, input.Phone, input.Address, input.MaxShippingDistanceRadius));
                 return Ok(restaurantId);
             }
             catch (Exception e) { return ReturnException(e); }
